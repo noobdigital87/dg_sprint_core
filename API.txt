@@ -2,6 +2,7 @@
     API FUNCTIONS
 ]]
 
+
 -- Register a callback for when a player starts or stops sprinting.
 -- The callback receives (player, sprinting) where sprinting is true/false.
 --
