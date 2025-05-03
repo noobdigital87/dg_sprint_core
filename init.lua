@@ -6,6 +6,7 @@ local data = {}
 data.player_key_callbacks = {}
 data.player_key_data = {}
 
+
 settings.keyboard = {
     double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
     aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
