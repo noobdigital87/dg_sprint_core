@@ -1,142 +1,119 @@
-local settings = {}
-local data = {}
+--[[
+	Author: DiGiTaLNoOb
+	Description: A mod that adds sprinting functionality to Minetest with API.
+]]--
 
--- START OF KEYBOARD
-----------------------------------------------------------------------------------------
-data.player_key_callbacks = {}
-data.player_key_data = {}
-
-
-settings.keyboard = {
-    double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
-    aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
-    tap_interval = tonumber(core.settings:get("dg_sprint_core.tap_interval")) or 0.5,
+dg_sprint_core = {
+    player_data = {},
 }
 
-local function register_on_detection(callback)
-    if type(callback) == "function" then
-        table.insert(data.player_key_callbacks, callback)
-    end
+local function create_pdata(player)
+    return {
+        is_sprinting = false,
+        key_detected = false,
+        cancel_sprint = false,
+        aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
+        double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
+        particles = core.settings:get_bool("dg_sprint_core.particles", true),
+        last_tap_time = 0,
+        is_holding = false,
+        aux_pressed = false,
+        extra_jump = tonumber(core.settings:get("dg_sprint_core.jump")) or 0.1,
+        extra_speed = tonumber(core.settings:get("dg_sprint_core.speed")) or 0.8,
+		tap_interval =  tonumber(core.settings:get("dg_sprint_core.tap_interval")) or 0.5,
+    }
 end
 
-local function key_detection(player)
+core.register_on_joinplayer(function(player)
+    local name = player:get_player_name()
+    dg_sprint_core.player_data[name] = create_pdata(player)
+end)
 
-    local p_name = player:get_player_name()
-    local current_time = core.get_us_time() / 1e6
+core.register_on_leaveplayer(function(player)
+    local name = player:get_player_name()
+    dg_sprint_core.player_data[name] = nil
+end)
 
-    if not data.player_key_data[p_name] then
-        data.player_key_data[p_name] = {
-            detected = false,
-            is_holding = false,
-            aux_pressed = false,
-            last_tap_time = 0,
-        }
-    end
+local server_steps = {}
 
-    local p_data = data.player_key_data[p_name]
-    local p_control_bit = player:get_player_control_bits()
-
-    if settings.keyboard.aux1 and p_control_bit == 33 then
-        p_data.detected = true
-        p_data.is_holding = false
-        p_data.aux_pressed = true
-    elseif p_control_bit == 1 then
-        if settings.keyboard.double_tap then
-            if not p_data.is_holding then
-                if current_time - p_data.last_tap_time < settings.keyboard.tap_interval then
-                    p_data.detected = true
-                end
-
-                p_data.last_tap_time = current_time
-                p_data.is_holding = true
-            end
-
-            p_data.aux_pressed = false
-        else
-            p_data.detected = false
-            p_data.is_holding = false
-        end
-    elseif p_control_bit == 0 or p_control_bit == 32 then
-        p_data.detected = false
-        p_data.is_holding = false
-        p_data.aux_pressed = false
-    end
-
-    for _, callback in ipairs(data.player_key_callbacks) do
-        callback(player, p_data.detected, p_data.aux_pressed)
-    end
-end
-
-local function is_player(player)
-	return (
-		core.is_player(player) and
-		not player.is_fake_player
-	)
-end
-
-local timer = 0
-local tick = 0.5
-
-if settings.keyboard.double_tap then
-    tick = 0.1
+dg_sprint_core.register_server_step = function(name, interval, callback)
+    local adj_name = core.get_current_modname() .. ":" .. name
+    server_steps[adj_name] = {
+        interval = interval,
+        elapsed = 0,
+        callback = callback
+    }
 end
 
 core.register_globalstep(function(dtime)
-    timer = timer + dtime
-    if timer >= 0.1 then
-        timer = 0  -- Reset the timer
-        local players = core.get_connected_players()
-        for _, player in ipairs(players) do
-            if player and is_player(player) then
-                key_detection(player)
-            end
+    for name, tick in pairs(server_steps) do
+        tick.elapsed = tick.elapsed + dtime
+        if tick.elapsed >= tick.interval then
+            tick.callback(tick.elapsed)
+            tick.elapsed = tick.elapsed - tick.interval
         end
     end
 end)
----------------------------------------------------------------------------
--- END OF KEYBOARD
 
--- START OF SPRINTING
-----------------------------------------------------------------------------
-data.player_sprint_callbacks = {}
+dg_sprint_core.register_server_step("key_step", 0.1, function(current_time)
+    for _, player in ipairs(core.get_connected_players()) do
+        local p_name = player:get_player_name()
+        local p_data = dg_sprint_core.player_data[p_name]
+        local p_control_bit = player:get_player_control_bits()
+		local current_time_us = core.get_us_time() / 1e6
+        if not p_data then return end
+        if p_control_bit == 33 and p_data.aux1 then
+            p_data.detected = true
+            p_data.is_holding = false
+            p_data.aux_pressed = true
+        elseif p_control_bit == 1 and not p_data.double_tap then
+            p_data.detected = false
+            p_data.is_holding = false
+            p_data.aux_pressed = false
+		elseif p_control_bit == 1 and p_data.double_tap then
+			if not p_data.is_holding then
+				if current_time_us - p_data.last_tap_time < p_data.tap_interval then
+					p_data.detected = true
+				end
+				p_data.last_tap_time = current_time_us
+				p_data.is_holding = true
+	    	end
+			p_data.aux_pressed = false
+		elseif p_control_bit == 0 or p_control_bit == 32 then
+			p_data.detected = false
+			p_data.is_holding = false
+			p_data.aux_pressed = false
+        end
+    end
+end)
 
-settings.sprinting = {
-    armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def,
-    player_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
-    pova = core.get_modpath("pova") and core.global_exists("pova"),
-    extra_speed = tonumber(core.settings:get("dg_sprint_core.speed")) or 0.8,
-    extra_jump = tonumber(core.settings:get("dg_sprint_core.jump")) or 0.1,
-    particles = core.settings:get_bool("dg_sprint_core.particles", true),
-}
+local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
+local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
+local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
 
-
-local function sprint(player, sprinting)
-	for _, fun in ipairs(data.player_sprint_callbacks) do
-		local rv = fun(player, sprinting)
-		if rv == true then
-			return
-		end
-	end
-	if settings.sprinting.player_monoids then
+dg_sprint_core.sprint = function(player, sprinting)
+	 local adj_name = "dg_sprint_core" .. ":" .. "physics"
+	 local p_data = dg_sprint_core.player_data[player:get_player_name()]
+	if p_monoids then
 		if sprinting then
-			player_monoids.speed:add_change(player, 1 + settings.sprinting.extra_speed, "dg_sprint_core:physics")
-			player_monoids.jump:add_change(player, 1 + settings.sprinting.extra_jump, "dg_sprint_core:physics")
+			player_monoids.speed:add_change(player, 1 + p_data.extra_speed, adj_name)
+			player_monoids.jump:add_change(player, 1 + p_data.extra_jump, adj_name)
 		else
-			player_monoids.speed:del_change(player, "dg_sprint_core:physics")
-			player_monoids.jump:del_change(player, "dg_sprint_core:physics")
+			player_monoids.speed:del_change(player, adj_name)
+			player_monoids.jump:del_change(player, adj_name)
 		end
-	elseif settings.sprinting.pova then
+	elseif pova_mod then
 		if sprinting then
-			pova.add_override(player:get_player_name(), "dg_sprint_core:physics",
-					{speed = settings.sprinting.extra_speed, jump = settings.sprinting.sprint_jump})
+			pova.add_override(player:get_player_name(), adj_name,
+					{speed = p_data.extra_speed, jump = p_data.extra_jump})
 			pova.do_override(player)
 		else
-			pova.del_override(player:get_player_name(), "dg_sprint_core:physics")
+			pova.del_override(player:get_player_name(), adj_name)
 			pova.do_override(player)
 		end
 	else
 		local def
-		if settings.sprinting.armor_mod then
+		if armor_mod then
 			local name = player:get_player_name()
 			def = {
 				speed=armor.def[name].speed,
@@ -152,14 +129,14 @@ local function sprint(player, sprinting)
 		end
 
 		if sprinting then
-			def.speed = def.speed + settings.sprinting.extra_speed
-			def.jump = def.jump + settings.sprinting.extra_jump
+			def.speed = def.speed + p_data.extra_speed
+			def.jump = def.jump + p_data.extra_jump
 		end
 
 		player:set_physics_override(def)
 	end
 
-	if settings.sprinting.particles and sprinting then
+	if p_data.particles and sprinting then
 		local pos = player:get_pos()
 		local node = minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
 		local def = minetest.registered_nodes[node.name] or {}
@@ -186,43 +163,78 @@ local function sprint(player, sprinting)
 	end
 end
 
-local function register_on_sprinting(fun)
-	table.insert(data.player_sprint_callbacks, fun)
-end
+dg_sprint_core.register_server_step("sprint_step", 0.5, function(dtime)
+	local players = core.get_connected_players()
+	for _, player in ipairs(players) do
+		local p_name = player:get_player_name()
+		local p_data = dg_sprint_core.player_data[p_name]
+		local detected = p_data and p_data.detected
+		local can_sprint = detected and not player:get_attach() and not p_data.cancel_sprint
 
-data.player_sprint_cancelations = {}
+		if p_data.cancel_sprint then
+			p_data.cancel_sprint = false
+		end
 
-local function cancel_sprint(player_name)
-    data.player_sprint_cancelations[player_name] = true
-end
-
-register_on_detection(function(player, detected, aux)
-    local player_name = player:get_player_name()
-
-    if not data.player_sprint_cancelations[player_name] then
-        data.player_sprint_cancelations[player_name] = false
-    end
-
-    if detected and not player:get_attach() and not data.player_sprint_cancelations[player_name] then
-        sprint(player, true)
-    else
-        if data.player_sprint_cancelations[player_name] then
-            data.player_sprint_cancelations[player_name] = false
-        end
-        sprint(player, false)
-    end
+		if can_sprint then
+			dg_sprint_core.sprint(player, true)
+			p_data.is_sprinting = true
+		else
+			dg_sprint_core.sprint(player, false)
+			p_data.is_sprinting = false
+		end
+	end
 end)
 
-------------------------------------------------------------------------------------
--- END OF SPRINTING
+dg_sprint_core.cancel_sprint = function(player)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	if p_data then
+		p_data.cancel_sprint = true
+	end
+end
 
+dg_sprint_core.is_sprinting = function(player)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	return p_data and p_data.is_sprinting or false
+end
 
--- START OF API
----------------------------------------------------------------------------------------
-dg_sprint_core = {
-    settings = settings,
-    register_on_sprinting = register_on_sprinting,
-    cancel_sprint = cancel_sprint,
-}
-----------------------------------------------------------------------------------------
--- END OF API
+dg_sprint_core.set_speed = function(player, extra_speed)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	if p_data then
+		p_data.extra_speed = extra_speed
+	end
+end
+
+dg_sprint_core.set_jump = function(player, extra_jump)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	if p_data then
+		p_data.extra_jump = extra_jump
+	end
+end
+
+dg_sprint_core.set_particles = function(player, value)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	if p_data then
+		p_data.particles_enabled = value
+	end
+end
+
+dg_sprint_core.set_aux1 = function(player, value)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	if p_data then
+		p_data.aux1 = value
+	end
+end
+
+dg_sprint_core.set_double_tap = function(player, value)
+	local p_name = player:get_player_name()
+	local p_data = dg_sprint_core.player_data[p_name]
+	if p_data then
+		p_data.double_tap = value
+	end
+end
