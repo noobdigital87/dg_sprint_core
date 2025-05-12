@@ -3,9 +3,9 @@
 	Description: A mod that adds sprinting functionality to Minetest with API.
 ]]--
 
-dg_sprint_core = {
-    player_data = {},
-}
+local player_data = {}
+local mod_name = core.get_current_modname()
+dg_sprint_core = {}
 
 local function create_pdata(player)
     return {
@@ -26,18 +26,18 @@ end
 
 core.register_on_joinplayer(function(player)
     local name = player:get_player_name()
-    dg_sprint_core.player_data[name] = create_pdata(player)
+    player_data[name] = create_pdata(player)
 end)
 
 core.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
-    dg_sprint_core.player_data[name] = nil
+    player_data[name] = nil
 end)
 
 local server_steps = {}
 
-dg_sprint_core.register_server_step = function(name, interval, callback)
-    local adj_name = core.get_current_modname() .. ":" .. name
+dg_sprint_core.register_server_step = function(mod_name, name, interval, callback)
+    local adj_name = mod_name .. ":" .. name
     server_steps[adj_name] = {
         interval = interval,
         elapsed = 0,
@@ -55,10 +55,10 @@ core.register_globalstep(function(dtime)
     end
 end)
 
-dg_sprint_core.register_server_step("key_step", 0.1, function(current_time)
+dg_sprint_core.register_server_step(mod_name, "key_step", 0.1, function(current_time)
     for _, player in ipairs(core.get_connected_players()) do
         local p_name = player:get_player_name()
-        local p_data = dg_sprint_core.player_data[p_name]
+        local p_data = player_data[p_name]
         local p_control_bit = player:get_player_control_bits()
 		local current_time_us = core.get_us_time() / 1e6
         if not p_data then return end
@@ -92,8 +92,11 @@ local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") a
 local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
 
 dg_sprint_core.sprint = function(player, sprinting)
-	 local adj_name = "dg_sprint_core" .. ":" .. "physics"
-	 local p_data = dg_sprint_core.player_data[player:get_player_name()]
+	 local adj_name = "dg_sprint_core:physics"
+	 local p_data = player_data[player:get_player_name()]
+
+	 p_data.is_sprinting = sprinting
+	
 	if p_monoids then
 		if sprinting then
 			player_monoids.speed:add_change(player, 1 + p_data.extra_speed, adj_name)
@@ -138,9 +141,12 @@ dg_sprint_core.sprint = function(player, sprinting)
 
 	if p_data.particles and sprinting then
 		local pos = player:get_pos()
+
 		local node = minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
+
 		local def = minetest.registered_nodes[node.name] or {}
 		local drawtype = def.drawtype
+
 		if drawtype ~= "airlike" and drawtype ~= "liquid" and drawtype ~= "flowingliquid" then
 			minetest.add_particlespawner({
 				amount = 5,
@@ -163,12 +169,13 @@ dg_sprint_core.sprint = function(player, sprinting)
 	end
 end
 
-dg_sprint_core.register_server_step("sprint_step", 0.5, function(dtime)
+dg_sprint_core.register_server_step(mod_name, "sprint_step", 0.5, function(dtime)
 	local players = core.get_connected_players()
 	for _, player in ipairs(players) do
 		local p_name = player:get_player_name()
-		local p_data = dg_sprint_core.player_data[p_name]
+		local p_data = player_data[p_name]
 		local detected = p_data and p_data.detected
+
 		local can_sprint = detected and not player:get_attach() and not p_data.cancel_sprint
 
 		if p_data.cancel_sprint then
@@ -177,17 +184,15 @@ dg_sprint_core.register_server_step("sprint_step", 0.5, function(dtime)
 
 		if can_sprint then
 			dg_sprint_core.sprint(player, true)
-			p_data.is_sprinting = true
 		else
 			dg_sprint_core.sprint(player, false)
-			p_data.is_sprinting = false
 		end
 	end
 end)
 
 dg_sprint_core.cancel_sprint = function(player)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	if p_data then
 		p_data.cancel_sprint = true
 	end
@@ -195,13 +200,13 @@ end
 
 dg_sprint_core.is_sprinting = function(player)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	return p_data and p_data.is_sprinting or false
 end
 
 dg_sprint_core.set_speed = function(player, extra_speed)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	if p_data then
 		p_data.extra_speed = extra_speed
 	end
@@ -209,7 +214,7 @@ end
 
 dg_sprint_core.set_jump = function(player, extra_jump)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	if p_data then
 		p_data.extra_jump = extra_jump
 	end
@@ -217,7 +222,7 @@ end
 
 dg_sprint_core.set_particles = function(player, value)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	if p_data then
 		p_data.particles_enabled = value
 	end
@@ -225,7 +230,7 @@ end
 
 dg_sprint_core.set_aux1 = function(player, value)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	if p_data then
 		p_data.aux1 = value
 	end
@@ -233,7 +238,7 @@ end
 
 dg_sprint_core.set_double_tap = function(player, value)
 	local p_name = player:get_player_name()
-	local p_data = dg_sprint_core.player_data[p_name]
+	local p_data = player_data[p_name]
 	if p_data then
 		p_data.double_tap = value
 	end
