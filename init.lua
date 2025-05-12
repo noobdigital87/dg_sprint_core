@@ -11,7 +11,7 @@ local function create_pdata(player)
     return {
         is_sprinting = false,
         key_detected = false,
-        cancel_sprint = false,
+        cancel_sprint_reasons = {},  -- New table to hold cancellation reasons.
         aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
         double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
         particles = core.settings:get_bool("dg_sprint_core.particles", true),
@@ -20,7 +20,7 @@ local function create_pdata(player)
         aux_pressed = false,
         extra_jump = tonumber(core.settings:get("dg_sprint_core.jump")) or 0.1,
         extra_speed = tonumber(core.settings:get("dg_sprint_core.speed")) or 0.8,
-		tap_interval =  tonumber(core.settings:get("dg_sprint_core.tap_interval")) or 0.5,
+        tap_interval = tonumber(core.settings:get("dg_sprint_core.tap_interval")) or 0.5,
     }
 end
 
@@ -170,32 +170,41 @@ dg_sprint_core.sprint = function(player, sprinting)
 end
 
 dg_sprint_core.register_server_step(mod_name, "sprint_step", 0.5, function(dtime)
-	local players = core.get_connected_players()
-	for _, player in ipairs(players) do
-		local p_name = player:get_player_name()
-		local p_data = player_data[p_name]
-		local detected = p_data and p_data.detected
+    for _, player in ipairs(core.get_connected_players()) do
+        local p_name = player:get_player_name()
+        local p_data = player_data[p_name]
+        local detected = p_data and p_data.detected
 
-		local can_sprint = detected and not player:get_attach() and not p_data.cancel_sprint
+        -- Check if any cancellation reason is active.
+        local cancel_active = false
+        if p_data.cancel_sprint_reasons then
+            for reason, _ in pairs(p_data.cancel_sprint_reasons) do
+                cancel_active = true
+                break
+            end
+        end
 
-		if p_data.cancel_sprint then
-			p_data.cancel_sprint = false
-		end
+        local can_sprint = detected and not player:get_attach() and not cancel_active
 
-		if can_sprint then
-			dg_sprint_core.sprint(player, true)
-		else
-			dg_sprint_core.sprint(player, false)
-		end
-	end
+        if can_sprint then
+            dg_sprint_core.sprint(player, true)
+        else
+            dg_sprint_core.sprint(player, false)
+        end
+    end
 end)
 
-dg_sprint_core.cancel_sprint = function(player)
-	local p_name = player:get_player_name()
-	local p_data = player_data[p_name]
-	if p_data then
-		p_data.cancel_sprint = true
-	end
+dg_sprint_core.cancel_sprint = function(player, cancel, reason)
+    local p_name = player:get_player_name()
+    local p_data = player_data[p_name]
+    if p_data then
+        p_data.cancel_sprint_reasons = p_data.cancel_sprint_reasons or {}
+        if cancel then
+            p_data.cancel_sprint_reasons[reason] = true
+        else
+            p_data.cancel_sprint_reasons[reason] = nil
+        end
+    end
 end
 
 dg_sprint_core.is_sprinting = function(player)
