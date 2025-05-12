@@ -4,6 +4,7 @@
 ]]--
 
 local player_data = {}
+local server_tick = tonumber(core.settings:get("dg_sprint_core.tick")) or 0.5
 local mod_name = core.get_current_modname()
 dg_sprint_core = {}
 
@@ -15,6 +16,7 @@ local function create_pdata(player)
         aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
         double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
         particles = core.settings:get_bool("dg_sprint_core.particles", true),
+        enable_ssprint = core.settings:get_bool("dg_sprint_core.supersprint", true),
         last_tap_time = 0,
         is_holding = false,
         aux_pressed = false,
@@ -90,7 +92,7 @@ dg_sprint_core.register_server_step(mod_name, "key_step", 0.1, function(current_
 
         -- NEW: Check for left and right keys together to toggle super sprint.
         local controls = player:get_player_control()
-        if controls.left and controls.right then
+        if p_data.enable_ssprint and (controls.left and controls.right) then
             if not p_data.super_toggle_press then
                 p_data.super_sprint = not p_data.super_sprint
                 p_data.super_toggle_press = true
@@ -189,7 +191,7 @@ dg_sprint_core.sprint = function(player, sprinting)
     end
 end
 
-dg_sprint_core.register_server_step(mod_name, "sprint_step", 0.5, function(dtime)
+dg_sprint_core.register_server_step(mod_name, "sprint_step", server_tick, function(dtime)
     for _, player in ipairs(core.get_connected_players()) do
         local p_name = player:get_player_name()
         local p_data = player_data[p_name]
