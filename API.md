@@ -22,7 +22,7 @@ end)
 
 ```
 
-## Check if a key is Detected
+# Check if a key is Detected
 
 dg_sprint_core.is_key_detected(`player`)
 ### Parameters:
