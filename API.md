@@ -1,146 +1,255 @@
-# API Guide
+## Register a server Step
 
-The mod enhances player movement in Minetest by adding sprinting capabilities along with advanced features such as double-tap activation, super sprint mode, and particle effects. This guide explains each global API function available in the mod and shows you how to use them in your own code.
+dg_sprint_core.register_server_step(`name`, `interval`, `callback`)
 
-## Overview
+### Parameters:
+  - `name`: A unique identifier for the server step.
+  - `interval`: The time interval (in seconds) at which the callback should be executed.
+  - `callback`: The function to be called periodically. It takes two parameters:
+    - `player`: The player object.
+    - `dtime`: The amount of time that has passed since the last global step.
 
-The sprint mod introduces a set of global API functions under the `dg_sprint_core` namespace. These functions allow you to:
+### Description:
+  Registers a custom server step with the specified interval and callback function. This allows for periodic execution of code related to players, such as sprinting mechanics.
 
-- **Enable/disable sprinting** for players.
-- **Adjust player attributes** like extra speed and jump height during sprint.
-- **Control visual effects** such as particles when sprinting.
-- **Toggle auxiliary and double-tap sprinting features.**
-- **Register custom server steps** for periodic conditions affecting sprinting.
+### Example Usage:
 
-By using these functions, you can easily modify how sprinting behaves in your game to fit your design and gameplay requirements.
+```lua
+-- Register a server step named "sprint_check" that runs every 0.5 seconds.
+dg_sprint_core.register_server_step("sprint_check", 0.5, function(player, dtime)
+    -- Your code here to handle sprinting mechanics for the player.
+end)
 
-## Global API Functions
+```
 
-### 1. `dg_sprint_core.sprint(player, sprinting)`
+## Check if a key is Detected
 
-- **Usage:** Enable or disable sprint mode for the specified player.
-- **Parameters:**
-	- `player`: The player object.
-	- `sprinting`: Boolean (`true` to enable sprint, `false` to disable sprint).
-- **Description:**
-  This function applies the sprint bonus—adding extra speed and jump—to the player. It supports multiple mods (e.g., `player_monoids` and `pova`), and if none are available, it falls back to directly using physics overrides. If particle effects are enabled, particles are also generated during sprint.
-
----
-
-### 2. `dg_sprint_core.cancel_sprint(player, cancel, reason)`
-
-- **Usage:** Mark or remove a cancellation reason for sprinting.
-- **Parameters:**
-	- `player`: The player object.
-	- `cancel`: Boolean (`true` to add a cancellation reason; `false` to remove it).
-	- `reason`: A string identifier for the reason (e.g., `"attached"`, `"in_air"`).
-- **Description:**
-  Some situations require that sprinting be disabled temporarily. By using this function, you can add or remove reasons that cancel sprinting, ensuring the player's sprint state is only active when allowed.
-
----
-
-### 3. `dg_sprint_core.is_sprinting(player)`
-
-- **Usage:** Check if the player is currently sprinting.
-- **Parameters:**
+dg_sprint_core.is_key_detected(`player`)
+### Parameters:
   - `player`: The player object.
-- **Returns:**
-  A boolean value (`true` if sprinting, `false` if not).
-- **Description:**
-  This function is useful when you need to perform logic based on whether a player is sprinting (for example, toggling effects or behaviors).
 
----
+### Returns:
+  A boolean indicating whether the key associated with sprinting has been detected for the given player.
 
-### 4. `dg_sprint_core.set_speed(player, extra_speed)`
+### Description:
+  This function checks if the sprinting key (or combination of keys) is currently being pressed by the player. It can be used to determine if the player should enter or exit a sprinting state.
 
-- **Usage:** Adjust the extra speed bonus applied during sprinting.
-- **Parameters:**
+### Example Usage:
+```lua
+-- Check if the sprinting key is detected for a specific player.
+local is_detected = dg_sprint_core.is_key_detected(player)
+if is_detected then
+    -- Perform actions when the sprinting key is detected.
+end
+```
+
+## Check if super sprint is active
+
+dg_sprint_core.is_super_sprint_active(`player`)
+### Parameters:
   - `player`: The player object.
-  - `extra_speed`: A numeric value that increases the player's speed when sprinting.
-- **Description:**
-  Use this function to change the sprint speed bonus dynamically. It lets you tailor sprint behavior or even alter it in response to game events.
 
----
+### Returns:
+  A boolean indicating whether the super sprint mode is currently active for the given player.
 
-### 5. `dg_sprint_core.set_jump(player, extra_jump)`
+### Description:
+  This function checks if the player has activated the super sprint mode. It can be used to modify player movement or apply special effects when super sprinting is enabled.
+### Example Usage:
 
-- **Usage:** Adjust the extra jump bonus applied during sprinting.
-- **Parameters:**
+```lua
+-- Check if super sprint is active for a specific player.
+local is_super_sprint_active = dg_sprint_core.is_super_sprint_active(player)
+if is_super_sprint_active then
+    -- Apply super sprint effects or modify movement speed.
+end
+```
+
+## Enable or disable aux1 key
+
+dg_sprint_core.enable_aux1(`player`, `enable`)
+### Parameters:
   - `player`: The player object.
-  - `extra_jump`: A numeric value that increases the player's jump height when sprinting.
-- **Description:**
-  Increase or decrease the jump enhancement provided during sprint, which can help balance gameplay.
+  - `enable`: A boolean indicating whether to enable (`true`) or disable (`false`) the aux1 key.
 
----
+### Description:
+  This function allows you to toggle the use of the aux1 key for a specific player. When enabled, pressing the aux1 key will trigger additional actions defined in your mod.
 
-### 6. `dg_sprint_core.set_particles(player, value)`
 
-- **Usage:** Enable or disable sprint particle effects.
-- **Parameters:**
+### Example Usage:
+```lua
+-- Enable the aux1 key for a specific player.
+dg_sprint_core.enable_aux1(player, true)
+
+-- Disable the aux1 key for a specific player.
+dg_sprint_core.enable_aux1(player, false)
+```
+
+## Enable or disable ssprint
+
+dg_sprint_core.enable_ssprint(`player`, `enable`)
+### Parameters:
   - `player`: The player object.
-  - `value`: Boolean (`true` to enable particles, `false` to disable).
-- **Description:**
-  Particle effects can be used to visually indicate that sprinting is active. You can control this on a per-player basis.
+  - `enable`: A boolean indicating whether to enable (`true`) or disable (`false`) the ssprint.
 
----
+### Description:
+  This function allows you to toggle ssprint for a specific player.
 
-### 7. `dg_sprint_core.set_aux1(player, value)`
+### Example Usage:
+```lua
+-- Enable ssprint for a specific player.
+dg_sprint_core.enable_ssprint(player, true)
 
-- **Usage:** Enable or disable sprint activation via the auxiliary key.
-- **Parameters:**
+-- Disable ssprint for a specific player.
+dg_sprint_core.enable_ssprint(player, false)
+```
+
+## Enable or disable double tap
+
+dg_sprint_core.enable_double_tap(`player`, `enable`)
+### Parameters:
   - `player`: The player object.
-  - `value`: Boolean (`true` to enable, `false` to disable).
-- **Description:**
-  This function controls whether players can use the auxiliary key (often used as an alternative sprint activation method).
+  - `enable`: A boolean indicating whether to enable (`true`) or disable (`false`) the double tap.
 
----
+### Description:
+  This function allows you to toggle the double tap for a specific player.
 
-### 8. `dg_sprint_core.set_double_tap(player, value)`
+### Example Usage:
+```lua
+-- Enable double tap for a specific player.
+dg_sprint_core.enable_double_tap(player, true)
 
-- **Usage:** Enable or disable double-tap to sprint.
-- **Parameters:**
+-- Disable double tap for a specific player.
+dg_sprint_core.enable_double_tap(player, false)
+```
+
+## Set the tap interval
+
+dg_sprint_core.set_tap_interval(`player`, `interval`)
+### Parameters:
   - `player`: The player object.
-  - `value`: Boolean (`true` to enable, `false` to disable).
-- **Description:**
-  Double-tapping a movement key can trigger sprinting. Use this function to toggle that behavior.
+  - `interval`: The new tap interval (in seconds).
 
----
+### Description:
+  Sets the tap interval for a specific player. This interval determines the minimum time between valid taps for sprint activation.
 
-### 9. `dg_sprint_core.is_supersprinting(player)`
+### Example Usage:
 
-- **Usage:** Check if the player is in super sprint mode.
-- **Parameters:**
-  - `player`: The player object.
-- **Returns:**
-  A boolean indicating super sprint status.
-- **Description:**
-  Super sprint gives an extra multiplier to the sprint speed. This function lets you query whether that mode is active.
+```lua
+-- Set the tap interval for a specific player to 0.3 seconds.
+dg_sprint_core.set_tap_interval(player, 0.3)
 
----
+```
 
-### 10. `dg_sprint_core.register_server_step(mod_name, name, interval, callback)`
+## Check if a player is sprinting
 
-- **Usage:** Register a new server step (a periodic function call) for customized logic.
-- **Parameters:**
-  - `mod_name`: The name of your mod.
-  - `name`: A unique identifier for your server step.
-  - `interval`: The interval (in seconds) at which the callback should run.
-  - `callback`: A function that receives the elapsed time as its argument.
-- **Description:**
-  This function allows you to implement custom conditions that affect sprinting or any other behavior. For example, you can automatically cancel sprint if a player is attached to another object or if certain game conditions are met.
+dg_sprint_core.is_sprinting(`player`)
 
----
+### Parameters:
+- `player`: The player object.
 
-## Final Thoughts
+### Returns:
+- A boolean indicating whether the player is currently sprinting.
 
-This guide has shown you how to integrate the sprint mod’s API into your own modifications. By using these functions, you can:
+### Description:
+This function checks whether the player is currently in a sprinting state. It uses internal player data to determine the sprinting status and can be useful for conditionally applying movement modifiers or visual effects based on the player's current action.
 
-- Fine-tune the sprinting mechanics (speed, jump, visual effects).
-- Control when sprinting should or should not occur using cancellation reasons.
-- Leverage custom server steps for periodic checks and additional game logic.
+### Example Usage:
+```lua
+-- Check if the player is sprinting.
+local is_sprinting = dg_sprint_core.is_sprinting(player)
+if is_sprinting then
+    -- Apply sprinting effects or modify movement speed.
+end
+```
 
-Experiment with these settings to craft engaging movement experiences for your players. You might also consider adding further enhancements, such as integrating with other mods or creating entirely new movement mechanics.
 
-Happy modding!
+## Set Sprint State
 
----
+dg_sprint_core.sprint(`player`, sprinting)
+
+### Parameters:
+- `player`: The player object.
+- `sprinting`: A boolean indicating whether the player should be set to sprinting (`true`) or not sprinting (`false`).
+
+### Description:
+This function sets the sprinting state of a player. It modifies the player's physics properties such as speed and jump height based on the sprinting status. If the player is already in the desired sprinting state, this function has no effect.
+
+
+## Cancel sprint
+
+dg_sprint_core.cancel_sprint(`player`, cancel, reason)
+
+### Parameters:
+- `player`: The player object.
+- `cancel`: A boolean indicating whether to cancel the sprint (`true`) or not (`false`).
+- `reason`: A string describing the reason for cancelling the sprint.
+
+### Description:
+This function manages the cancellation of a sprint. It records the reasons why a sprint was cancelled and can be used to track multiple cancellation reasons simultaneously. If the player is already in the desired state (either sprinting or not), this function has no effect.
+
+## Example Usage
+
+```lua
+local player = minetest.get_player_by_name("example_player")
+if player then
+    dg_sprint_core.set_sprinting(player, true)  -- Start sprinting
+    minetest.after(10, function()
+       dg_sprint_core.cancel_sprint(player, true, "timeout")  -- Cancel sprint after 10 seconds
+    end)
+end
+```
+
+## Set extra speed
+
+dg_sprint_core.set_speed(`player`, `extra_speed`)
+
+### Parameters:
+- `player`: The player object.
+- `extra_speed`: A number representing the additional speed to be applied during sprinting.
+
+### Description:
+This function sets an additional speed multiplier for a player when they are sprinting. This can be used to enhance the sprinting experience by making it faster.
+
+### Example:
+
+```lua
+local player = minetest.get_player_by_name("example_player")
+if player then
+   dg_sprint_core.set_speed(player, 1.5)  -- Set extra speed multiplier to 1.5x
+end
+```
+
+## Set extra jump height
+
+dg_sprint_core.set_jump(`player`, `extra_jump`)
+
+### Parameters:
+- `player`: The player object.
+- `extra_jump`: A number representing the additional jump height to be applied during sprinting.
+
+### Description:
+This function sets an additional jump height multiplier for a player when they are sprinting. This can be used to enhance the sprinting experience by making jumps higher.
+### Example:
+```lua
+local player = minetest.get_player_by_name("example_player")
+if player then
+  dg_sprint_core.set_jump(player, 1.2)  -- Set extra jump height multiplier to 1.2x
+end
+```
+## Enable or disable sprint particles
+
+dg_sprint_core.enable_particles(`player`, `enable`)
+
+### Parameters:
+- `player`: The player object.
+- `enable`: A boolean value (`true` or `false`) indicating whether to enable or disable sprint particles.
+
+### Description:
+This function enables or disables the visual particles that appear when a player is sprinting. This can be used to customize the appearance of the sprinting effect in the game.
+### Example:
+```lua 
+local player = minetest.get_player_by_name("example_player")
+if player then
+  dg_sprint_core.enable_particles(player, true)  -- Enable sprint particles
+end
+```
