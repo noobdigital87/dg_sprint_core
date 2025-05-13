@@ -1,0 +1,14 @@
+dg_sprint_core.double_tap      (Double Tap)        bool true
+dg_sprint_core.aux1            (Aux1)              bool true
+dg_sprint_core.supersprint     (Super Sprint)      bool true
+dg_sprint_core.particles       (Particles)         bool true
+dg_sprint_core.tap_interval    (Tap interval)      float 0.5 0.1 2.0
+dg_sprint_core.speed           (Speed boost)       float 0.8 0.0 2.0
+dg_sprint_core.jump            (Jump boost)        float 0.1 0.0 1.0
+dg_sprint_core.tick            (Server tick)       float 0.5 0.1 1.0
+dg_sprint_core.liquid          (Cancel sprint in liquids) bool false
+dg_sprint_core.snowy           (Cancel sprint on snow) bool false
+dg_sprint_core.hp              (Cancel sprint when HP is low) bool false
+dg_sprint_core.hp_threshold    (HP threshold)      float 6.0 1.0 20.0
+dg_sprint_core.climbable       (Cancel sprint on climbable nodes) bool false
+dg_sprint_core.wall            (Cancel sprint running against walls) bool false
