@@ -343,3 +343,5 @@ dg_sprint_core.is_supersprinting = function(player)
     local p_data = player_data[p_name]
     return p_data and p_data.super_sprint or false
 end
+
+dofile(core.get_modpath(mod_name) .. "/prevent_sprint.lua")
