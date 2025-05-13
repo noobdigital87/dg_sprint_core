@@ -106,7 +106,7 @@ dg_sprint_core.register_server_step(mod_name ..  "climbable_cancel", climbable_t
     end
 end)
 
--- Climbable cancelation
+-- Wall cancelation
 local wall_tick = 0.1
 
 local on_wall = function(player)
