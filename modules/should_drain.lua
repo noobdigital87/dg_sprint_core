@@ -28,7 +28,7 @@ local prevent_drain = function(player, enabled, reason)
     end
 end
 
-dg_sprint_core.register_server_step(mod_name .. "move_drain", 0.5, function(player, dtime)
+dg_sprint_core.register_server_step(mod_name .. ":move_drain", 0.5, function(player, dtime)
     local p_pos = player:get_pos()
 
     local controls = player:get_player_control()
@@ -49,7 +49,7 @@ dg_sprint_core.register_server_step(mod_name .. "move_drain", 0.5, function(play
     end
 end)
 
-dg_sprint_core.register_server_step(mod_name .. "global_drain", 0.2, function(player, dtime)
+dg_sprint_core.register_server_step(mod_name .. ":global_drain", 0.2, function(player, dtime)
     local sprinting = dg_sprint_core.is_sprinting(player)
     local p_data = player_data[player:get_player_name()]
 
