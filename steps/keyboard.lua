@@ -4,6 +4,13 @@ local mod_name = core.get_current_modname()
 
 local keyboard_tick = 0.15
 
+local function is_player(player)
+
+	if player and type(player) == "userdata" and core.is_player(player) then
+		return true
+	end
+end
+
 -- Helper function to create player data structure.
 
 local function create_pdata(player)
@@ -51,7 +58,7 @@ dg_sprint_core.register_server_step(mod_name ..":keyboard_step", keyboard_tick, 
     local p_data = player_data[p_name]
     local p_control_bit = player:get_player_control_bits()
     local current_time_us = core.get_us_time() / 1e6
-
+   
     if not p_data then return end
     if p_control_bit == 33 and p_data.settings.aux1 then
         p_data.states.detected = true
@@ -91,16 +98,23 @@ end)
 -- API
 
 dg_sprint_core.is_key_detected = function(player)
+ if not is_player(player) then 
+    return false 
+end
     local name = player:get_player_name()
     return player_data[name].states.detected
 end
 
 dg_sprint_core.is_super_sprint_active = function(player)
+    if not is_player(player) then 
+        return false 
+    end
     local name = player:get_player_name()
     return player_data[name].states.super_sprint
 end
 
 dg_sprint_core.enable_aux1 = function(player, enable)
+ if not is_player(player) then return end
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.aux1 = enable
@@ -108,6 +122,7 @@ dg_sprint_core.enable_aux1 = function(player, enable)
 end
 
 dg_sprint_core.enable_ssprint = function(player, enable)
+ if not is_player(player) then return end
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.ssprint = enable
@@ -115,6 +130,7 @@ dg_sprint_core.enable_ssprint = function(player, enable)
 end
 
 dg_sprint_core.enable_double_tap = function(player, enable)
+ if not is_player(player) then return end
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.double_tap = enable
@@ -122,6 +138,9 @@ dg_sprint_core.enable_double_tap = function(player, enable)
 end
 
 dg_sprint_core.set_tap_interval = function(player, interval)
+    if not is_player(player) then 
+        return
+    end
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.tap_interval = interval
