@@ -15,8 +15,9 @@ dg_sprint_core.register_server_step(`name`, `interval`, `callback`)
 ### Example Usage:
 
 ```lua
+local mod_name = core.get_current_modname()
 -- Register a server step named "sprint_check" that runs every 0.5 seconds.
-dg_sprint_core.register_server_step("sprint_check", 0.5, function(player, dtime)
+dg_sprint_core.register_server_step(mod_name .. "sprint_check", 0.5, function(player, dtime)
     -- Your code here to handle sprinting mechanics for the player.
 end)
 
