@@ -1,4 +1,4 @@
-## Register a server Step
+# Register a server Step
 
 dg_sprint_core.register_server_step(`name`, `interval`, `callback`)
 
@@ -43,7 +43,7 @@ if is_detected then
 end
 ```
 
-## Check if super sprint is active
+# Check if super sprint is active
 
 dg_sprint_core.is_super_sprint_active(`player`)
 ### Parameters:
@@ -64,7 +64,7 @@ if is_super_sprint_active then
 end
 ```
 
-## Enable or disable aux1 key
+# Enable or disable aux1 key
 
 dg_sprint_core.enable_aux1(`player`, `enable`)
 ### Parameters:
@@ -84,7 +84,7 @@ dg_sprint_core.enable_aux1(player, true)
 dg_sprint_core.enable_aux1(player, false)
 ```
 
-## Enable or disable ssprint
+# Enable or disable ssprint
 
 dg_sprint_core.enable_ssprint(`player`, `enable`)
 ### Parameters:
@@ -103,7 +103,7 @@ dg_sprint_core.enable_ssprint(player, true)
 dg_sprint_core.enable_ssprint(player, false)
 ```
 
-## Enable or disable double tap
+# Enable or disable double tap
 
 dg_sprint_core.enable_double_tap(`player`, `enable`)
 ### Parameters:
@@ -122,7 +122,7 @@ dg_sprint_core.enable_double_tap(player, true)
 dg_sprint_core.enable_double_tap(player, false)
 ```
 
-## Set the tap interval
+# Set the tap interval
 
 dg_sprint_core.set_tap_interval(`player`, `interval`)
 ### Parameters:
@@ -140,7 +140,7 @@ dg_sprint_core.set_tap_interval(player, 0.3)
 
 ```
 
-## Check if a player is sprinting
+# Check if a player is sprinting
 
 dg_sprint_core.is_sprinting(`player`)
 
@@ -162,8 +162,7 @@ if is_sprinting then
 end
 ```
 
-
-## Set Sprint State
+# Set Sprint State
 
 dg_sprint_core.sprint(`player`, sprinting)
 
@@ -174,8 +173,7 @@ dg_sprint_core.sprint(`player`, sprinting)
 ### Description:
 This function sets the sprinting state of a player. It modifies the player's physics properties such as speed and jump height based on the sprinting status. If the player is already in the desired sprinting state, this function has no effect.
 
-
-## Cancel sprint
+# Cancel sprint
 
 dg_sprint_core.cancel_sprint(`player`, cancel, reason)
 
@@ -187,7 +185,7 @@ dg_sprint_core.cancel_sprint(`player`, cancel, reason)
 ### Description:
 This function manages the cancellation of a sprint. It records the reasons why a sprint was cancelled and can be used to track multiple cancellation reasons simultaneously. If the player is already in the desired state (either sprinting or not), this function has no effect.
 
-## Example Usage
+# Example Usage
 
 ```lua
 local player = minetest.get_player_by_name("example_player")
@@ -199,7 +197,7 @@ if player then
 end
 ```
 
-## Set extra speed
+# Set extra speed
 
 dg_sprint_core.set_speed(`player`, `extra_speed`)
 
@@ -219,7 +217,7 @@ if player then
 end
 ```
 
-## Set extra jump height
+# Set extra jump height
 
 dg_sprint_core.set_jump(`player`, `extra_jump`)
 
@@ -236,7 +234,7 @@ if player then
   dg_sprint_core.set_jump(player, 1.2)  -- Set extra jump height multiplier to 1.2x
 end
 ```
-## Enable or disable sprint particles
+# Enable or disable sprint particles
 
 dg_sprint_core.enable_particles(`player`, `enable`)
 
