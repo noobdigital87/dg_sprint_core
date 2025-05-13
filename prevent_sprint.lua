@@ -15,41 +15,53 @@ end)
 
 -- Liquid cancelation
 local liquid_tick = 0.3
+
+local is_in_liquid = function(player)
+    local pos = player:get_pos()
+    local node_below = core.get_node_or_nil(pos)
+    if node_below then
+        local def = minetest.registered_nodes[node_below.name] or {}
+        local drawtype = def.drawtype
+        local is_liquid = drawtype == "liquid" or drawtype == "flowingliquid"
+        return is_liquid
+    else
+        return false
+    end
+end
+
 dg_sprint_core.register_server_step(mod_name, "liquid_cancel", liquid_tick, function(dtime)
     for _, player in ipairs(core.get_connected_players()) do
-        p_data = player_data[player:get_player_name()]
+        local p_data = player_data[player:get_player_name()]
         if p_data and p_data.liquid_cancel then
-            local p_pos = player:get_pos()
-            local node = core.get_node_or_nil(pos)
-            if node then
-                local def = core.registered_nodes[node.name]
-                local drawtype = def.drawtype
-                if drawtype == "liquid" and drawtype == "flowingliquid" then
+                if is_in_liquid(player) then
                     dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:liquid")
                 else
                     dg_sprint_core.cancel_sprint(player, false, "dg_sprint_core:liquid")
                 end
-            end
         end
     end
 end)
 
 -- Snowy cancelation
 local snowy_tick = 0.2
+
+local on_snow = function(player)
+    local pos = player:get_pos()
+    local node_below = core.get_node_or_nil({x = pos.x, y = pos.y + 0.2, z = pos.z })
+    if node_below and node_below.name == "default:snow" then
+        return true
+    end
+    return false
+end
+
 dg_sprint_core.register_server_step(mod_name, "snowy_cancel", snowy_tick, function(dtime)
     for _, player in ipairs(core.get_connected_players()) do
-        p_data = player_data[player:get_player_name()]
+        local p_data = player_data[player:get_player_name()]
         if p_data and p_data.snowy_cancel then
-            local p_pos = player:get_pos()
-            local node = core.get_node_or_nil({x = p_pos.x, y = p_pos.y + 0.2, z = p_pos.z})
-            if node then
-                local def_group = core.registered_nodes[node.name].groups
-
-                if def_group == "snowy" then
-                    dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:snowy")
-                else
-                    dg_sprint_core.cancel_sprint(player, false, "dg_sprint_core:snowy")
-                end
+            if on_snow(player) then
+                dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:snowy")
+            else
+                dg_sprint_core.cancel_sprint(player, false, "dg_sprint_core:snowy")
             end
         end
     end
