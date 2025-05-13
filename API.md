@@ -190,7 +190,7 @@ This function manages the cancellation of a sprint. It records the reasons why a
 ```lua
 local player = minetest.get_player_by_name("example_player")
 if player then
-    dg_sprint_core.set_sprinting(player, true)  -- Start sprinting
+    dg_sprint_core.sprint(player, true)  -- Start sprinting
     minetest.after(10, function()
        dg_sprint_core.cancel_sprint(player, true, "timeout")  -- Cancel sprint after 10 seconds
     end)
