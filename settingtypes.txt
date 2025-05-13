@@ -17,4 +17,4 @@ dg_sprint_core.wall            (Cancel sprint running against walls)    bool fal
 
 [Advanced]
 
-dg_sprint_core.step_interval   (Sprint step interval)                   float 0.5 0.1 1.0
+dg_sprint_core.sprint_step_interval   (Sprint step interval)                   float 0.5 0.1 1.0
