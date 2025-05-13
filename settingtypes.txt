@@ -8,13 +8,13 @@ dg_sprint_core.jump            (Jump boost)        float 0.1 0.0 1.0
 
 [Sprint cancellations]
 
-dg_sprint_core.liquid          (In liquids [ Water/Lava ] )             bool false
-dg_sprint_core.snowy           (On Snow)                                bool false
-dg_sprint_core.hp              (Low HP)                                 bool false
-dg_sprint_core.hp_threshold    (HP threshold)                           float 6.0 1.0 20.0
-dg_sprint_core.climbable       (On climbable nodes)                     bool false
-dg_sprint_core.wall            (Cancel sprint running against walls)    bool false
+dg_sprint_core.liquid          (In liquids [ Water/Lava ] )         bool false
+dg_sprint_core.snowy           (On Snow)                            bool false
+dg_sprint_core.hp              (Low HP)                             bool false
+dg_sprint_core.hp_threshold    (HP threshold)                       float 6.0 1.0 20.0
+dg_sprint_core.climbable       (On climbable nodes)                 bool false
+dg_sprint_core.wall            (Running against wall)               bool false
 
 [Advanced]
 
-dg_sprint_core.sprint_step_interval   (Sprint step interval)                   float 0.5 0.1 1.0
+dg_sprint_core.sprint_step_interval   (Sprint step interval)    float 0.5 0.1 1.0
