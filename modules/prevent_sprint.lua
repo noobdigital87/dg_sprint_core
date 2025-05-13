@@ -1,22 +1,13 @@
 local mod_name = core.get_current_modname()
 
-local player_data = {}
-
-core.register_on_joinplayer(function(player)
-    player_data[player:get_player_name()] = {
-        liquid_cancel = core.settings:get_bool("dg_sprint_core.liquid", false),
-        snowy_cancel = core.settings:get_bool("dg_sprint_core.snowy", false),
-        hp_cancel = core.settings:get_bool("dg_sprint_core.hp", false),
-        hp_threshold = tonumber(core.settings:get("dg_sprint_core.hp_threshold")) or 6.0,
-        climbable_cancel = core.settings:get_bool("dg_sprint_core.climbable", false),
-        wall_cancel = core.settings:get_bool("dg_sprint_core.wall", false),
-    }
-end)
-
-core.register_on_leaveplayer(function(player)
-    player_data[player:get_player_name()] = nil
-end)
-
+local settings = {
+    liquid_cancel = core.settings:get_bool("dg_sprint_core.liquid", false),
+    snowy_cancel = core.settings:get_bool("dg_sprint_core.snowy", false),
+    hp_cancel = core.settings:get_bool("dg_sprint_core.hp", false),
+    hp_threshold = tonumber(core.settings:get("dg_sprint_core.hp_threshold")) or 6.0,
+    climbable_cancel = core.settings:get_bool("dg_sprint_core.climbable", false),
+    wall_cancel = core.settings:get_bool("dg_sprint_core.wall", false),
+}
 -- Liquid cancelation
 local liquid_tick = 0.5
 
@@ -34,8 +25,7 @@ local is_in_liquid = function(player)
 end
 
 dg_sprint_core.register_server_step(mod_name .. "liquid_cancel", liquid_tick, function(player, dtime)
-    local p_data = player_data[player:get_player_name()]
-    if p_data and p_data.liquid_cancel then
+    if settings.liquid_cancel then
         if is_in_liquid(player) then
             dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:liquid")
         else
@@ -57,8 +47,7 @@ local on_snow = function(player)
 end
 
 dg_sprint_core.register_server_step(mod_name ..  "snowy_cancel", snowy_tick, function(player, dtime)
-    local p_data = player_data[player:get_player_name()]
-    if p_data and p_data.snowy_cancel then
+    if settings.snowy_cancel then
         if on_snow(player) then
             dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:snowy")
         else
@@ -70,8 +59,7 @@ end)
 -- Low HP cancel
 local low_health_tick = 0.5
 dg_sprint_core.register_server_step(mod_name ..  "low_health_cancel", low_health_tick, function(player, dtime)
-    local p_data = player_data[player:get_player_name()]
-    if p_data and p_data.hp_cancel and player:get_hp() < p_data.hp_threshold then
+    if settings.hp_cancel and player:get_hp() < p_data.hp_threshold then
         dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:low_health")
     else
         dg_sprint_core.cancel_sprint(player, false, "dg_sprint_core:low_health")
@@ -95,9 +83,7 @@ local on_climbable = function(player)
 end
 
 dg_sprint_core.register_server_step(mod_name ..  "climbable_cancel", climbable_tick, function(player, dtime)
-
-    local p_data = player_data[player:get_player_name()]
-    if p_data and p_data.climbable_cancel then
+    if settings.climbable_cancel then
         if on_climbable(player) then
             dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:climbable")
         else
@@ -163,8 +149,8 @@ local on_wall = function(player)
 end
 
 dg_sprint_core.register_server_step(mod_name .. "wall_cancel", wall_tick, function(player, dtime)
-    local p_data = player_data[player:get_player_name()]
-    if p_data and p_data.wall_cancel then
+
+    if settings.wall_cancel then
         if on_wall(player) then
             dg_sprint_core.cancel_sprint(player, true, "dg_sprint_core:wall")
         else
