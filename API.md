@@ -252,3 +252,31 @@ if player then
   dg_sprint_core.enable_particles(player, true)  -- Enable sprint particles
 end
 ```
+
+Sure! Here's the updated API documentation with the new function `dg_sprint_core.is_draining` added, including its explanation:
+
+---
+
+# Check if a player's sprint is draining
+
+dg_sprint_core.is_draining(`player`)
+
+### Parameters:
+- `player`: The player object.
+
+### Returns:
+- A boolean indicating whether the player's sprint resource is currently being drained.
+
+### Description:
+This function checks whether a player's sprint stamina or resource is being depleted. It retrieves the relevant data from the `player_data` table associated with the player’s name. This can be useful for implementing stamina-based sprint mechanics or triggering effects when a player's sprinting energy is low.
+
+### Example Usage:
+```lua
+-- Check if a player's sprint is currently draining.
+local is_draining = dg_sprint_core.is_draining(player)
+if is_draining then
+    -- Apply stamina drain effects or reduce movement speed.
+end
+```
+
+---
