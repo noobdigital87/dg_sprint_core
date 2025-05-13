@@ -36,7 +36,7 @@ end)
 -- API
 
 dg_sprint_core.sprint = function(player, sprinting)
-    local adj_name = "dg_sprint_core:physics"
+    local adj_name = mod_name .. ":physics"
     local p_data = player_data[player:get_player_name()]
 
     -- If super sprint is active, increase speed multiplier
@@ -164,7 +164,7 @@ dg_sprint_core.is_sprinting = function(player)
 end
 -- Sprint step 
 
-local sprint_tick = tonumber(core.settings:get("dg_sprint_core.tick")) or 0.5
+local sprint_tick = tonumber(core.settings:get(mod_name .. ".sprint_step_interval")) or 0.5
 
 dg_sprint_core.register_server_step(mod_name ..":sprint_step", sprint_tick, function(player, dtime)
     local p_name = player:get_player_name()
