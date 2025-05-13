@@ -4,15 +4,18 @@
 ]]--
 
 local player_data = {}
+
 local server_tick = tonumber(core.settings:get("dg_sprint_core.tick")) or 0.5
+
 local mod_name = core.get_current_modname()
+
 dg_sprint_core = {}
 
 local function create_pdata(player)
     return {
         is_sprinting = false,
         key_detected = false,
-        cancel_sprint_reasons = {},  -- New table to hold cancellation reasons.
+        cancel_sprint_reasons = {},
         aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
         double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
         particles = core.settings:get_bool("dg_sprint_core.particles", true),
@@ -23,8 +26,8 @@ local function create_pdata(player)
         extra_jump = tonumber(core.settings:get("dg_sprint_core.jump")) or 0.1,
         extra_speed = tonumber(core.settings:get("dg_sprint_core.speed")) or 0.8,
         tap_interval = tonumber(core.settings:get("dg_sprint_core.tap_interval")) or 0.5,
-        super_sprint = false,         -- NEW: super sprint toggle state
-        super_toggle_press = false,   -- NEW: helper flag for toggle detection
+        super_sprint = false,
+        super_toggle_press = false,
     }
 end
 
@@ -90,7 +93,6 @@ dg_sprint_core.register_server_step(mod_name, "key_step", 0.1, function(current_
             p_data.aux_pressed = false
         end
 
-        -- NEW: Check for left and right keys together to toggle super sprint.
         local controls = player:get_player_control()
         if p_data.enable_ssprint and (controls.left and controls.right) then
             if not p_data.super_toggle_press then
@@ -113,7 +115,6 @@ dg_sprint_core.sprint = function(player, sprinting)
 
      p_data.is_sprinting = sprinting
 
-     -- NEW: Calculate sprint speed multiplier based on super sprint toggle.
      local speedMul = 1
      if p_data.super_sprint then
          speedMul = 1.5
@@ -197,7 +198,6 @@ dg_sprint_core.register_server_step(mod_name, "sprint_step", server_tick, functi
         local p_data = player_data[p_name]
         local detected = p_data and p_data.detected
 
-        -- Check if any cancellation reason is active.
         local cancel_active = false
         if p_data.cancel_sprint_reasons then
             for reason, _ in pairs(p_data.cancel_sprint_reasons) do
