@@ -172,23 +172,3 @@ dg_sprint_core.register_server_step(mod_name .. "wall_cancel", wall_tick, functi
         end
     end
 end)
-
-dg_sprint_core.liquid_cancel = function(player, cancel)
-    player_data[player:get_player_name()].liquid_cancel = cancel
-end
-
-dg_sprint_core.snowy_cancel = function(player, cancel)
-    player_data[player:get_player_name()].snowy_cancel = cancel
-end
-
-dg_sprint_core.hp_cancel = function(player, cancel)
-    player_data[player:get_player_name()].hp_cancel = cancel
-end
-
-dg_sprint_core.climbable_cancel = function(player, cancel)
-    player_data[player:get_player_name()].climbable_cancel = cancel
-end
-
-dg_sprint_core.wall_cancel = function(player, cancel)
-    player_data[player:get_player_name()].wall_cancel = cancel
-end
