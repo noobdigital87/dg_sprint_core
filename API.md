@@ -85,15 +85,15 @@ dg_sprint_core.enable_aux1(player, true)
 dg_sprint_core.enable_aux1(player, false)
 ```
 
-# Enable or disable ssprint
+# Enable or disable Super Sprint
 
 dg_sprint_core.enable_ssprint(`player`, `enable`)
 ### Parameters:
   - `player`: The player object.
-  - `enable`: A boolean indicating whether to enable (`true`) or disable (`false`) the ssprint.
+  - `enable`: A boolean indicating whether to enable (`true`) or disable (`false`) the super sprint.
 
 ### Description:
-  This function allows you to toggle ssprint for a specific player.
+  This function allows you to toggle super sprint for a specific player.
 
 ### Example Usage:
 ```lua
