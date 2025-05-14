@@ -33,7 +33,8 @@ core.register_on_leaveplayer(function(player)
     player_data[name] = nil
 end)
 
--- API
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[ API ]]--
 
 dg_sprint_core.sprint = function(player, sprinting)
     local adj_name = mod_name .. ":physics"
@@ -119,6 +120,60 @@ dg_sprint_core.sprint = function(player, sprinting)
         end
     end
 end
+-------------------------------------------------------------------------------------------------------------------------------
+--[[ SERVER STEPS ]]--
+
+local STEPS = {
+    DETECTION_STEP = {
+        INTERVAL = 0.2,
+        NAME = mod_name .. ":DETECTION_STEP",
+        CALLBACK = function(player, dtime)
+
+            local p_name = player:get_player_name()
+            local p_data = player_data[p_name]
+            
+            if not p_data then return end
+            
+            local cancel_active = false
+            
+            if p_data.cancel_sprint_reasons then
+                for reason, _ in pairs(p_data.cancel_sprint_reasons) do
+                    cancel_active = true
+                    break
+                end
+            end
+        
+            local key_detected =  dg_sprint_core.is_key_detected(player) and not player:get_attach() and not cancel_active
+        
+            if key_detected then
+                p_data.states.is_sprinting = true
+            else
+                p_data.states.is_sprinting = false
+            end
+        end
+            
+    },
+    SPRINT_STEP = {
+        INTERVAL = tonumber(core.settings:get(mod_name .. ".sprint_step_interval")) or 0.5,
+        NAME = mod_name .. ":SPRINT_STEP",
+        CALLBACK = function(player, dtime)
+            if dg_sprint_core.is_sprinting(player) then
+                dg_sprint_core.sprint(player, true)
+                
+            else
+                dg_sprint_core.sprint(player, false)
+            end
+        end
+    },
+}
+
+for _, step in pairs(STEPS) do
+    dg_sprint_core.register_server_step(step.NAME, step.INTERVAL, step.CALLBACK)
+end
+
+
+-----------------------------------------------------------------------------------------
+--[[ API ]]--
 
 dg_sprint_core.cancel_sprint = function(player, cancel, reason)
     local p_name = player:get_player_name()
@@ -155,8 +210,8 @@ dg_sprint_core.enable_particles = function(player, enable)
 end
 
 dg_sprint_core.is_sprinting = function(player)
-    local p_name = player:get_player_name()
-    local p_data = player_data[p_name]
+local name = player:get_player_name()
+local p_data = player_data[name]
     if p_data then
         if p_data.states.is_sprinting then
             return true
@@ -164,32 +219,6 @@ dg_sprint_core.is_sprinting = function(player)
     end
     return false
 end
--- Sprint step 
 
-local sprint_tick = tonumber(core.settings:get(mod_name .. ".sprint_step_interval")) or 0.5
 
-dg_sprint_core.register_server_step(mod_name ..":sprint_step", sprint_tick, function(player, dtime)
-    local p_name = player:get_player_name()
-    local p_data = player_data[p_name]
 
-    if not p_data then return end
-
-    local cancel_active = false
-
-    if p_data.cancel_sprint_reasons then
-        for reason, _ in pairs(p_data.cancel_sprint_reasons) do
-            cancel_active = true
-            break
-        end
-    end
-
-    local key_detected =  dg_sprint_core.is_key_detected(player) and not player:get_attach() and not cancel_active
-
-    if key_detected then
-        dg_sprint_core.sprint(player, true)
-        p_data.states.is_sprinting = true
-    else
-        dg_sprint_core.sprint(player, false)
-        p_data.states.is_sprinting = false
-    end
-end)
