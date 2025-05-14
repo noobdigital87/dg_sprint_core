@@ -158,7 +158,7 @@ dg_sprint_core.is_sprinting = function(player)
     local p_name = player:get_player_name()
     local p_data = player_data[p_name]
     if p_data then
-        if p_data.is_sprinting then
+        if p_data.states.is_sprinting then
             return true
         end
     end
