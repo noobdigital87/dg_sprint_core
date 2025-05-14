@@ -195,6 +195,7 @@ if player then
     minetest.after(10, function()
        dg_sprint_core.cancel_sprint(player, true, "timeout")  -- Cancel sprint after 10 seconds
     end)
+    -- It will keep cancelling the sprint until dg_sprint_core.cancel_sprint(player, false, "timeout") 
 end
 ```
 
