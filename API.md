@@ -1,6 +1,6 @@
 # Register a server Step
 
-dg_sprint_core.register_server_step(`name`, `interval`, `callback`)
+dg_sprint_core.register_step(`name`, `interval`, `callback`)
 
 ### Parameters:
   - `name`: A unique identifier for the server step.
@@ -17,7 +17,7 @@ dg_sprint_core.register_server_step(`name`, `interval`, `callback`)
 ```lua
 local mod_name = core.get_current_modname()
 -- Register a server step named "sprint_check" that runs every 0.5 seconds.
-dg_sprint_core.register_server_step(mod_name .. "sprint_check", 0.5, function(player, dtime)
+dg_sprint_core.register_step(mod_name .. "sprint_check", 0.5, function(player, dtime)
     -- Your code here to handle sprinting mechanics for the player.
 end)
 
@@ -44,27 +44,6 @@ if is_detected then
 end
 ```
 
-# Check if super sprint is active
-
-dg_sprint_core.is_super_sprint_active(`player`)
-### Parameters:
-  - `player`: The player object.
-
-### Returns:
-  A boolean indicating whether the super sprint mode is currently active for the given player.
-
-### Description:
-  This function checks if the player has activated the super sprint mode. It can be used to modify player movement or apply special effects when super sprinting is enabled.
-### Example Usage:
-
-```lua
--- Check if super sprint is active for a specific player.
-local is_super_sprint_active = dg_sprint_core.is_super_sprint_active(player)
-if is_super_sprint_active then
-    -- Apply super sprint effects or modify movement speed.
-end
-```
-
 # Enable or disable aux1 key
 
 dg_sprint_core.enable_aux1(`player`, `enable`)
@@ -83,25 +62,6 @@ dg_sprint_core.enable_aux1(player, true)
 
 -- Disable the aux1 key for a specific player.
 dg_sprint_core.enable_aux1(player, false)
-```
-
-# Enable or disable Super Sprint
-
-dg_sprint_core.enable_ssprint(`player`, `enable`)
-### Parameters:
-  - `player`: The player object.
-  - `enable`: A boolean indicating whether to enable (`true`) or disable (`false`) the super sprint.
-
-### Description:
-  This function allows you to toggle super sprint for a specific player.
-
-### Example Usage:
-```lua
--- Enable ssprint for a specific player.
-dg_sprint_core.enable_ssprint(player, true)
-
--- Disable ssprint for a specific player.
-dg_sprint_core.enable_ssprint(player, false)
 ```
 
 # Enable or disable double tap
@@ -325,24 +285,3 @@ if dg_sprint_core.is_draining(player) then
 end
 ```
 --
-
-# Set Super Sprint Multiplier
-
-dg_sprint_core.set_super_sprint(`player`, `multiplier`)
-
-### Parameters:
-- `player`: The player object.
-- `multiplier`: A number representing the additional speed and jump height multiplier applied during super sprinting.
-
-### Description:
-This function sets a higher-tier multiplier for speed when the player is in a "super sprint" state. This can be used to create a more powerful sprint mode, such as using a special item or power-up. The multiplier is applied on top of the sprint speed set by `dg_sprint_core.set_speed`
-
-### Example Usage:
-```lua
--- Activate super sprint with a 2x speed 
-local player = minetest.get_player_by_name("example_player")
-if player then
-    dg_sprint_core.set_super_sprint(player, 2.0)
-    dg_sprint_core.sprint(player, true)  -- Start sprinting to apply the boost
-end
-```

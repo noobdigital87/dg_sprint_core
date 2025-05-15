@@ -1,7 +1,7 @@
 local player_data = {}
-
+local api = dg_sprint_core
 local mod_name = core.get_current_modname()
-
+local enable_sprint = core.settings:get_bool(mod_name .. ".enable_sprint", false)
 local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
 local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
 local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
@@ -10,14 +10,13 @@ local function create_pdata(player)
     return {           
         cancel_sprint_reasons = {},
         settings = {
-            extra_jump = tonumber(core.settings:get(mod_name .. ".jump")) or 0.1,   -- Additional jump power for sprinting
-            extra_speed = tonumber(core.settings:get(mod_name .. ".speed")) or 0.8, -- Additional speed for sprinting
-            particles = core.settings:get_bool(mod_name ..  ".particles", false), -- Enable/disable particle effects during sprinting
-            supersprint_muliplier = tonumber(core.settings:get(mod_name .. ".supersprint_multiplier")) or 1.5,  -- Multiplier for super sprint speed
-
+            extra_jump = 0.1,   -- Additional jump power for sprinting
+            extra_speed = 0.8, -- Additional speed for sprinting
+            particles = false, -- Enable/disable particle effects during sprinting
         },
         states = {
             is_sprinting = false,
+            detected = false,
         }
     }
 end
@@ -27,6 +26,11 @@ end
 core.register_on_joinplayer(function(player)
     local name = player:get_player_name()
     player_data[name] = create_pdata(player)
+    if enable_sprint then
+        api.enable_aux1(player, true)
+        api.enable_double_tap(player, true)
+        api.enable_particles(player, true)
+    end
 end)
 
 
@@ -67,20 +71,13 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[ API ]]--
 
-dg_sprint_core.sprint = function(player, sprinting)
+api.sprint = function(player, sprinting)
     local adj_name = mod_name .. ":physics"
     local p_data = player_data[player:get_player_name()]
 
-    -- If super sprint is active, increase speed multiplier
-    local speedMul = 1
-    if dg_sprint_core.is_super_sprint_active(player) then
-        speedMul = p_data.settings.supersprint_muliplier
-    end
-
-    -- Apply physics modifications using available mods
     if p_monoids then
         if sprinting then
-            player_monoids.speed:add_change(player, 1 + p_data.settings.extra_speed * speedMul, adj_name)
+            player_monoids.speed:add_change(player, 1 + p_data.settings.extra_speed, adj_name)
             player_monoids.jump:add_change(player, 1 + p_data.settings.extra_jump, adj_name)
         else
             player_monoids.speed:del_change(player, adj_name)
@@ -89,7 +86,7 @@ dg_sprint_core.sprint = function(player, sprinting)
     elseif pova_mod then
         if sprinting then
             pova.add_override(player:get_player_name(), adj_name,
-                    {speed = p_data.settings.extra_speed * speedMul, jump = p_data.settings.extra_jump})
+                    {speed = p_data.settings.extra_speed, jump = p_data.settings.extra_jump})
             pova.do_override(player)
         else
             pova.del_override(player:get_player_name(), adj_name)
@@ -113,19 +110,22 @@ dg_sprint_core.sprint = function(player, sprinting)
         end
 
         if sprinting then
-            def.speed = def.speed + p_data.settings.extra_speed * speedMul
+            def.speed = def.speed + p_data.settings.extra_speed
             def.jump = def.jump + p_data.settings.extra_jump
         end
+
+        p_data.states.is_sprinting = sprinting
 
         player:set_physics_override(def)
     end
 end
 -------------------------------------------------------------------------------------------------------------------------------
 --[[ SERVER STEPS ]]--
-
+local KEY_STEP_INTERVAL_4HZ = 0.25
+local KEY_STEP_INTERVAL_2HZ = 0.5
 local STEPS = {
     DETECTION_STEP = {
-        INTERVAL = tonumber(core.settings:get(mod_name .. ".detection_step_interval")) or 0.2,
+        INTERVAL = KEY_STEP_INTERVAL_4HZ,
         NAME = mod_name .. ":DETECTION_STEP",
         CALLBACK = function(player, dtime)
 
@@ -143,30 +143,14 @@ local STEPS = {
                 end
             end
         
-            local key_detected =  dg_sprint_core.is_key_detected(player) and not player:get_attach() and not cancel_active
-        
-            if key_detected then
-                p_data.states.is_sprinting = true
-            else
-                p_data.states.is_sprinting = false
-            end
-        end
-            
-    },
-    SPRINT_STEP = {
-        INTERVAL = tonumber(core.settings:get(mod_name .. ".sprint_step_interval")) or 0.5,
-        NAME = mod_name .. ":SPRINT_STEP",
-        CALLBACK = function(player, dtime)
-            if dg_sprint_core.is_sprinting(player) then
-                dg_sprint_core.sprint(player, true)
-                
-            else
-                dg_sprint_core.sprint(player, false)
+            p_data.states.detected =  dg_sprint_core.tools.is_key_detected(player) and not cancel_active
+            if enable_sprint then
+                api.sprint(player, p_data.states.detected)
             end
         end
     },
     PARTICLE_STEP = {
-        INTERVAL = tonumber(core.settings:get(mod_name .. ".particle_step_interval")) or 0.5,
+        INTERVAL = KEY_STEP_INTERVAL_2HZ,
         NAME = mod_name .. ":PARTICLE_STEP",
         CALLBACK = function(player, dtime)
             local p_name = player:get_player_name()
@@ -181,14 +165,14 @@ local STEPS = {
 }
 
 for _, step in pairs(STEPS) do
-    dg_sprint_core.register_server_step(step.NAME, step.INTERVAL, step.CALLBACK)
+    api.register_step(step.NAME, step.INTERVAL, step.CALLBACK)
 end
 
 
 -----------------------------------------------------------------------------------------
 --[[ API ]]--
 
-dg_sprint_core.cancel_sprint = function(player, cancel, reason)
+api.cancel_sprint = function(player, cancel, reason)
     local p_name = player:get_player_name()
     local p_data = player_data[p_name]
     if p_data then
@@ -201,35 +185,37 @@ dg_sprint_core.cancel_sprint = function(player, cancel, reason)
     end
 end
 
-dg_sprint_core.set_speed = function(player, extra_speed)
+api.set_speed = function(player, extra_speed)
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.extra_speed = extra_speed
     end
 end
 
-dg_sprint_core.set_jump = function(player, extra_jump)
+api.set_jump = function(player, extra_jump)
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.extra_jump = extra_jump
     end
 end
 
-dg_sprint_core.set_super_speed = function(player, multiplier)
-    local name = player:get_player_name()
-    if player_data[name] then
-        player_data[name].settings.super_speed_multiplier = multiplier
-    end
-end
-
-dg_sprint_core.enable_particles = function(player, enable)
+api.enable_particles = function(player, enable)
     local name = player:get_player_name()
     if player_data[name] then
         player_data[name].settings.particles = enable
     end
 end
 
-dg_sprint_core.is_sprinting = function(player)
+api.is_key_detected = function(player)
+    local name = player:get_player_name()
+    local p_data = player_data[name]
+    if p_data and p_data.states.detected then
+        return true
+    end
+    return false
+end
+
+api.is_sprinting = function(player)
 local name = player:get_player_name()
 local p_data = player_data[name]
     if p_data then

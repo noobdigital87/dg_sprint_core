@@ -6,6 +6,7 @@ local mod_name = core.get_current_modname()
 local function create_pdata()
     return {
         drain = false,
+        enable_drain = true,
         prevent_drain_reasons = {},
     }
 end
@@ -32,11 +33,12 @@ dg_sprint_core.prevent_drain = function(player, enabled, reason)
         end
     end
 end
-
+local KEY_STEP_INTERVAL_60HZ = 1/60
+local KEY_STEP_INTERVAL_2HZ = 1/2
 -- Register server steps for draining logic
 local STEPS = {
     MOVE_DRAIN_STEP = {
-        INTERVAL = tonumber(core.settings:get(mod_name .. ".move_drain_step_interval")) or 0.5,
+        INTERVAL = KEY_STEP_INTERVAL_2HZ,
         NAME = mod_name .. ":MOVE_DRAIN_STEP",
         CALLBACK = function(player, dtime)
             local p_pos = player:get_pos()
@@ -60,7 +62,7 @@ local STEPS = {
         end
     },
     DRAIN_STEP = {
-        INTERVAL = tonumber(core.settings:get(mod_name .. ".drain_step_interval")) or 0.2,
+        INTERVAL = KEY_STEP_INTERVAL_60HZ,
         NAME = mod_name .. ":DRAIN_STEP",
         CALLBACK = function(player, dtime)
             local sprinting = dg_sprint_core.is_sprinting(player)
@@ -69,15 +71,13 @@ local STEPS = {
             local cancel_active = false
 
             if p_data.prevent_drain_reasons then
-
                 for reason, _ in pairs(p_data.prevent_drain_reasons) do
                     cancel_active = true
                     break
                 end
-
             end
 
-            if sprinting and not cancel_active then
+            if p_data.enable_drain and sprinting and not cancel_active then
                 p_data.drain = true
             else
                 p_data.drain = false
@@ -88,7 +88,7 @@ local STEPS = {
 
 -- Register server steps for each defined step.
 for _, step in pairs(STEPS) do
-    dg_sprint_core.register_server_step(step.NAME, step.INTERVAL, step.CALLBACK)
+    dg_sprint_core.register_step(step.NAME, step.INTERVAL, step.CALLBACK)
 end
 
 --[[ API ]]--
@@ -98,3 +98,9 @@ dg_sprint_core.is_draining = function(player)
     return player_data[player:get_player_name()].drain or false
 end
 
+dg_sprint_core.enable_drain = function(player, value)
+    local p_data = player_data[player:get_player_name()]
+    if p_data then
+        p_data.enable_drain = value
+    end
+end

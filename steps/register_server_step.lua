@@ -1,12 +1,6 @@
--- Table to store scheduled server step functions.
 local server_steps = {}
 
---[[ 
-    Register a custom server step (periodic callback).
-    mod_name and name are concatenated for namespacing; interval is the callback period,
-    and callback is the function to be executed.
-]]
-dg_sprint_core.register_server_step = function(name, interval, callback)
+dg_sprint_core.register_step = function(name, interval, callback)
     server_steps[name] = {
         interval = interval,
         elapsed = 0,
