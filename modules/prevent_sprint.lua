@@ -9,7 +9,7 @@ local settings = {
     wall_cancel = core.settings:get_bool("dg_sprint_core.wall", false),
 }
 
-local intervals = tonumber(core.settings:get(mod_name .. ".cancel_step_interval")) or 0.5,
+local intervals = tonumber(core.settings:get(mod_name .. ".cancel_step_interval")) or 0.5
 
 local STEPS = {
     LIQUID_STEP = {
