@@ -213,9 +213,6 @@ if player then
   dg_sprint_core.enable_particles(player, true)  -- Enable sprint particles
 end
 ```
-
-Sure! Here's the updated API documentation with the new function `dg_sprint_core.is_draining` added, including its explanation:
-
 ---
 
 # Check if a player's sprint is draining
@@ -273,11 +270,6 @@ minetest.after(10, function()
     dg_sprint_core.prevent_drain(player, false, "sprint_tonic")
     core.chat_send_player(player:get_player_name(), "Sprint protection expired.")
 end)
-
--- 5. Example of combining multiple conditions
-if dg_sprint_core.is_super_sprint_active(player) then
-    dg_sprint_core.prevent_drain(player, true, "super_sprint_mode")
-end
 
 -- 6. Example of checking active reasons (combined with is_draining)
 if dg_sprint_core.is_draining(player) then
