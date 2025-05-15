@@ -323,4 +323,26 @@ end
 if dg_sprint_core.is_draining(player) then
     core.chat_send_player(player:get_player_name(), "Sprint stamina is being drained!")
 end
+```
 --
+
+# Set Super Sprint Multiplier
+
+dg_sprint_core.set_super_sprint(`player`, `multiplier`)
+
+### Parameters:
+- `player`: The player object.
+- `multiplier`: A number representing the additional speed and jump height multiplier applied during super sprinting.
+
+### Description:
+This function sets a higher-tier multiplier for speed when the player is in a "super sprint" state. This can be used to create a more powerful sprint mode, such as using a special item or power-up. The multiplier is applied on top of the sprint speed set by `dg_sprint_core.set_speed`
+
+### Example Usage:
+```lua
+-- Activate super sprint with a 2x speed 
+local player = minetest.get_player_by_name("example_player")
+if player then
+    dg_sprint_core.set_super_sprint(player, 2.0)
+    dg_sprint_core.sprint(player, true)  -- Start sprinting to apply the boost
+end
+```

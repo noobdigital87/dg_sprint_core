@@ -10,9 +10,11 @@ local function create_pdata(player)
     return {           
         cancel_sprint_reasons = {},
         settings = {
-            extra_jump = tonumber(core.settings:get("dg_sprint_core.jump")) or 0.1,   -- Additional jump power for sprinting
-            extra_speed = tonumber(core.settings:get("dg_sprint_core.speed")) or 0.8, -- Additional speed for sprinting
-            particles = core.settings:get_bool("dg_sprint_core.particles", true), -- Enable/disable particle effects during sprinting
+            extra_jump = tonumber(core.settings:get(mod_name .. ".jump")) or 0.1,   -- Additional jump power for sprinting
+            extra_speed = tonumber(core.settings:get(mod_name .. ".speed")) or 0.8, -- Additional speed for sprinting
+            particles = core.settings:get_bool(mod_name ..  ".particles", true), -- Enable/disable particle effects during sprinting
+            supersprint_muliplier = tonumber(core.settings:get(mod_name .. ".supersprint_multiplier")) or 1.5,  -- Multiplier for super sprint speed
+
         },
         states = {
             is_sprinting = false,
@@ -72,7 +74,7 @@ dg_sprint_core.sprint = function(player, sprinting)
     -- If super sprint is active, increase speed multiplier
     local speedMul = 1
     if dg_sprint_core.is_super_sprint_active(player) then
-        speedMul = 1.5
+        speedMul = p_data.settings.supersprint_muliplier
     end
 
     -- Apply physics modifications using available mods
@@ -87,7 +89,7 @@ dg_sprint_core.sprint = function(player, sprinting)
     elseif pova_mod then
         if sprinting then
             pova.add_override(player:get_player_name(), adj_name,
-                    {speed = p_data.extra_speed * speedMul, jump = p_data.settings.extra_jump})
+                    {speed = p_data.settings.extra_speed * speedMul, jump = p_data.settings.extra_jump})
             pova.do_override(player)
         else
             pova.del_override(player:get_player_name(), adj_name)
@@ -202,14 +204,21 @@ end
 dg_sprint_core.set_speed = function(player, extra_speed)
     local name = player:get_player_name()
     if player_data[name] then
-        player_data[name].extra_speed = extra_speed
+        player_data[name].settings.extra_speed = extra_speed
     end
 end
 
 dg_sprint_core.set_jump = function(player, extra_jump)
     local name = player:get_player_name()
     if player_data[name] then
-        player_data[name].extra_jump = extra_jump
+        player_data[name].settings.extra_jump = extra_jump
+    end
+end
+
+dg_sprint_core.set_super_speed = function(player, multiplier)
+    local name = player:get_player_name()
+    if player_data[name] then
+        player_data[name].settings.super_speed_multiplier = multiplier
     end
 end
 
