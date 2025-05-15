@@ -22,7 +22,7 @@ end)
 
 
 -- Register a function to prevent or allow draining based on reasons
-local prevent_drain = function(player, enabled, reason)
+dg_sprint_core.prevent_drain = function(player, enabled, reason)
     local p_data = player_data[player:get_player_name()]
     if p_data and p_data.prevent_drain_reasons then
         if enabled then
@@ -53,9 +53,9 @@ local STEPS = {
             local has_velocity = horizontal_speed > 0.05
 
             if (is_moving and has_velocity) then
-                prevent_drain(player, false, mod_name .. ":not_moving")
+                dg_sprint_core.prevent_drain(player, false, mod_name .. ":not_moving")
             else
-                prevent_drain(player, true, mod_name .. ":not_moving")
+                dg_sprint_core.prevent_drain(player, true, mod_name .. ":not_moving")
             end
         end
     },

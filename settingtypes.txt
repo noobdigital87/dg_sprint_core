@@ -1,3 +1,5 @@
+[Player settings]
+
 dg_sprint_core.double_tap      (Double Tap)        bool true
 dg_sprint_core.tap_interval    (Tap interval)      float 0.5 0.1 2.0
 dg_sprint_core.aux1            (Aux1)              bool true
