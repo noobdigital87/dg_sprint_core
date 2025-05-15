@@ -12,7 +12,7 @@ local function create_pdata(player)
         settings = {
             extra_jump = tonumber(core.settings:get(mod_name .. ".jump")) or 0.1,   -- Additional jump power for sprinting
             extra_speed = tonumber(core.settings:get(mod_name .. ".speed")) or 0.8, -- Additional speed for sprinting
-            particles = core.settings:get_bool(mod_name ..  ".particles", true), -- Enable/disable particle effects during sprinting
+            particles = core.settings:get_bool(mod_name ..  ".particles", false), -- Enable/disable particle effects during sprinting
             supersprint_muliplier = tonumber(core.settings:get(mod_name .. ".supersprint_multiplier")) or 1.5,  -- Multiplier for super sprint speed
 
         },

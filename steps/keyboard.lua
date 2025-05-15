@@ -18,9 +18,9 @@ end
 local function create_pdata(player)
     return {
         settings = {
-            aux1 = core.settings:get_bool("dg_sprint_core.aux1", true),
-            double_tap = core.settings:get_bool("dg_sprint_core.double_tap", true),
-            enable_ssprint = core.settings:get_bool("dg_sprint_core.supersprint", true),
+            aux1 = core.settings:get_bool("dg_sprint_core.aux1", false),
+            double_tap = core.settings:get_bool("dg_sprint_core.double_tap", false),
+            enable_ssprint = core.settings:get_bool("dg_sprint_core.supersprint", false),
             tap_interval = tonumber(core.settings:get("dg_sprint_core.tap_interval")) or 0.5,
         },
         states = {
@@ -62,7 +62,7 @@ dg_sprint_core.register_server_step(mod_name ..":KEY_STEP", KEY_STEP_INTERVAL, f
     local current_time_us = core.get_us_time() / 1e6
    
     if not p_data then return end
-    if p_control_bit == 33 and p_data.settings.aux1 then
+    if p_control_bit == (32 + 1) and p_data.settings.aux1 then
         p_data.states.detected = true
         p_data.states.is_holding = false
         p_data.states.aux_pressed = true

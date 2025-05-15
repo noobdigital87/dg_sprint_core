@@ -1,29 +1,18 @@
-[Player settings]
+[Settings]
 
-dg_sprint_core.double_tap               (Double Tap)                        bool true
+dg_sprint_core.double_tap               (Double Tap)                        bool false
 dg_sprint_core.tap_interval             (Tap interval)                      float 0.5 0.1 2.0
-dg_sprint_core.aux1                     (Aux1)                              bool true
-dg_sprint_core.supersprint              (Super Sprint)                      bool true
+dg_sprint_core.aux1                     (Aux1)                              bool false
+dg_sprint_core.supersprint              (Super Sprint)                      bool false
 dg_sprint_core.supersprint_multiplier   (Super Sprint speed multiplier)     float 1.5 1.1 3.0
-dg_sprint_core.particles                (Particles)                         bool true
+dg_sprint_core.particles                (Particles)                         bool false
 dg_sprint_core.speed                    (Speed boost)                       float 0.8 0.0 2.0
 dg_sprint_core.jump                     (Jump boost)                        float 0.1 0.0 1.0
-
-[Sprint cancellations]
-
-dg_sprint_core.liquid          (In liquids [ Water/Lava ] )         bool false
-dg_sprint_core.snowy           (On Snow)                            bool false
-dg_sprint_core.hp              (Low HP)                             bool false
-dg_sprint_core.hp_threshold    (HP threshold)                       float 6.0 1.0 20.0
-dg_sprint_core.climbable       (On climbable nodes)                 bool false
-dg_sprint_core.wall            (Running against wall)               bool false
 
 [Advanced: Step intervals]
 
 dg_sprint_core.key_step_interval        (Key step)         float 0.15 0.1 1.0
-
 dg_sprint_core.detection_step_interval  (Detection step)   float 0.2 0.1 1.0
-
 
 # Decrease performance: Increase this value may decrease server performance.
 # Increase particle effects: Decrease this value may increase the number of particles shown.
@@ -36,4 +25,3 @@ dg_sprint_core.sprint_step_interval     (Sprint step)      float 0.5 0.1 1.0
 dg_sprint_core.move_drain_step_interval   (Move drain step)  float 0.5 0.1 1.0
 dg_sprint_core.drain_step_interval (Drain step) float 0.2 0.1 1.0
 
-dg_sprint_core.cancel_step_interval (Cancel step) float 0.5 0.1 0.5
