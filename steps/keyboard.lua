@@ -109,7 +109,8 @@ dg_sprint_core.register_server_step(mod_name ..":KEY_STEP", KEY_STEP_INTERVAL, f
         
         end
         local controls = player:get_player_control()
-        if p_data.settings.enable_ssprint and (controls.left and controls.right) then
+
+        if p_data.settings.enable_ssprint and (controls.left and controls.right) and not controls.up then
             if not p_data.states.super_toggle_press then
 
                 p_data.states.super_sprint = not p_data.states.super_sprint
