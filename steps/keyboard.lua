@@ -32,6 +32,7 @@ local function create_pdata(player)
             super_toggle_press = false,
             aux_pressed = false,
         },
+        prevent_detection_reasons = {},
     }
 end
 
@@ -55,6 +56,19 @@ core.register_on_leaveplayer(function(player)
 end)
 
 
+-- Register a function to prevent or allow draining based on reasons
+dg_sprint_core.prevent_detection = function(player, enabled, reason)
+    local p_data = player_data[player:get_player_name()]
+    if p_data and p_data.prevent_detection_reasons then
+        if enabled then
+            p_data.prevent_detection_reasons[reason] = true
+        else
+            p_data.prevent_detection_reasons[reason] = nil
+        end
+    end
+end
+
+
 dg_sprint_core.register_server_step(mod_name ..":KEY_STEP", KEY_STEP_INTERVAL, function(player, dtime)
     local p_name = player:get_player_name()
     local p_data = player_data[p_name]
@@ -62,38 +76,52 @@ dg_sprint_core.register_server_step(mod_name ..":KEY_STEP", KEY_STEP_INTERVAL, f
     local current_time_us = core.get_us_time() / 1e6
    
     if not p_data then return end
-    if p_control_bit == (32 + 1) and p_data.settings.aux1 then
-        p_data.states.detected = true
-        p_data.states.is_holding = false
-        p_data.states.aux_pressed = true
-    elseif p_control_bit == 1 and not p_data.settings.double_tap then
-        p_data.states.detected = false
-        p_data.states.is_holding = false
-        p_data.states.aux_pressed = false
-    elseif p_control_bit == 1 and p_data.settings.double_tap then
-        if not p_data.states.is_holding then
-            if current_time_us - p_data.states.last_tap_time < p_data.settings.tap_interval  then
-                p_data.states.detected = true
-            end
-            p_data.states.last_tap_time = current_time_us
-            p_data.states.is_holding = true
+    local cancel_active = false
+    if p_data.prevent_detection_reasons then
+        for reason, _ in pairs(p_data.prevent_detection_reasons) do
+            cancel_active = true
+            break
         end
-        p_data.states.aux_pressed = false
-    elseif p_control_bit == 0 or p_control_bit == 32 then
-        p_data.states.detected = false
-        p_data.states.is_holding = false
-        p_data.states.aux_pressed = false
-    
     end
-    local controls = player:get_player_control()
-    if p_data.settings.enable_ssprint and (controls.left and controls.right) then
-        if not p_data.states.super_toggle_press then
-            
-            p_data.states.super_sprint = not p_data.states.super_sprint
-            p_data.states.super_toggle_press = true
+
+    if not cancel_active then
+        if p_control_bit == (32 + 1) and p_data.settings.aux1 then
+            p_data.states.detected = true
+            p_data.states.is_holding = false
+            p_data.states.aux_pressed = true
+        elseif p_control_bit == 1 and not p_data.settings.double_tap then
+            p_data.states.detected = false
+            p_data.states.is_holding = false
+            p_data.states.aux_pressed = false
+        elseif p_control_bit == 1 and p_data.settings.double_tap then
+            if not p_data.states.is_holding then
+                if current_time_us - p_data.states.last_tap_time < p_data.settings.tap_interval  then
+                    p_data.states.detected = true
+                end
+                p_data.states.last_tap_time = current_time_us
+                p_data.states.is_holding = true
+            end
+            p_data.states.aux_pressed = false
+        elseif p_control_bit == 0 or p_control_bit == 32 then
+            p_data.states.detected = false
+            p_data.states.is_holding = false
+            p_data.states.aux_pressed = false
+        
+        end
+        local controls = player:get_player_control()
+        if p_data.settings.enable_ssprint and (controls.left and controls.right) then
+            if not p_data.states.super_toggle_press then
+
+                p_data.states.super_sprint = not p_data.states.super_sprint
+                p_data.states.super_toggle_press = true
+            end
+        else
+            p_data.states.super_toggle_press = false
         end
     else
-        p_data.states.super_toggle_press = false
+        p_data.states.detected = false
+        p_data.states.is_holding = false
+        p_data.states.aux_pressed = false
     end
 end)
 
