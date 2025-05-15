@@ -17,6 +17,22 @@ dg_sprint_core.hp_threshold    (HP threshold)                       float 6.0 1.
 dg_sprint_core.climbable       (On climbable nodes)                 bool false
 dg_sprint_core.wall            (Running against wall)               bool false
 
-[Advanced]
+[Advanced: Step intervals]
 
-dg_sprint_core.sprint_step_interval   (Sprint step interval)    float 0.5 0.1 1.0
+dg_sprint_core.key_step_interval        (Key step)         float 0.15 0.1 1.0
+
+dg_sprint_core.detection_step_interval  (Detection step)   float 0.2 0.1 1.0
+
+
+# Decrease performance: Increase this value may decrease server performance.
+# Increase particle effects: Decrease this value may increase the number of particles shown.
+dg_sprint_core.particle_step_interval   (Particle step)    float 0.5 0.1 1.0
+
+# Decrease performance: Increase this value may decrease server performance.
+# Increase responsiveness: Decrease this value may increase the responsiveness of sprinting.
+dg_sprint_core.sprint_step_interval     (Sprint step)      float 0.5 0.1 1.0
+
+dg_sprint_core.move_drain_step_interval   (Move drain step)  float 0.5 0.1 1.0
+dg_sprint_core.drain_step_interval (Drain step) float 0.2 0.1 1.0
+
+dg_sprint_core.cancel_step_interval (Cancel step) float 0.5 0.1 0.5

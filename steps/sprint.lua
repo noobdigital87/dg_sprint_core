@@ -123,7 +123,7 @@ end
 
 local STEPS = {
     DETECTION_STEP = {
-        INTERVAL = 0.2,
+        INTERVAL = tonumber(core.settings:get(mod_name .. ".detection_step_interval")) or 0.2,
         NAME = mod_name .. ":DETECTION_STEP",
         CALLBACK = function(player, dtime)
 
@@ -164,7 +164,7 @@ local STEPS = {
         end
     },
     PARTICLE_STEP = {
-        INTERVAL = 0.5,
+        INTERVAL = tonumber(core.settings:get(mod_name .. ".particle_step_interval")) or 0.5,
         NAME = mod_name .. ":PARTICLE_STEP",
         CALLBACK = function(player, dtime)
             local p_name = player:get_player_name()

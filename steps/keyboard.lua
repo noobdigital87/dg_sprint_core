@@ -4,7 +4,7 @@ local player_data = {}
 
 local mod_name = core.get_current_modname()
 
-local keyboard_tick = 0.15
+local KEY_STEP_INTERVAL = tonumber(core.settings:get(mod_name .. ".key_step_interval")) or 0.15
 
 local function is_player(player)
 
@@ -55,7 +55,7 @@ core.register_on_leaveplayer(function(player)
 end)
 
 
-dg_sprint_core.register_server_step(mod_name ..":keyboard_step", keyboard_tick, function(player, dtime)
+dg_sprint_core.register_server_step(mod_name ..":KEY_STEP", KEY_STEP_INTERVAL, function(player, dtime)
     local p_name = player:get_player_name()
     local p_data = player_data[p_name]
     local p_control_bit = player:get_player_control_bits()

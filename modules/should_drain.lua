@@ -36,7 +36,7 @@ end
 -- Register server steps for draining logic
 local STEPS = {
     MOVE_DRAIN_STEP = {
-        INTERVAL = 0.5,
+        INTERVAL = tonumber(core.settings:get(mod_name .. ".move_drain_step_interval")) or 0.5,
         NAME = mod_name .. ":MOVE_DRAIN_STEP",
         CALLBACK = function(player, dtime)
             local p_pos = player:get_pos()
@@ -60,7 +60,7 @@ local STEPS = {
         end
     },
     DRAIN_STEP = {
-        INTERVAL = 0.2,
+        INTERVAL = tonumber(core.settings:get(mod_name .. ".drain_step_interval")) or 0.2,
         NAME = mod_name .. ":DRAIN_STEP",
         CALLBACK = function(player, dtime)
             local sprinting = dg_sprint_core.is_sprinting(player)
