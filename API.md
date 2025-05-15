@@ -281,3 +281,46 @@ end
 ```
 
 ---
+# Register a function to prevent or allow draining based on reasons
+
+dg_sprint_core.prevent_drain(`player`, `enabled`, `reason`)
+
+### Parameters:
+  - `player`: The player object.
+  - `enabled`: A boolean (`true` to prevent draining, `false` to allow it).
+  - `reason`: A string identifier for the condition that affects draining.
+
+### Description:
+Registers or removes a reason that affects whether a player's sprint resource is drained. This allows mods to implement custom logic for when sprinting should be exempt from stamina depletion (e.g., while holding a specific item or in a special state).
+
+### Example Usage:
+```lua
+-- Detailed example: Prevent sprint drain when holding a special item or in a custom state
+local player = core.get_player_by_name("singleplayer")
+
+-- 1. Check if player is holding a "sprint_tonic" item
+local inv = player:get_inventory()
+if inv:contains_item("main", "your_modname:sprint_tonic") then
+    -- 2. Prevent drain with a specific reason
+    dg_sprint_core.prevent_drain(player, true, "sprint_tonic")
+    
+    -- 3. Optional: Show visual feedback
+    core.chat_send_player(player:get_player_name(), "Sprint stamina is now protected!")
+end
+
+-- 4. Example of removing a reason after 10 seconds
+minetest.after(10, function()
+    dg_sprint_core.prevent_drain(player, false, "sprint_tonic")
+    core.chat_send_player(player:get_player_name(), "Sprint protection expired.")
+end)
+
+-- 5. Example of combining multiple conditions
+if dg_sprint_core.is_super_sprint_active(player) then
+    dg_sprint_core.prevent_drain(player, true, "super_sprint_mode")
+end
+
+-- 6. Example of checking active reasons (combined with is_draining)
+if dg_sprint_core.is_draining(player) then
+    core.chat_send_player(player:get_player_name(), "Sprint stamina is being drained!")
+end
+--
