@@ -1,7 +1,6 @@
 local player_data = {}
 local api = dg_sprint_core
 local mod_name = core.get_current_modname()
-local enable_sprint = core.settings:get_bool(mod_name .. ".enable_sprint", false)
 local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
 local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
 local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
@@ -26,11 +25,6 @@ end
 core.register_on_joinplayer(function(player)
     local name = player:get_player_name()
     player_data[name] = create_pdata(player)
-    if enable_sprint then
-        api.enable_aux1(player, true)
-        api.enable_double_tap(player, true)
-        api.enable_particles(player, true)
-    end
 end)
 
 
@@ -144,9 +138,6 @@ local STEPS = {
             end
         
             p_data.states.detected =  dg_sprint_core.tools.is_key_detected(player) and not cancel_active
-            if enable_sprint then
-                api.sprint(player, p_data.states.detected)
-            end
         end
     },
     PARTICLE_STEP = {
