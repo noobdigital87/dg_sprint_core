@@ -38,9 +38,13 @@ end)
 -- When you are sprinting the draining will set to true automaticly.
 -- It has a built in prevention from draining when not moving.
 
+-- Make your step name unique
 local step_name_2 = mod_name .. ":DRAIN"
+
+-- Set the step interval in seconds.
 local drain_interval = 0.2
 
+-- Register a new timed step
 dg_sprint_core.register_step(step_name_2, drain_interval, function(player, dtime)
     -- check if the player should drain stamina/hunger etc.
     local should_drain = dg_sprint_core.is_draining(player)
