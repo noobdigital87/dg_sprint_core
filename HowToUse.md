@@ -1,4 +1,4 @@
-## How to sprint example
+## How to use
 
 ```lua
 
