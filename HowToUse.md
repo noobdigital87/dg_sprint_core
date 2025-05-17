@@ -15,9 +15,9 @@ local mod_name = core.get_current_modname()
 local step_name = mod_name .. ":SPRINT" -- This will result in "modname:SPRINT".
 
 -- Set the step interval in seconds.
-local interval = 0.5
+local sprint_interval = 0.5
 
-dg_sprint_core.register_step(step_name, interval, function(player, dtime)
+dg_sprint_core.register_step(step_name, sprint_interval, function(player, dtime)
 
     -- It checks if the player has pressed the sprint key or activated double tap
     local sprint_key_detected = dg_sprint_core.is_key_detected()
