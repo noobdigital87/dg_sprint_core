@@ -115,11 +115,10 @@ api.sprint = function(player, sprinting)
 end
 -------------------------------------------------------------------------------------------------------------------------------
 --[[ SERVER STEPS ]]--
-local KEY_STEP_INTERVAL_4HZ = 0.25
-local KEY_STEP_INTERVAL_2HZ = 0.5
+
 local STEPS = {
     DETECTION_STEP = {
-        INTERVAL = KEY_STEP_INTERVAL_4HZ,
+        INTERVAL = 0.15,
         NAME = mod_name .. ":DETECTION_STEP",
         CALLBACK = function(player, dtime)
 
@@ -141,7 +140,7 @@ local STEPS = {
         end
     },
     PARTICLE_STEP = {
-        INTERVAL = KEY_STEP_INTERVAL_2HZ,
+        INTERVAL = 0.5,
         NAME = mod_name .. ":PARTICLE_STEP",
         CALLBACK = function(player, dtime)
             local p_name = player:get_player_name()

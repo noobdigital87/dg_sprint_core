@@ -33,12 +33,11 @@ dg_sprint_core.prevent_drain = function(player, enabled, reason)
         end
     end
 end
-local KEY_STEP_INTERVAL_60HZ = 1/60
-local KEY_STEP_INTERVAL_2HZ = 1/2
+
 -- Register server steps for draining logic
 local STEPS = {
     MOVE_DRAIN_STEP = {
-        INTERVAL = KEY_STEP_INTERVAL_2HZ,
+        INTERVAL = 0.5,
         NAME = mod_name .. ":MOVE_DRAIN_STEP",
         CALLBACK = function(player, dtime)
             local p_pos = player:get_pos()
@@ -62,7 +61,7 @@ local STEPS = {
         end
     },
     DRAIN_STEP = {
-        INTERVAL = KEY_STEP_INTERVAL_60HZ,
+        INTERVAL = 0.5,
         NAME = mod_name .. ":DRAIN_STEP",
         CALLBACK = function(player, dtime)
             local sprinting = dg_sprint_core.is_sprinting(player)

@@ -6,7 +6,6 @@ local player_data = {}
 
 local mod_name = core.get_current_modname()
 
-local KEY_STEP_INTERVAL_30HZ = 0.0334
 
 local function is_player(player)
 
@@ -48,7 +47,7 @@ core.register_on_leaveplayer(function(player)
     player_data[name] = nil
 end)
 
-api.register_step(mod_name ..":KEY_STEP", KEY_STEP_INTERVAL_30HZ, function(player, dtime)
+api.register_step(mod_name ..":KEY_STEP", 0.1, function(player, dtime)
     local p_name = player:get_player_name()
     local p_data = player_data[p_name]
     local p_control_bit = player:get_player_control_bits()
