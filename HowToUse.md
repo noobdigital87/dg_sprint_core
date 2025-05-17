@@ -3,7 +3,7 @@
 ```lua
 
 --[[
-    1. When a player joins give him the appropiate settings
+    1. When a player joins give him the appropiate settings.
 ]]
 
 core.register_on_joinplayer(function(player)
