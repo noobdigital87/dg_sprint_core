@@ -285,25 +285,21 @@ dg_sprint_core.cancel_sprint(`player`, `cancel`, `reason`)
 
 ### Parameters:
 - `player`: The player object.
-- `cancel`: A boolean indicating whether to cancel the sprint (`true`) or not (`false`).
+- `cancel`: A boolean indicating whether to cancel the sprint (`true`) or remove the cancellation (`false`).
 - `reason`: A string describing the reason for cancelling the sprint.
 
 ### Description:
-This function manages the cancellation of a sprint by updating the player's internal data. It records the cancellation reasons in the `cancel_sprint_reasons` table associated with the player's name. When `cancel` is set to `true`, the specified reason is added; when set to `false`, the reason is removed. This allows for tracking of multiple cancellation triggers at once.
+This function manages the cancellation of a sprint by updating the player's internal cancellation reasons. When `cancel` is set to `true`, the provided `reason` is added to the player's cancellation record. When set to `false`, the specified reason is removed, potentially allowing the player to resume sprinting.
 
-### Example Implementation:
+### Example Usage:
 ```lua
-dg_sprint_core.cancel_sprint = function(player, cancel, reason)
-    local p_name = player:get_player_name()
-    local p_data = player_data[p_name]
-    if p_data then
-        p_data.cancel_sprint_reasons = p_data.cancel_sprint_reasons or {}
-        if cancel then
-            p_data.cancel_sprint_reasons[reason] = true
-        else
-            p_data.cancel_sprint_reasons[reason] = nil
-        end
-    end
+local player = minetest.get_player_by_name("example_player")
+if player then
+    -- Cancel the sprint for the player, specifying the reason "timeout".
+    dg_sprint_core.cancel_sprint(player, true, "timeout")
+    
+    -- Later on, remove the cancellation reason to allow sprinting again.
+    dg_sprint_core.cancel_sprint(player, false, "timeout")
 end
 ```
 
@@ -311,27 +307,25 @@ end
 
 # Prevent Detection
 
-dg_sprint_core.prevent_detection(`player`, `enabled`, `reason`)
+api.prevent_detection(`player`, `enabled`, `reason`)
 
 ### Parameters:
 - `player`: The player object.
-- `enabled`: A boolean indicating whether to enable prevention of sprint key detection (`true`) or not (`false`).
-- `reason`: A string specifying the reason for toggling the detection prevention.
+- `enabled`: A boolean indicating whether to prevent sprint key detection (`true`) or enable it (`false`).
+- `reason`: A string specifying the reason for toggling prevention.
 
 ### Description:
-This function toggles the prevention of sprint key detection for the given player. It first verifies that the provided object is a valid player using `is_player(player)`. Then, it updates the player's `prevent_detection_reasons` table by either adding or removing the specified reason. This mechanism is useful for managing multiple scenarios where sprint key detection should be temporarily disabled.
+This function toggles the prevention of sprint key detection for a given player. When `enabled` is `true`, the sprint key detection is prevented and the reason is recorded. When `enabled` is `false`, the function removes the specified reason, re-enabling the sprint key detection if no other prevention reasons exist.
 
-### Example Implementation:
+### Example Usage:
 ```lua
-dg_sprint_core.prevent_detection = function(player, enabled, reason)
-    if not is_player(player) then return end
-    local p_data = player_data[player:get_player_name()]
-    if p_data and p_data.prevent_detection_reasons then
-        if enabled then
-            p_data.prevent_detection_reasons[reason] = true
-        else
-            p_data.prevent_detection_reasons[reason] = nil
-        end
-    end
+local player = minetest.get_player_by_name("example_player")
+if player then
+    -- Prevent sprint key detection for the player with the reason "action_delay".
+    api.prevent_detection(player, true, "action_delay")
+    
+    -- Later on, disable the prevention for the same reason.
+    api.prevent_detection(player, false, "action_delay")
 end
 ```
+
