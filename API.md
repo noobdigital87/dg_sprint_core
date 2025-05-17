@@ -276,9 +276,8 @@ if dg_sprint_core.is_draining(player) then
     core.chat_send_player(player:get_player_name(), "Sprint stamina is being drained!")
 end
 ```
---
 
-```lua
+
 # Cancel Sprint
 
 dg_sprint_core.cancel_sprint(`player`, `cancel`, `reason`)
