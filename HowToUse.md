@@ -5,8 +5,7 @@
 --[[
     1. When a player joins give him the appropiate settings
 ]]
--- Enable sprinting features when a player joins
--- Each player can have customized sprinting settings
+
 core.register_on_joinplayer(function(player)
     dg_sprint_core.enable_aux1(player, true) -- Enable sprinting with the auxiliary key
     dg_sprint_core.enable_double_tap(player, true) -- Enable sprinting with double-tap
@@ -46,10 +45,8 @@ end)
 
 
 --[[
-    3. Checks if the player is sprinting and not moving. When both are true the draining is enabled and you caN add your logic
+    3. Checks if the player is sprinting and moving. When both are true the draining is enabled and you caN add your logic
 ]]
--- Sprinting automatically enables draining (e.g., stamina/hunger reduction)
--- Drain prevention is built-in when the player is not moving
 
 -- Create a unique step name for draining functionality
 local step_name_2 = mod_name .. ":DRAIN"
