@@ -1,59 +1,60 @@
 ## How to use
 
 ```lua
-
--- When a player joins, enable sprinting features
--- It is possible to change the features for each player individually
+-- Enable sprinting features when a player joins
+-- Each player can have customized sprinting settings
 core.register_on_joinplayer(function(player)
-    dg_sprint_core.enable_aux1(player, true)
-    dg_sprint_core.enable_double_tap(player, true)
-    dg_sprint_core.enable_particles(player, true)
+    dg_sprint_core.enable_aux1(player, true) -- Enable sprinting with the auxiliary key
+    dg_sprint_core.enable_double_tap(player, true) -- Enable sprinting with double-tap
+    dg_sprint_core.enable_particles(player, true) -- Enable sprint particle effects
 end)
 
--- Make your step name unique
+-- Create a unique step name using the mod name
 local mod_name = core.get_current_modname()
-local step_name_1 = mod_name .. ":SPRINT" -- This will result in "modname:SPRINT".
+local step_name_1 = mod_name .. ":SPRINT" -- Results in "modname:SPRINT"
 
--- Set the step interval in seconds.
+-- Set the sprinting check interval (in seconds)
 local sprint_interval = 0.5
 
+-- Register a step that manages sprinting mechanics
 dg_sprint_core.register_step(step_name_1, sprint_interval, function(player, dtime)
 
-    -- It checks if the player has pressed the sprint key or activated double tap
+    -- Check if the player has activated sprinting (via sprint key or double tap)
     local sprint_key_detected = dg_sprint_core.is_key_detected()
-    
-    -- When detected you can let the player sprint
+
+    -- Enable or disable sprinting based on the input
     if sprint_key_detected then
-        dg_sprint_core.sprint(player, true) -- Enable sprinting for this player.
+        dg_sprint_core.sprint(player, true) -- Enable sprinting for this player
     else
-        dg_sprint_core.sprint(player, false) -- Disable sprinting for this player.
+        dg_sprint_core.sprint(player, false) -- Disable sprinting for this player
     end
 
-    -- when the API dg_sprint_core.sprint gets called you can check the state if a player is sprinting and do some magic
+    -- Check if the player is sprinting, then perform additional effects or logic
     if dg_sprint_core.is_sprinting(player) then
-        -- Do the magic
+        -- Add custom sprint-related mechanics here
     end
 end)
 
--- When you are sprinting the draining will set to true automaticly.
--- It has a built in prevention from draining when not moving.
+-- Sprinting automatically enables draining (e.g., stamina/hunger reduction)
+-- Drain prevention is built-in when the player is not moving
 
--- Make your step name unique
+-- Create a unique step name for draining functionality
 local step_name_2 = mod_name .. ":DRAIN"
 
--- Set the step interval in seconds.
+-- Set the draining check interval (in seconds)
 local drain_interval = 0.2
 
--- Register a new timed step
+-- Register a step that manages stamina/hunger drain
 dg_sprint_core.register_step(step_name_2, drain_interval, function(player, dtime)
-    -- check if the player should drain stamina/hunger etc.
+    -- Check if the player should lose stamina/hunger while sprinting
     local should_drain = dg_sprint_core.is_draining(player)
 
     if should_drain then
-        -- Do your magic
+        -- Add custom draining logic here
     end
 end)
-
 ```
+
+
 
 
