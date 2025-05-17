@@ -66,7 +66,6 @@ end)
         You need to press the sprint button again to sprint again.
 ]]
 
-
 local step_name_3 = mod_name .. ":PREVENTION"
 local prevention_interval = 0.2
 
@@ -82,16 +81,14 @@ dg_sprint_core.register_step(step_name_3, prevention_interval, function(player, 
     end
 end)
 
-
 --[[
-    4. Sprint cancellations
+    5. Sprint cancellations
     When cancelling the player will also stop sprinting but the sprint key is still detected. Maybe when you are in the air and what to cancel the sprint but when on te ground it should continue sprinting.
 ]]
 
 local step_name_4 = mod_name .. ":CANCELLATION"
 local cancellation_interval = 0.2
 
--- Register a step that manages stamina/hunger drain
 dg_sprint_core.register_step(step_name_3, cancellation_interval, function(player, dtime)
     -- Get the players health
     local health = player:get_hp()
