@@ -7,7 +7,7 @@ core.register_on_joinplayer(function(player)
     dg_sprint_core.enable_aux1(player, true) -- Enable sprinting with the auxiliary key
     dg_sprint_core.enable_double_tap(player, true) -- Enable sprinting with double-tap
     dg_sprint_core.enable_particles(player, true) -- Enable sprint particle effects
-    dg_sprint_core.enable_drain(player, true) -- This is needed or else draining stays forever false
+    dg_sprint_core.enable_drain(player, true) -- Enable the drain mechanics
 end)
 
 -- Create a unique step name using the mod name
