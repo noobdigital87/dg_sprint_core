@@ -6,7 +6,7 @@ local mod_name = core.get_current_modname()
 local function create_pdata()
     return {
         drain = false,
-        enable_drain = true,
+        enable_drain = false,
         prevent_drain_reasons = {},
     }
 end
