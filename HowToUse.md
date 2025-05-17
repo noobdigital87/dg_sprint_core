@@ -89,10 +89,10 @@ end)
 ]]
 
 local step_name_4 = mod_name .. ":CANCELLATION"
-local prevention_interval = 0.2
+local cancellation_interval = 0.2
 
 -- Register a step that manages stamina/hunger drain
-dg_sprint_core.register_step(step_name_3, prevention_interval, function(player, dtime)
+dg_sprint_core.register_step(step_name_3, cancellation_interval, function(player, dtime)
     -- Get the players health
     local health = player:get_hp()
 
