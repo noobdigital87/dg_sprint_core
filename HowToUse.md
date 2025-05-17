@@ -1,6 +1,10 @@
 ## How to use
 
 ```lua
+
+--[[
+    1. When a player joins give him the appropiate settings
+]]
 -- Enable sprinting features when a player joins
 -- Each player can have customized sprinting settings
 core.register_on_joinplayer(function(player)
@@ -9,6 +13,10 @@ core.register_on_joinplayer(function(player)
     dg_sprint_core.enable_particles(player, true) -- Enable sprint particle effects
     dg_sprint_core.enable_drain(player, true) -- Enable the drain mechanics
 end)
+
+--[[
+    2. Check if a sprint key or double tap have been triggered and let the player sprint
+]]
 
 -- Create a unique step name using the mod name
 local mod_name = core.get_current_modname()
@@ -36,6 +44,10 @@ dg_sprint_core.register_step(step_name_1, sprint_interval, function(player, dtim
     end
 end)
 
+
+--[[
+    3. Checks if the player is sprinting and not moving. When both are true the draining is enabled and you caN add your logic
+]]
 -- Sprinting automatically enables draining (e.g., stamina/hunger reduction)
 -- Drain prevention is built-in when the player is not moving
 
