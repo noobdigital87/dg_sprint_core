@@ -43,19 +43,15 @@ dg_sprint_core.register_step(step_name_1, sprint_interval, function(player, dtim
     end
 end)
 
-
 --[[
     3. Checks if the player is sprinting and moving. When both are true the draining is enabled and you caN add your logic
 ]]
 
--- Create a unique step name for draining functionality
 local step_name_2 = mod_name .. ":DRAIN"
-
--- Set the draining check interval (in seconds)
 local drain_interval = 0.2
 
--- Register a step that manages stamina/hunger drain
 dg_sprint_core.register_step(step_name_2, drain_interval, function(player, dtime)
+
     -- Check if the player should lose stamina/hunger while sprinting
     local should_drain = dg_sprint_core.is_draining(player)
 
@@ -63,6 +59,51 @@ dg_sprint_core.register_step(step_name_2, drain_interval, function(player, dtime
         -- Add custom draining logic here
     end
 end)
+
+--[[
+    4. Prevent key detection
+        When preventing a key it will completely cancel the sprint and the detection.
+        You need to press the sprint button again to sprint again.
+]]
+
+
+local step_name_3 = mod_name .. ":PREVENTION"
+local prevention_interval = 0.2
+
+dg_sprint_core.register_step(step_name_3, prevention_interval, function(player, dtime)
+    -- Get the players health
+    local health = player:get_hp()
+
+    -- Check if the players health is lower then 5 points
+    if health < 5 then
+        dg_sprint_core.prevent_detection(player, true, mod_name .. ":step_name_3")
+    else
+        dg_sprint_core.prevent_detection(player, false, mod_name .. ":step_name_3") -- Do not forget to add this when detection needs to work again.
+    end
+end)
+
+
+--[[
+    4. Sprint cancellations
+    When cancelling the player will also stop sprinting but the sprint key is still detected. Maybe when you are in the air and what to cancel the sprint but when on te ground it should continue sprinting.
+]]
+
+local step_name_4 = mod_name .. ":CANCELLATION"
+local prevention_interval = 0.2
+
+-- Register a step that manages stamina/hunger drain
+dg_sprint_core.register_step(step_name_3, prevention_interval, function(player, dtime)
+    -- Get the players health
+    local health = player:get_hp()
+
+    -- Check if the players health is lower then 5 points
+    if health < 5 then
+        dg_sprint_core.cancel_sprint(player, true, mod_name .. ":step_name_4")
+    else
+        dg_sprint_core.cancel_sprint(player, false, mod_name .. ":step_name_4") -- Do not forget to add this when detection needs to work again.
+    end
+end)
+
 ```
 
 ## Defaulted settings in code:
