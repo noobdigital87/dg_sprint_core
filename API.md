@@ -175,7 +175,7 @@ This function sets an additional speed multiplier for a player when they are spr
 ```lua
 local player = minetest.get_player_by_name("example_player")
 if player then
-   dg_sprint_core.set_speed(player, 1.5)  -- Set extra speed multiplier to 1.5x
+   dg_sprint_core.set_speed(player, 1.5)  -- Set extra speed is 1 + 1.5 = 2.5
 end
 ```
 
@@ -193,7 +193,7 @@ This function sets an additional jump height multiplier for a player when they a
 ```lua
 local player = minetest.get_player_by_name("example_player")
 if player then
-  dg_sprint_core.set_jump(player, 1.2)  -- Set extra jump height multiplier to 1.2x
+  dg_sprint_core.set_jump(player, 1.2)  -- Set extra jump height multiplier to 1 + 1.2 = 2.2
 end
 ```
 # Enable or disable sprint particles
