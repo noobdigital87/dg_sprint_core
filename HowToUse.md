@@ -28,6 +28,11 @@ dg_sprint_core.register_step(step_name_1, sprint_interval, function(player, dtim
     else
         dg_sprint_core.sprint(player, false) -- Disable sprinting for this player.
     end
+
+    -- when the API dg_sprint_core.sprint gets called you can check the state if a player is sprinting and do some magic
+    if dg_sprint_core.is_sprinting(player) then
+        -- Do the magic
+    end
 end)
 
 -- When you are sprinting the draining will set to true automaticly.
