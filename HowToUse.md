@@ -56,6 +56,11 @@ dg_sprint_core.register_step(step_name_2, drain_interval, function(player, dtime
 end)
 ```
 
+## Defaulted settings in code:
+
+- tap interval = 0.5 
+- extra_speed = 0.8
+- extra_jump = 0.1
 
 
 
