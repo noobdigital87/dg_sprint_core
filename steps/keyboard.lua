@@ -87,45 +87,45 @@ end)
 dg_sprint_core.tools.is_key_detected = function(player)
 	if not player then return false end
     	local name = player:get_player_name()
-    return player_data[name].states.detected
+    	return player_data[name].states.detected
 end
 
 -- API
 
 api.enable_aux1 = function(player, enable)
- if not is_player(player) then return end
-    local name = player:get_player_name()
-    if player_data[name] then
-        player_data[name].settings.aux1 = enable
-    end
+ 	if not player then return end
+	local name = player:get_player_name()
+	local p_data = player_data[name]
+    	if not p_data then return end
+	player_data[name].settings.aux1 = enable
 end
 
 api.enable_double_tap = function(player, enable)
- if not player then return end
-    local name = player:get_player_name()
-    if player_data[name] then
+ 	if not player then return end
+	local name = player:get_player_name()
+	local p_data = player_data[name]
+    	if not p_data then return end
         player_data[name].settings.double_tap = enable
-    end
 end
 
 api.set_tap_interval = function(player, interval)
  if not player then return end
-    local name = player:get_player_name()
-    if player_data[name] then
+ 	if not player then return end
+	local name = player:get_player_name()
+	local p_data = player_data[name]
+    	if not p_data then return end
         player_data[name].settings.tap_interval = interval
-    end
 end
 
 api.prevent_detection = function(player, enabled, reason)
 	if not player then return end
-	
-    	local p_data = player_data[player:get_player_name()]
-    
-    	if p_data and p_data.prevent_detection_reasons then
-        	if enabled then
-            		p_data.prevent_detection_reasons[reason] = true
-        	else
-            		p_data.prevent_detection_reasons[reason] = nil
-        	end
+	local name = player:get_player_name()
+    	local p_data = player_data[name]
+	if not p_data then return end
+	if not p_data.prevent_detection_reasons then return end 
+        if enabled then
+        	p_data.prevent_detection_reasons[reason] = true
+        else
+            	p_data.prevent_detection_reasons[reason] = nil
     	end
 end
