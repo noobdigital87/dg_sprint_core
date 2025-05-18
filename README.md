@@ -1,5 +1,5 @@
 # DG SPRINT: CORE
----
+
 This is a sprinting API nothing else. 
 
 ### **Features**:
@@ -12,5 +12,3 @@ This is a sprinting API nothing else.
 - Player_monoids
 - Pova
 - 3d Armor
-
----
