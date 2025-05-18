@@ -103,7 +103,7 @@ end)
 
 ```
 
-## Defaulted settings in code:
+## Default settings in code:
 
 - tap interval = 0.5 
 - extra_speed = 0.8
