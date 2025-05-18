@@ -4,21 +4,29 @@ local mod_name = core.get_current_modname()
 
 -- Function to create the initial data structure for each player's state
 local function create_pdata()
-    return {
-        drain = false,
-        enable_drain = false,
-        prevent_drain_reasons = {},
-    }
+	return {
+        	drain = false,
+        	enable_drain = false,
+        	prevent_drain_reasons = {},
+    	}
 end
 
 
 -- Initialize/reset the player's data when they join or leave the game
 core.register_on_joinplayer(function(player)
-    player_data[player:get_player_name()] = create_pdata()
+	if not player then return end
+	if not player_data then return end
+	local p_name = player:get_player_name()
+	local p_data = create_pdata()
+	if not p_data then return end
+	if not player_data[p_name] then
+		player_data[p_name] = p_data
+	end
 end)
 
 core.register_on_leaveplayer(function(player)
-    player_data[player:get_player_name()] = nil
+	if not player then return end
+    	player_data[player:get_player_name()] = nil
 end)
 
 
