@@ -12,3 +12,7 @@ This is a sprinting API nothing else.
 - Player_monoids
 - Pova
 - 3d Armor
+
+
+###### 3. **Player-Specific-Settings**
+- All settings are player specific, so you can change them even in-game.
