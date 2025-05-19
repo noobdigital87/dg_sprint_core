@@ -71,16 +71,16 @@ api.sprint = function(player, sprinting)
 
     if p_monoids then
         if sprinting then
-            p_data.states.is_sprinting = sprinting
             player_monoids.speed:add_change(player, 1 + p_data.settings.extra_speed, adj_name)
             player_monoids.jump:add_change(player, 1 + p_data.settings.extra_jump, adj_name)
         else
             player_monoids.speed:del_change(player, adj_name)
             player_monoids.jump:del_change(player, adj_name)
         end
+        p_data.states.is_sprinting = sprinting
     elseif pova_mod then
         if sprinting then
-            p_data.states.is_sprinting = sprinting
+           
             pova.add_override(player:get_player_name(), adj_name,
                     {speed = p_data.settings.extra_speed, jump = p_data.settings.extra_jump})
             pova.do_override(player)
@@ -88,6 +88,7 @@ api.sprint = function(player, sprinting)
             pova.del_override(player:get_player_name(), adj_name)
             pova.do_override(player)
         end
+         p_data.states.is_sprinting = sprinting
     else
         local def
         if armor_mod then
