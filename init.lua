@@ -19,7 +19,7 @@ dg_sprint_core.settings = {
 }
 
 dg_sprint_core.register_step(mod_name, "keyboard", 0.1, function(player, info, state, dtime)
-    if dg_sprint_core.IsSprintKeyDetected(player, settings.aux1, settings.double_tap, settings.tap_interval) then
+    if dg_sprint_core.IsSprintKeyDetected(player, dg_sprint_core.settings.aux1, dg_sprint_core.settings.double_tap, dg_sprint_core.settings.tap_interval) then
         state.is_sprinting = true
     else
         state.is_sprinting = false
