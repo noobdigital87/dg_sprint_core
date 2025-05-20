@@ -13,6 +13,3 @@ This is a sprinting API nothing else.
 - Pova
 - 3d Armor
 
-
-###### 3. **Player-Specific-Settings**
-- All setting related api calls are player specific and can be changed any time.
