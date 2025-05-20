@@ -15,4 +15,4 @@ This is a sprinting API nothing else.
 
 
 ###### 3. **Player-Specific-Settings**
-- All settings are player specific, so you can change them even in-game.
+- All setting related api calls are player specific and can be changed any time.
