@@ -11,7 +11,7 @@ dofile(lib_dir .. "init.lua")
 --[[ END LIB INIT ]]
 
 
-local settings = {
+dg_sprint_core.settings = {
     aux1 = core.settings:get_bool(mod_name .. "aux1", true),
     double_tap = core.settings:get_bool(mod_name .. ".double_tap", true),
     particles = core.settings:get_bool(mod_name .. ".particles", true),
