@@ -20,11 +20,18 @@ dg_sprint_core.settings = {
 }
 
 dg_sprint_core.register_step(mod_name, "keyboard", 0.1, function(player, info, state, dtime)
-    if dg_sprint_core.IsSprintKeyDetected(player, dg_sprint_core.settings.aux1, dg_sprint_core.settings.double_tap, dg_sprint_core.settings.tap_interval) then
-        state.is_sprinting = true
-    else
-        state.is_sprinting = false
-    end
+    	if dg_sprint_core.IsSprintKeyDetected(player, dg_sprint_core.settings.aux1, dg_sprint_core.settings.double_tap, dg_sprint_core.settings.tap_interval) then
+        	state.is_sprinting = true
+    	else
+        	state.is_sprinting = false
+    	end
+	local control = player:get_player_control()
+	if state.is_sprinting and control.down then
+		dg_sprint_core.prevent_detection(player, true, mod_name .. ":BACKWARDS")
+	else
+		dg_sprint_core.prevent_detection(player, false, mod_name .. ":BACKWARDS")
+	end
+	
 end)
 
 dg_sprint_core.register_step(mod_name, "should_drain", 0.2, function(player, info, state, dtime)
