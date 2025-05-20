@@ -1,0 +1,5 @@
+dg_sprint_core.aux1 (Enable aux1) bool true
+dg_sprint_core.double_tap (Enable double tap) bool true
+dg_sprint_core.particles (Enable particles) bool true
+dg_sprint_core.tap_interval (Enable particles) float 0.5 0.1 2.0
+
