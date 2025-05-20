@@ -1,4 +1,4 @@
-dg_sprint_core.aux1 (Enable Sprint) bool true
+dg_sprint_core.sprint (Enable Sprint) bool true
 dg_sprint_core.aux1 (Enable aux1) bool true
 dg_sprint_core.double_tap (Enable double tap) bool true
 dg_sprint_core.particles (Enable particles) bool true
