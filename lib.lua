@@ -1,16 +1,18 @@
-local server_steps = {}
+local server_steps = {
+	mod_name = {}
+}
 
 dg_sprint_core.register_step = function(mod_name, step_name, step_interval, step_callback)  -- function(player, dtime) end
 	
 	-- Validate parameter types
-    	assert(type(name) == "string", "Step name must be a string.")
-    	assert(type(interval) == "number" and interval > 0, "Interval must be a positive number.")
-    	assert(type(callback) == "function", "Callback must be a function.")
+    	assert(type(step_name) == "string", "Step name must be a string.")
+    	assert(type(step_interval) == "number" and step_interval > 0, "Interval must be a positive number.")
+    	assert(type(step_callback) == "function", "Callback must be a function.")
 
     	-- Assert that a step with the given name does not already exist
-    	assert(not server_steps[name], "Step with name '" .. name .. "' already exists!")
+    	assert(not server_steps[mod_name][step_name], "Step with name '" .. step_name .. "' already exists!")
 	
-    	server_steps[modname.. ":" .. step_name] = {
+    	server_steps[modname][step_name] = {
         	interval = step_interval,
         	elapsed = 0,
         	callback = step_callback
