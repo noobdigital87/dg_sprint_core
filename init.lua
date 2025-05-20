@@ -51,7 +51,7 @@ dg_sprint_core.register_step(mod_name, "sprint", 0.3, function(player, info, sta
 end)
 
 dg_sprint_core.register_step(mod_name, "particles", 0.5, function(player, info, state, dtime)
-	if state.is_sprinting then
+	if state.is_sprinting and dg_sprint_core.settings.particles then
     		dg_sprint_core.ShowParticles(player:get_pos())
 	end
 end)
