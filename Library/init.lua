@@ -1,0 +1,18 @@
+local mod_name = core.get_current_modname()
+
+local mod_dir = core.get_modpath(mod_name) .. "/"
+
+local server_lib_dir = mod_dir .. "Library/Server/"
+local keyboard_lib_dir = mod_dir .. "Library/Keyboard/"
+local nodes_lib_dir = mod_dir .. "Library/Nodes/"
+local player_lib_dir = mod_dir .. "Library/Player/"
+
+-- Keyboard Library
+dofile(keyboard_lib_dir .. "IsSprintKeyDetected.lua")
+
+-- Server
+dofile(server_lib_dir .. "RegisterStep.lua")
+
+-- Player
+dofile(player_lib_dir .. "Sprint.lua")
+dofile(player_lib_dir .. "ShowParticles.lua")
