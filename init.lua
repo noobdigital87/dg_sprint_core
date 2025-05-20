@@ -12,7 +12,8 @@ dofile(lib_dir .. "init.lua")
 
 
 dg_sprint_core.settings = {
-    aux1 = core.settings:get_bool(mod_name .. "aux1", true),
+	enable_sprint = core.settings:get_bool(mod_name .. ".sprint", true),
+    aux1 = core.settings:get_bool(mod_name .. ".aux1", true),
     double_tap = core.settings:get_bool(mod_name .. ".double_tap", true),
     particles = core.settings:get_bool(mod_name .. ".particles", true),
     tap_interval = tonumber(core.settings:get_bool(mod_name .. ".double_tap", true)) or 0.5,
