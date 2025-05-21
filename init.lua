@@ -22,8 +22,19 @@ dg_sprint_core.settings = {
     	tap_interval = 0.5,
 }
 
-dg_sprint_core.RegisterStep(your_mod_name, "DETECT_SPRINT")
+dg_sprint_core.RegisterStep(your_mod_name, "SPRINT", 0.1, function(player, state, dtime)
+	local detected = dg_sprint_core.IsSprintKeyDetected(player, settings.aux1, settings.double_tap, settings.tap_interval)
+	if detected ~= state.is_sprinting then
+		state.detected = detected
+	end
+end)
 
+dg_sprint_core.RegisterStep(your_mod_name, "SPRINT", 0.1, function(player, state, dtime)
+	local detected = dg_sprint_core.IsSprintKeyDetected(player, settings.aux1, settings.double_tap, settings.tap_interval)
+	if detected ~= state.is_sprinting then
+		state.is_sprinting = detected
+	end
+end)
 
 --[[ END EXAMPLE USE ]]--
 
