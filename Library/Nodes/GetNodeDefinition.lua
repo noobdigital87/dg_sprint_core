@@ -1,5 +1,5 @@
 
-dg_sprint_core.getNodeDefinition = function(player, altPos)
+dg_sprint_core.GetNodeDefinition = function(player, altPos)
   --[[
     This function retrieves the node definition for a given player position.
     It checks if the node below the player (or at the specified alternative position)
