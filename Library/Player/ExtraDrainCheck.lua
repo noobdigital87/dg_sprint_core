@@ -10,4 +10,5 @@ dg_sprint_core.ExtraDrainCheck = function(player)
         if not (is_moving and has_velocity) then
 		should_still_drain = false
 	end
+	return should_still_drain
 end
