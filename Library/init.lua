@@ -11,8 +11,9 @@ local player_lib_dir = mod_dir .. "Library/Player/"
 dofile(keyboard_lib_dir .. "IsSprintKeyDetected.lua")
 
 -- Nodes
-dofile(keyboard_lib_dir .. "GetNodeDefinition.lua")
-dofile(keyboard_lib_dir .. "IsNodeWalkable.lua")
+dofile(nodes_lib_dir .. "GetNodeDefinition.lua")
+dofile(nodes_lib_dir .. "IsNodeWalkable.lua")
+dofile(nodes_lib_dir .. "IsNodeLiquid.lua")
 
 -- Server
 dofile(server_lib_dir .. "RegisterStep.lua")
