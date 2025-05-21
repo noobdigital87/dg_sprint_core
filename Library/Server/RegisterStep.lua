@@ -61,8 +61,8 @@ core.register_globalstep(function(dtime)
                     if player_info[name] then
                         local p_states = player_states[name]
 
-                        -- Call the step callback with the player, info, states, and dtime
-                        tick.callback(player, p_info, p_states, dtime)
+                        -- Call the step callback with the player, states, and dtime
+                        tick.callback(player, p_states, dtime)
 
                         -- Reset the elapsed time
                         tick.elapsed = tick.elapsed - tick.interval
