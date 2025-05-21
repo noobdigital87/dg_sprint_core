@@ -10,7 +10,6 @@ local lib_dir = mod_dir .. "Library/"
 dofile(lib_dir .. "init.lua")
 --[[ END LIB INIT ]]
 
-
 --[[ START EXAMPLE USE
 
 local your_mod_name = core.get_current_modname()
@@ -43,6 +42,5 @@ dg_sprint_core.RegisterStep(your_mod_name, "DRAIN", 0.2, function(player, state,
 		
 	end
 end)
-
 
 END EXAMPLE USE ]]--
