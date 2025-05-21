@@ -20,3 +20,5 @@ dofile(server_lib_dir .. "RegisterStep.lua")
 -- Player
 dofile(player_lib_dir .. "Sprint.lua")
 dofile(player_lib_dir .. "ShowParticles.lua")
+dofile(player_lib_dir .. "IsMoving.lua")
+dofile(player_lib_dir .. "ExtraDrainCheck.lua")
