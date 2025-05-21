@@ -6,7 +6,7 @@ local function validate_step_parameters(mod_name, step_name, step_interval, step
     assert(type(step_callback) == "function", "Callback must be a function.")
 end
 
-dg_sprint_core.register_step = function(mod_name, step_name, step_interval, step_callback)
+dg_sprint_core.RegisterStep = function(mod_name, step_name, step_interval, step_callback)
     validate_step_parameters(mod_name, step_name, step_interval, step_callback)
 
     -- Initialize mod table if it doesn't exist
@@ -32,32 +32,15 @@ local player_states = {}
 
 core.register_on_joinplayer(function(player, last_login)
     if not player then return end
-
     local name = player:get_player_name()
-
     if not player_states[name] then
         player_states[name] = {}
-    end
-
-    if last_login == nil then
-        player_states[name].new_user = true
-    else
-        player_states[name].new_user = false
-    end
-
-    player_info[name] = {
-        name = name,
-        pos = player:get_pos(),
-        control = player:get_player_control(),
-        control_bit = player:get_player_control_bits(),
-    }
-    
+    end 
 end)
 
 core.register_on_leaveplayer(function(player)
     if not player then return end
     local name = player:get_player_name()
-    player_info[name] = nil
     player_states[name] = nil
 end)
 
@@ -76,8 +59,6 @@ core.register_globalstep(function(dtime)
 
                     -- Check if the player exists in player_info
                     if player_info[name] then
-                        -- Get the player's information and states
-                        local p_info = player_info[name]
                         local p_states = player_states[name]
 
                         -- Call the step callback with the player, info, states, and dtime
