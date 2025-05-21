@@ -38,8 +38,9 @@ dg_sprint_core.RegisterStep(your_mod_name, "SPRINT", 0.5, function(player, state
 end)
 
 dg_sprint_core.RegisterStep(your_mod_name, "DRAIN", 0.2, function(player, state, dtime)
-	local is_sprinting = state.detected
-	 dg_sprint_core.Sprint(mod_name, player, detected, {speed = 0.8, jump = 0.1})
+	local is_sprinting = state.is_sprinting
+	
+
 end)
 
 
