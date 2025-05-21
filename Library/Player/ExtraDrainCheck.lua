@@ -9,13 +9,11 @@ dg_sprint_core.ExtraDrainCheck = function(player)
         local has_velocity = horizontal_speed > 0.05
         if not (is_moving and has_velocity) then
 		should_still_drain = false
-	elseif then
+	elseif
         	local def = dg_lib.getNodeDefinition(player, {x = pos.x, y = pos.y - 1, z = pos.z})
         	if def then
-			if def.walkable then
-				player_data[name].on_ground = true
-        		elseif not def.walkable and player_data[name].on_ground then
-            			player_data[name].on_ground = false
+			if not def.walkable then
+            			should_still_drain = false
 			end
         	end
 	end
