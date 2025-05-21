@@ -11,6 +11,9 @@ dofile(lib_dir .. "init.lua")
 --[[ END LIB INIT ]]
 
 
+
+
+--[[
 dg_sprint_core.settings = {
 	enable_sprint = core.settings:get_bool(mod_name .. ".sprint", true),
     	aux1 = core.settings:get_bool(mod_name .. ".aux1", true),
@@ -63,3 +66,4 @@ dg_sprint_core.register_step(mod_name, "particles", 0.5, function(player, info, 
     		dg_sprint_core.ShowParticles(player:get_pos())
 	end
 end)
+]]--
