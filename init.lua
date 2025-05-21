@@ -39,7 +39,7 @@ end)
 dg_sprint_core.RegisterStep(your_mod_name, "DRAIN", 0.2, function(player, state, dtime)
 	local is_sprinting = state.is_sprinting
 	if dg_sprint_core.ExtraDrainCheck(player) then
-		
+		state.is_draining = true
 	end
 end)
 
