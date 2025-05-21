@@ -11,6 +11,22 @@ dofile(lib_dir .. "init.lua")
 --[[ END LIB INIT ]]
 
 
+--[[ START EXAMPLE USE ]]--
+
+local your_mod_name = core.get_current_modname()
+dg_sprint_core.settings = {
+	enable_sprint = true,
+    	aux1 = true,
+    	double_tap = true,
+    	particles = true,
+    	tap_interval = 0.5,
+}
+
+dg_sprint_core.RegisterStep(your_mod_name, "DETECT_SPRINT")
+
+
+--[[ END EXAMPLE USE ]]--
+
 
 
 --[[
