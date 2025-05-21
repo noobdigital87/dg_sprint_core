@@ -11,7 +11,7 @@ dofile(lib_dir .. "init.lua")
 --[[ END LIB INIT ]]
 
 
---[[ START EXAMPLE USE ]]--
+--[[ START EXAMPLE USE
 
 local your_mod_name = core.get_current_modname()
 dg_sprint_core.settings = {
@@ -37,13 +37,13 @@ dg_sprint_core.RegisterStep(your_mod_name, "SPRINT", 0.5, function(player, state
 	end
 end)
 
-dg_sprint_core.RegisterStep(your_mod_name, "SPRINT", 0.5, function(player, state, dtime)
-	local detected = state.detected
+dg_sprint_core.RegisterStep(your_mod_name, "DRAIN", 0.2, function(player, state, dtime)
+	local is_sprinting = state.detected
 	 dg_sprint_core.Sprint(mod_name, player, detected, {speed = 0.8, jump = 0.1})
 end)
 
 
---[[ END EXAMPLE USE ]]--
+END EXAMPLE USE ]]--
 
 
 
