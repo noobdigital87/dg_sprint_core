@@ -14,7 +14,7 @@ dofile(keyboard_lib_dir .. "IsSprintKeyDetected.lua")
 dofile(nodes_lib_dir .. "GetNodeDefinition.lua")
 dofile(nodes_lib_dir .. "IsNodeWalkable.lua")
 dofile(nodes_lib_dir .. "IsNodeLiquid.lua")
-
+dofile(nodes_lib_dir .. "IsNodeSnow.lua")
 -- Server
 dofile(server_lib_dir .. "RegisterStep.lua")
 

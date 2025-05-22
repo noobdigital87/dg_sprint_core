@@ -27,22 +27,20 @@ end)
 
 dg_sprint_core.IsSprintKeyDetected = function(player, detect_aux, detect_double_tap, interval)
 
-    	local name = player:get_player_name()
-   	local k_data = keyboard_data[name]
+	local name = player:get_player_name()
+	local k_data = keyboard_data[name]
 
-   	local control_bit = player:get_player_control_bits()
-    	local current_time_us = core.get_us_time() / 1e6
-
+	local control_bit = player:get_player_control_bits()
+	local current_time_us = core.get_us_time() / 1e6
 	local cancel_active = false
 
-    	if not k_data then return end
 
 	if k_data.prevent_detection_reasons then
-        	for reason, _ in pairs(k_data.prevent_detection_reasons) do
-            		cancel_active = true
-            		break
-        	end
-    	end
+		for reason, _ in pairs(k_data.prevent_detection_reasons) do
+			cancel_active = true
+			break
+		end
+	end
 
 	if cancel_active then
 		k_data.states.detected = false

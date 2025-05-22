@@ -58,7 +58,7 @@ core.register_globalstep(function(dtime)
                     local name = player:get_player_name()
 
                     -- Check if the player exists in player_info
-                    if player_info[name] then
+                    if player_states[name] then
                         local p_states = player_states[name]
 
                         -- Call the step callback with the player, states, and dtime
