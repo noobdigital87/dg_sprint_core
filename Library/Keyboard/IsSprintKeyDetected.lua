@@ -26,9 +26,6 @@ core.register_on_leaveplayer(function(player)
 end)
 
 dg_sprint_core.IsSprintKeyDetected = function(player, detect_aux, detect_double_tap, interval)
-    -- Validate inputs.
-    assert(type(player) == "table" and type(player.get_player_name) == "function", 
-           "dg_sprint_core.IsSprintKeyDetected: 'player' must be a valid player object with a get_player_name method.")
     assert(type(detect_aux) == "boolean", 
            "dg_sprint_core.IsSprintKeyDetected: 'detect_aux' must be a boolean.")
     assert(type(detect_double_tap) == "boolean", 
