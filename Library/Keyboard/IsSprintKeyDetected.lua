@@ -93,14 +93,27 @@ end
 
 
 dg_sprint_core.prevent_detection = function(player, enabled, reason)
-	if not player then return end
-	local name = player:get_player_name()
+    -- Validate inputs.
+    assert(player, "dg_sprint_core.prevent_detection: 'player' is required and cannot be nil.")
+    assert(
+        type(player) == "table" and type(player.get_player_name) == "function",
+        "dg_sprint_core.prevent_detection: 'player' must be a valid player object with a get_player_name method."
+    )
+    assert(type(enabled) == "boolean", "dg_sprint_core.prevent_detection: 'enabled' must be a boolean.")
+    assert(type(reason) == "string" and reason ~= "", "dg_sprint_core.prevent_detection: 'reason' must be a non-empty string.")
+
+    local name = player:get_player_name()
     local k_data = keyboard_data[name]
-	if not k_data then return end
-	if not k_data.prevent_detection_reasons then return end 
+    assert(k_data, "dg_sprint_core.prevent_detection: No keyboard data found for player: " .. name)
+    assert(
+        k_data.prevent_detection_reasons,
+        "dg_sprint_core.prevent_detection: 'prevent_detection_reasons' does not exist for player: " .. name
+    )
+
     if enabled then
         k_data.prevent_detection_reasons[reason] = true
     else
         k_data.prevent_detection_reasons[reason] = nil
     end
 end
+
