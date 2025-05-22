@@ -11,6 +11,17 @@ local p_monoids = core.get_modpath("player_monoids") and core.global_exists("pla
 --[[ API ]]--
 
 dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
+    -- Validate inputs.
+    assert(type(mod_name) == "string" and mod_name ~= "", "dg_sprint_core.Sprint: 'mod_name' must be a non-empty string.")
+    assert(
+        type(player) == "table" and type(player.get_player_name) == "function",
+        "dg_sprint_core.Sprint: 'player' must be a valid player object with a get_player_name method."
+    )
+    assert(type(sprinting) == "boolean", "dg_sprint_core.Sprint: 'sprinting' must be a boolean.")
+    assert(type(physics_table) == "table", "dg_sprint_core.Sprint: 'physics_table' must be a table.")
+    assert(type(physics_table.speed) == "number", "dg_sprint_core.Sprint: 'physics_table.speed' must be a number.")
+    assert(type(physics_table.jump) == "number", "dg_sprint_core.Sprint: 'physics_table.jump' must be a number.")
+
     local adj_name = mod_name .. ":physics"
 
     if p_monoids then
@@ -23,7 +34,7 @@ dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
         end
     elseif pova_mod then
         if sprinting then
-            pova.add_override(player:get_player_name(), adj_name,   {speed = physics_table.speed, jump = physics_table.jump})
+            pova.add_override(player:get_player_name(), adj_name, {speed = physics_table.speed, jump = physics_table.jump})
             pova.do_override(player)
         else
             pova.del_override(player:get_player_name(), adj_name)
@@ -54,5 +65,6 @@ dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
         player:set_physics_override(def)
     end
 end
+
 
 
