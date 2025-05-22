@@ -13,10 +13,6 @@ local p_monoids = core.get_modpath("player_monoids") and core.global_exists("pla
 dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
     -- Validate inputs.
     assert(type(mod_name) == "string" and mod_name ~= "", "dg_sprint_core.Sprint: 'mod_name' must be a non-empty string.")
-    assert(
-        type(player) == "table" and type(player.get_player_name) == "function",
-        "dg_sprint_core.Sprint: 'player' must be a valid player object with a get_player_name method."
-    )
     assert(type(sprinting) == "boolean", "dg_sprint_core.Sprint: 'sprinting' must be a boolean.")
     assert(type(physics_table) == "table", "dg_sprint_core.Sprint: 'physics_table' must be a table.")
     assert(type(physics_table.speed) == "number", "dg_sprint_core.Sprint: 'physics_table.speed' must be a number.")

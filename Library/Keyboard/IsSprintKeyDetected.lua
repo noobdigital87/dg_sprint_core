@@ -26,19 +26,19 @@ core.register_on_leaveplayer(function(player)
 end)
 
 dg_sprint_core.IsSprintKeyDetected = function(player, detect_aux, detect_double_tap, interval)
-    assert(type(detect_aux) == "boolean", 
+    assert(type(detect_aux) == "boolean",
            "dg_sprint_core.IsSprintKeyDetected: 'detect_aux' must be a boolean.")
-    assert(type(detect_double_tap) == "boolean", 
+    assert(type(detect_double_tap) == "boolean",
            "dg_sprint_core.IsSprintKeyDetected: 'detect_double_tap' must be a boolean.")
-    assert(type(interval) == "number", 
+    assert(type(interval) == "number",
            "dg_sprint_core.IsSprintKeyDetected: 'interval' must be a number.")
 
     local name = player:get_player_name()
-    assert(type(name) == "string" and name ~= "", 
+    assert(type(name) == "string" and name ~= "",
            "dg_sprint_core.IsSprintKeyDetected: Player name must be a non-empty string.")
-    
+
     -- Ensure that the global keyboard_data table and data for the player exists.
-    assert(keyboard_data and keyboard_data[name], 
+    assert(keyboard_data and keyboard_data[name],
            "dg_sprint_core.IsSprintKeyDetected: No keyboard data found for player: " .. tostring(name))
     local k_data = keyboard_data[name]
 
@@ -106,4 +106,3 @@ dg_sprint_core.prevent_detection = function(player, enabled, reason)
         k_data.prevent_detection_reasons[reason] = nil
     end
 end
-
