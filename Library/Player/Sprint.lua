@@ -67,4 +67,14 @@ dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
 end
 
 
+dg_sprint_core.VoxelLibreSprint = function(player, sprint)
+    if sprint then
+        playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
+        mcl_fovapi.apply_modifier(player, "sprint")
+    else
+        playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
+        mcl_fovapi.remove_modifier(player, "sprint")
+    end
+
+end
 
