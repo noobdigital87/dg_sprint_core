@@ -90,13 +90,6 @@ end
 
 
 dg_sprint_core.prevent_detection = function(player, enabled, reason)
-    -- Validate inputs.
-    assert(player, "dg_sprint_core.prevent_detection: 'player' is required and cannot be nil.")
-    assert(
-        type(player) == "table" and type(player.get_player_name) == "function",
-        "dg_sprint_core.prevent_detection: 'player' must be a valid player object with a get_player_name method."
-    )
-    assert(type(enabled) == "boolean", "dg_sprint_core.prevent_detection: 'enabled' must be a boolean.")
     assert(type(reason) == "string" and reason ~= "", "dg_sprint_core.prevent_detection: 'reason' must be a non-empty string.")
 
     local name = player:get_player_name()
