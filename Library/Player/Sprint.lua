@@ -62,9 +62,6 @@ dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
     end
 end
 
-local game_info = core.get_game_info()
-
-if game_info == "VoxeLibre" then
     dg_sprint_core.VoxeLibreSprint = function(player, sprint)
         if sprint then
             playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
@@ -74,5 +71,4 @@ if game_info == "VoxeLibre" then
             mcl_fovapi.remove_modifier(player, "sprint")
         end
     end
-end
 
