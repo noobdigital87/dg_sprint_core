@@ -73,10 +73,9 @@ end
 dg_sprint_core.McSprint = function(player, sprinting)
 	if sprinting then
 		playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
-			playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
-		else
-			playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
-			playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
-		end
+		playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
+	else
+		playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
 	end
 end
