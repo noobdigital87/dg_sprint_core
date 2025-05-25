@@ -79,3 +79,8 @@ dg_sprint_core.McSprint = function(player, sprinting)
 		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
 	end
 end
+
+dg_sprint_core.McSpeed = function(speed)
+	assert(type(speed) == "number", "dg_sprint_core.McSpeed: 'speed' must be a number.")
+	mcl_sprint.SPEED = speed
+end
