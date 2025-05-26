@@ -1,7 +1,7 @@
 local old_fov = core.settings:get("fov") or 72,
 
 core.register_on_respawnplayer(function(player)
-	player:set_fov(settings.old_fov, false, 0.6)
+	player:set_fov(old_fov, false, 0.6)
 end)
 
 core.register_on_leaveplayer(function(player)
