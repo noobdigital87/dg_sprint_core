@@ -1,4 +1,4 @@
-local old_fov = core.settings:get("fov") or 72,
+local old_fov = core.settings:get("fov") or 72
 
 core.register_on_respawnplayer(function(player)
 	player:set_fov(old_fov, false, 0.6)
