@@ -9,7 +9,7 @@ core.register_on_leaveplayer(function(player)
 end)
 
 dg_sprint_core.SetFov = function(player, fov_value, enable_fov, transition_time)
-	if enablefov then
+	if enable_fov then
 		if fov_value > 0 then
 			player:set_fov(old_fov + fov_value, false, transition_time)
 		end
