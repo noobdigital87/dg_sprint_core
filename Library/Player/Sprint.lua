@@ -3,8 +3,17 @@ local mod_name = core.get_current_modname()
 local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
 local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
 local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
+local playerph = core.get_modpath("playerphysics")
 
+if playerph and core.get_game_info().title == "mineclonia" then
+core.register_on_respawnplayer(function(player)
+	playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+end)
 
+core.register_on_leaveplayer(function(player)
+	playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+end)
+end
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
