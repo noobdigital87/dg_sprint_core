@@ -1,11 +1,11 @@
 local mod = core.get_modpath("hangglider")
 if mod then
+local players = {}
+
 dg_sprint_core.IsPlayerHangGliding = function(player)
     local name = player:get_player_name()
-    return players[name].is_hanggliding
+    return players[name].is_hanggliding == true
 end
-
-local players = {}
 
 local function GetNodeDefinition(player, altPos)
 	local playerName = player:get_player_name()
@@ -70,10 +70,8 @@ core.register_globalstep(function(dtime)
                 -- Only send messages when the state changes
                 if found_hangglider and not players[name].is_hanggliding then
                     players[name].is_hanggliding = true
-                    core.chat_send_player(name, "You are now using the hangglider!")
                 elseif not found_hangglider and players[name].is_hanggliding then
                     players[name].is_hanggliding = false
-                    core.chat_send_player(name, "You are no longer using the hangglider.")
                     players[name].used_hangglider = false
                 end
             end
