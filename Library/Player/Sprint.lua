@@ -4,7 +4,7 @@ local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
 local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
 local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
 local playerph = core.get_modpath("playerphysics")
-local hangglider = core.get_modpath("hangglider")
+
 if playerph and core.get_game_info().title == "mineclonia" then
 	core.register_on_respawnplayer(function(player)
 		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
@@ -36,11 +36,7 @@ dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
     	assert(type(physics_table.jump) == "number", "dg_sprint_core.Sprint: 'physics_table.jump' must be a number.")
 
     	local adj_name = mod_name .. ":physics"
-	if hangglider then
-		if dg_sprint_core.IsPlayerHangGliding(player) then
-			sprinting = false
-		end
-	end
+	
     	if p_monoids then
         	if sprinting then
             		player_monoids.speed:add_change(player, 1 + physics_table.speed, adj_name)
