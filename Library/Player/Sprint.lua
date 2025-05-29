@@ -15,7 +15,15 @@ if playerph and core.get_game_info().title == "mineclonia" then
 	end)
 end
 
+if playerph and core.get_game_info().title == "mineclone2" then
+	core.register_on_respawnplayer(function(player)
+		mcl_fovapi.remove_modifier(player, "sprint")
+	end)
 
+	core.register_on_leaveplayer(function(player)
+		mcl_fovapi.remove_modifier(player, "sprint")
+	end)
+end
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[ API ]]--
 
