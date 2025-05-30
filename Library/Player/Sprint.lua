@@ -103,8 +103,7 @@ dg_sprint_core.McSpeed = function(speed)
 	mcl_sprint.SPEED = speed
 end
 
-
-------V2
+------[[API V2]]-----
 local players = {}
 
 local installed_mods = {
@@ -122,9 +121,18 @@ local no_special_physics = function()
 	return true
 end
 
-dg_sprint_core.v2 = {
-	sprint = function(modname, player, sprinting, override_table )
+
+dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
+
+		local SPEED = override_table.speed or 0
+		local JUMP = override_table.jump or 0
+		local PARTICLES = override_table.particles or false
+		local MCL_SPEED = override_table.mcl_speed or 0
+
+		if MCL_SPEED == 0 then
+			MCL_SPEED = mcl_sprint.SPEED
+		end
 
 		local is_gliding = false
 
@@ -146,19 +154,19 @@ dg_sprint_core.v2 = {
 
 		if sprinting == true and not players[name].is_sprinting then
 			if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
-				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
+				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
 				playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
 			elseif installed_mods.playerphysics and core.get_game_info().title == "VoxeLibre" then
-				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
-            			mcl_fovapi.apply_modifier(player, "sprint")
+				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
+				mcl_fovapi.apply_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
-				players[name].sprint = player_monoids.speed:add_change(player, def.speed + override_table.speed)
-				players[name].jump = player_monoids.jump:add_change(player, def.jump + override_table.jump)
+				players[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED)
+				players[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP)
 			elseif installed_mods.pova then
-				pova.add_override(name, modname .. ":sprint", { speed = override_table.speed, jump = override_table.jump })
+				pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
 				pova.do_override(player)
 			else
-				player:set_physics_override({ speed = def.speed + override_table.speed, jump = def.jump + override_table.jump })
+				player:set_physics_override({ speed = def.speed + SPEED, jump = def.jump + JUMP })
 
 			end
 			players[name].is_sprinting = true
@@ -167,8 +175,8 @@ dg_sprint_core.v2 = {
 				playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
 				playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
 			elseif installed_mods.playerphysics and core.get_game_info().title == "VoxeLibre" then
-            			playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
-            			mcl_fovapi.remove_modifier(player, "sprint")
+				playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
+				mcl_fovapi.remove_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
 				player_monoids.speed:del_change(player, players[name].sprint)
 				player_monoids.jump:del_change(player, players[name].jump)
@@ -176,19 +184,26 @@ dg_sprint_core.v2 = {
 				pova.del_override(name, modname ..":sprint")
 				pova.do_override(player)
 			else
-				player:set_physics_override({ speed = def.speed - override_table.speed, jump = def.jump - override_table.jump })
+				player:set_physics_override({ speed = def.speed - SPEED, jump = def.jump - JUMP })
 			end
 			players[name].is_sprinting = false
 		end
+
+		if PARTICLES and players[name].is_sprinting then
+			dg_sprint_core.ShowParticles(player:get_pos())
+		end
+
+		return players[name].is_sprinting
 	end,
-	player_is_sprinting = function(player)
+
+dg_sprint_core.v2.player_is_sprinting = function(player)
 		if not player then return false end
 		local name = player:get_player_name()
 		if not players[name] then return false end
 		return players[name].is_sprinting or false
 	end,
 
-	change_speed_mcl = function(speed)
+dg_sprint_core.v2.change_speed_mcl = function(speed)
 		mcl_sprint.SPEED = speed
 	end,
 }
