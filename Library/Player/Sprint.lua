@@ -110,8 +110,9 @@ local players = {}
 local installed_mods = {
 	pova =  core.get_modpath("pova") and core.global_exists("pova"),
 	player_monoids =  core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
-	--playerphysics = core.get_modpath("playerphysics"),
+	playerphysics = core.get_modpath("playerphysics"),
 	hangglider = core.get_modpath("hangglider"),
+	mcl_sprint = core.get_modpath("mcl_sprint"),
 }
 
 local no_special_physics = function()
@@ -144,15 +145,18 @@ dg_sprint_core.v2 = {
 		local def = player:get_physics_override()
 	
 		if sprinting == true and not players[name].is_sprinting then
-			if installed_mods.pova then
-				pova.add_override(name, modname .. ":sprint", { speed = override_table.speed, jump = override_table.jump })
-				pova.do_override(player)
+			if installed_mods.playerphysics and core.get_game_info().title == "mineclonia" then
+				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
+				playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
+			elseif installed_mods.playerphysics and core.get_game_info().title == "mineclone2" then
+				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
+            			mcl_fovapi.apply_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
 				players[name].sprint = player_monoids.speed:add_change(player, def.speed + override_table.speed)
 				players[name].jump = player_monoids.jump:add_change(player, def.jump + override_table.jump)
-			--elseif installed_mods.playerphysics then
-				--playerphysics.add_physics_factor(player, "speed",  modname .. ":sprint", def.speed + override_table.speed)
-				--playerphysics.add_physics_factor(player, "jump",  modname .. ":jump", def.jump + override_table.jump)
+			elseif installed_mods.pova then
+				pova.add_override(name, modname .. ":sprint", { speed = override_table.speed, jump = override_table.jump })
+				pova.do_override(player)
 			else
 				player:set_physics_override({ speed = def.speed + SPEED_BOOST, jump = def.jump + override_table.jump })
 
@@ -160,15 +164,19 @@ dg_sprint_core.v2 = {
 			players[name].is_sprinting = true
 		elseif sprinting == false and players[name].is_sprinting then
 
-			if installed_mods.pova then
-				pova.del_override(name, modname ..":sprint")
-				pova.do_override(player)
+
+			if installed_mods.playerphysics and core.get_game_info().title == "mineclonia" then
+				playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
+				playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+			elseif installed_mods.playerphysics and core.get_game_info().title == "mineclone2" then
+            			playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
+            			mcl_fovapi.remove_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
 				player_monoids.speed:del_change(player, players[name].sprint)
 				player_monoids.jump:del_change(player, players[name].jump)
-			--elseif installed_mods.playerphysics then
-				--playerphysics.remove_physics_factor(player, modname ..":sprint")
-				--playerphysics.remove_physics_factor(player, modname ..":jump")
+			elseif installed_mods.pova then
+				pova.del_override(name, modname ..":sprint")
+				pova.do_override(player)
 			else
 				player:set_physics_override({ speed = def.speed - override_table.speed, jump = def.jump - override_table.jump })
 			end
