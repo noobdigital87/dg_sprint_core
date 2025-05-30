@@ -107,11 +107,11 @@ end
 local players = {}
 
 dg_sprint_core.v2 = {
-	players = {}
-	sprint = function(player, sprinting, override_table, modname)
+	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
 		
 		local name = player:get_player_name()
+		
 		if not players[name] then
 			players[name] = {}
 		end
