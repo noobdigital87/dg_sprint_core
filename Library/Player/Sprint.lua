@@ -163,8 +163,6 @@ dg_sprint_core.v2 = {
 			end
 			players[name].is_sprinting = true
 		elseif sprinting == false and players[name].is_sprinting then
-
-
 			if installed_mods.playerphysics and core.get_game_info().title == "mineclonia" then
 				playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
 				playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
