@@ -6,25 +6,7 @@ local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") a
 local p_monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
 local playerph = core.get_modpath("playerphysics")
 
-if playerph and core.get_game_info().title == "mineclonia" then
-	core.register_on_respawnplayer(function(player)
-		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
-	end)
 
-	core.register_on_leaveplayer(function(player)
-		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
-	end)
-end
-
-if playerph and core.get_game_info().title == "mineclone2" then
-	core.register_on_respawnplayer(function(player)
-		mcl_fovapi.remove_modifier(player, "sprint")
-	end)
-
-	core.register_on_leaveplayer(function(player)
-		mcl_fovapi.remove_modifier(player, "sprint")
-	end)
-end
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[ API ]]--
 
@@ -106,6 +88,8 @@ end
 ------[[API V2]]-----
 local players = {}
 
+local old_fov = core.settings:get("fov") or 72
+
 local installed_mods = {
 	pova =  core.get_modpath("pova") and core.global_exists("pova"),
 	player_monoids =  core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
@@ -121,6 +105,31 @@ local no_special_physics = function()
 	return true
 end
 
+if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
+	core.register_on_respawnplayer(function(player)
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+	end)
+
+	core.register_on_leaveplayer(function(player)
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+	end)
+elseif installed_mods.playerphysics and core.get_game_info().title == "VoxeLibre" then
+	core.register_on_respawnplayer(function(player)
+		mcl_fovapi.remove_modifier(player, "sprint")
+	end)
+
+	core.register_on_leaveplayer(function(player)
+		mcl_fovapi.remove_modifier(player, "sprint")
+	end)
+else
+	core.register_on_respawnplayer(function(player)
+		player:set_fov(old_fov, false, 0.6)
+	end)
+
+	core.register_on_leaveplayer(function(player)
+		player:set_fov(0, false)
+	end)
+end
 
 dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
@@ -129,7 +138,8 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 		local JUMP = override_table.jump or 0
 		local PARTICLES = override_table.particles or false
 		local MCL_SPEED = override_table.mcl_speed or 0
-
+		local FOV = override_table.fov or 0
+		local TRANSITION = override_table.transition or 0
 		if installed_mods.mcl_sprint then
 			if MCL_SPEED == 0 then
 				MCL_SPEED = mcl_sprint.SPEED
@@ -171,6 +181,9 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 				player:set_physics_override({ speed = def.speed + SPEED, jump = def.jump + JUMP })
 
 			end
+			if FOV > 0 and TRANSITION ~= 0 then
+				player:set_fov(old_fov + FOV, false, TRANSITION)
+			end
 			players[name].is_sprinting = true
 		elseif sprinting == false and players[name].is_sprinting then
 			if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
@@ -188,6 +201,9 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 			else
 				player:set_physics_override({ speed = def.speed - SPEED, jump = def.jump - JUMP })
 			end
+			if FOV > 0 and TRANSITION ~= 0 then
+				player:set_fov(old_fov, false, TRANSITION)
+			end
 			players[name].is_sprinting = false
 		end
 
@@ -203,9 +219,8 @@ dg_sprint_core.v2.player_is_sprinting = function(player)
 		local name = player:get_player_name()
 		if not players[name] then return false end
 		return players[name].is_sprinting or false
-	end
+end
 
 dg_sprint_core.v2.change_speed_mcl = function(speed)
 		mcl_sprint.SPEED = speed
-	end
-
+end
