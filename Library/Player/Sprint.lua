@@ -178,7 +178,7 @@ dg_sprint_core.v2 = {
 	player_is_sprinting = function(player)
 		if not player then return false end
 		if not players[name] then return false end
-		return players[name].is_sprinting
+		return players[name].is_sprinting or false
 	end,
 	
 }
