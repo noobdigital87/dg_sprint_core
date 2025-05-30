@@ -101,3 +101,45 @@ dg_sprint_core.McSpeed = function(speed)
 	assert(type(speed) == "number", "dg_sprint_core.McSpeed: 'speed' must be a number.")
 	mcl_sprint.SPEED = speed
 end
+
+dg_sprint_core.v2 = {
+	sprint = function()
+		if not player then return end
+
+		local name = player:get_player_name()
+		local def = player:get_physics_override()
+	
+		if sprinting == true and not iplayer[name].is_sprinting then
+			if pova_mod then
+				pova.add_override(name, "dg_sprint:sprint", { speed = SPEED_BOOST, jump = JUMP_BOOST })
+				pova.do_override(player)
+			elseif monoids then
+				iplayer[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED_BOOST)
+				iplayer[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP_BOOST)
+			elseif mod_playerphysics then
+				playerphysics.add_physics_factor(player, "speed", "dg_sprint:sprint", def.speed + SPEED_BOOST)
+				playerphysics.add_physics_factor(player, "jump", "dg_sprint:jump", def.jump + JUMP_BOOST)
+			else
+				player:set_physics_override({ speed = def.speed + SPEED_BOOST, jump = def.jump + JUMP_BOOST })
+
+			end
+			iplayer[name].is_sprinting = true
+		elseif sprinting == false and iplayer[name].is_sprinting then
+
+			if pova_mod then
+				pova.del_override(name, "dg_sprint:sprint")
+				pova.do_override(player)
+			elseif monoids then
+				player_monoids.speed:del_change(player, iplayer[name].sprint)
+				player_monoids.jump:del_change(player, iplayer[name].jump)
+			elseif mod_playerphysics then
+				playerphysics.remove_physics_factor(player, "dg_sprint:sprint")
+				playerphysics.remove_physics_factor(player, "dg_sprint:jump")
+			else
+				player:set_physics_override({ speed = def.speed - SPEED_BOOST, jump = def.jump - JUMP_BOOST })
+			end
+			iplayer[name].is_sprinting = false
+		end
+	end,
+	
+}
