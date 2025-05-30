@@ -158,7 +158,7 @@ dg_sprint_core.v2 = {
 				pova.add_override(name, modname .. ":sprint", { speed = override_table.speed, jump = override_table.jump })
 				pova.do_override(player)
 			else
-				player:set_physics_override({ speed = def.speed + SPEED_BOOST, jump = def.jump + override_table.jump })
+				player:set_physics_override({ speed = def.speed + override_table.speed, jump = def.jump + override_table.jump })
 
 			end
 			players[name].is_sprinting = true
