@@ -1,4 +1,5 @@
 
+
 local mod_name = core.get_current_modname()
 local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
 local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
@@ -110,10 +111,16 @@ local installed_mods = {
 	player_monoids =  core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
 	playerphysics = core.get_modpath("playerphysics"),
 }
+local no_special_physics = function()
+	if installed_mods.pova or installed_mods.player_monoids or installed_mods.playerphysics then
+		return false
+	end
+	return true 
+end
 dg_sprint_core.v2 = {
 	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
-		if dg_sprint_core.IsPlayerHangGliding(player) then
+		if dg_sprint_core.IsPlayerHangGliding(player) and no_special_physics() then
 			sprinting = false
 		end
 		local name = player:get_player_name()
