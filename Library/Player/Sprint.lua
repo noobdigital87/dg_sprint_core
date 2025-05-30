@@ -113,7 +113,9 @@ local installed_mods = {
 dg_sprint_core.v2 = {
 	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
-		
+		if dg_sprint_core.IsPlayerHangGliding(player) then
+			sprinting = false
+		end
 		local name = player:get_player_name()
 		
 		if not players[name] then
