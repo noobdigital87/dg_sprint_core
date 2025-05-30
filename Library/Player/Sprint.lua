@@ -110,8 +110,12 @@ dg_sprint_core.v2 = {
 	players = {}
 	sprint = function(player, sprinting, override_table, modname)
 		if not player then return end
-
+		
 		local name = player:get_player_name()
+		if not players[name] then
+			players[name] = {}
+		end
+		
 		local def = player:get_physics_override()
 	
 		if sprinting == true and not players[name].is_sprinting then
