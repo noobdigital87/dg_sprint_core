@@ -111,6 +111,7 @@ local installed_mods = {
 	pova =  core.get_modpath("pova") and core.global_exists("pova"),
 	player_monoids =  core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
 	--playerphysics = core.get_modpath("playerphysics"),
+	hangglider = core.get_modpath("hangglider"),
 }
 
 local no_special_physics = function()
@@ -123,9 +124,17 @@ end
 dg_sprint_core.v2 = {
 	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
-		if (dg_sprint_core.IsPlayerHangGliding(player) and no_special_physics()) or not dg_sprint_core.IsMoving(player) or player:get_attach() then
+		
+		local is_gliding = false
+		
+		if installed_mods.hangglider then
+		    is_gliding = dg_sprint_core.IsPlayerHangGliding(player)
+		end
+		
+		if is_gliding and no_special_physics()) or not dg_sprint_core.IsMoving(player) or player:get_attach() then
 			sprinting = false
 		end
+	
 		local name = player:get_player_name()
 		
 		if not players[name] then
