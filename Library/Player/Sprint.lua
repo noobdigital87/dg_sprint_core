@@ -106,17 +106,20 @@ end
 
 ------V2
 local players = {}
+
 local installed_mods = {
 	pova =  core.get_modpath("pova") and core.global_exists("pova"),
 	player_monoids =  core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
-	playerphysics = core.get_modpath("playerphysics"),
+	--playerphysics = core.get_modpath("playerphysics"),
 }
+
 local no_special_physics = function()
-	if installed_mods.pova or installed_mods.player_monoids or installed_mods.playerphysics then
+	if installed_mods.pova or installed_mods.player_monoids then
 		return false
 	end
 	return true 
 end
+
 dg_sprint_core.v2 = {
 	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
@@ -138,9 +141,9 @@ dg_sprint_core.v2 = {
 			elseif installed_mods.player_monoids then
 				players[name].sprint = player_monoids.speed:add_change(player, def.speed + override_table.speed)
 				players[name].jump = player_monoids.jump:add_change(player, def.jump + override_table.jump)
-			elseif installed_mods.playerphysics then
-				playerphysics.add_physics_factor(player, "speed",  modname .. ":sprint", def.speed + override_table.speed)
-				playerphysics.add_physics_factor(player, "jump",  modname .. ":jump", def.jump + override_table.jump)
+			--elseif installed_mods.playerphysics then
+				--playerphysics.add_physics_factor(player, "speed",  modname .. ":sprint", def.speed + override_table.speed)
+				--playerphysics.add_physics_factor(player, "jump",  modname .. ":jump", def.jump + override_table.jump)
 			else
 				player:set_physics_override({ speed = def.speed + SPEED_BOOST, jump = def.jump + override_table.jump })
 
@@ -154,9 +157,9 @@ dg_sprint_core.v2 = {
 			elseif installed_mods.player_monoids then
 				player_monoids.speed:del_change(player, players[name].sprint)
 				player_monoids.jump:del_change(player, players[name].jump)
-			elseif installed_mods.playerphysics then
-				playerphysics.remove_physics_factor(player, modname ..":sprint")
-				playerphysics.remove_physics_factor(player, modname ..":jump")
+			--elseif installed_mods.playerphysics then
+				--playerphysics.remove_physics_factor(player, modname ..":sprint")
+				--playerphysics.remove_physics_factor(player, modname ..":jump")
 			else
 				player:set_physics_override({ speed = def.speed - override_table.speed, jump = def.jump - override_table.jump })
 			end
