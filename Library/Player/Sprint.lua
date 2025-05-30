@@ -132,7 +132,7 @@ dg_sprint_core.v2 = {
 		    is_gliding = dg_sprint_core.IsPlayerHangGliding(player)
 		end
 		
-		if is_gliding and no_special_physics()) or not dg_sprint_core.IsMoving(player) or player:get_attach() then
+		if (is_gliding and no_special_physics()) or not dg_sprint_core.IsMoving(player) or player:get_attach() then
 			sprinting = false
 		end
 	
