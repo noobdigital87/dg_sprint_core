@@ -37,7 +37,7 @@ dg_sprint_core.Sprint = function(mod_name, player, sprinting, physics_table)
     	assert(type(physics_table.jump) == "number", "dg_sprint_core.Sprint: 'physics_table.jump' must be a number.")
 
     	local adj_name = mod_name .. ":physics"
-	
+
     	if p_monoids then
         	if sprinting then
             		player_monoids.speed:add_change(player, 1 + physics_table.speed, adj_name)
@@ -119,36 +119,36 @@ local no_special_physics = function()
 	if installed_mods.pova or installed_mods.player_monoids then
 		return false
 	end
-	return true 
+	return true
 end
 
 dg_sprint_core.v2 = {
 	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
-		
+
 		local is_gliding = false
-		
+
 		if installed_mods.hangglider then
 		    is_gliding = dg_sprint_core.IsPlayerHangGliding(player)
 		end
-		
+
 		if (is_gliding and no_special_physics()) or not dg_sprint_core.IsMoving(player) or player:get_attach() then
 			sprinting = false
 		end
-	
+
 		local name = player:get_player_name()
-		
+
 		if not players[name] then
 			players[name] = {}
 		end
-		
+
 		local def = player:get_physics_override()
-	
+
 		if sprinting == true and not players[name].is_sprinting then
-			if installed_mods.playerphysics and core.get_game_info().title == "mineclonia" then
+			if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
 				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
 				playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
-			elseif installed_mods.playerphysics and core.get_game_info().title == "mineclone2" then
+			elseif installed_mods.playerphysics and core.get_game_info().title == "VoxeLibre" then
 				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", mcl_sprint.SPEED)
             			mcl_fovapi.apply_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
@@ -163,10 +163,10 @@ dg_sprint_core.v2 = {
 			end
 			players[name].is_sprinting = true
 		elseif sprinting == false and players[name].is_sprinting then
-			if installed_mods.playerphysics and core.get_game_info().title == "mineclonia" then
+			if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
 				playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
 				playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
-			elseif installed_mods.playerphysics and core.get_game_info().title == "mineclone2" then
+			elseif installed_mods.playerphysics and core.get_game_info().title == "VoxeLibre" then
             			playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
             			mcl_fovapi.remove_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
@@ -182,12 +182,13 @@ dg_sprint_core.v2 = {
 		end
 	end,
 	player_is_sprinting = function(player)
-    		if not player then return false end
-    		local name = player:get_player_name()
-    		if not players[name] then return false end
-    		return players[name].is_sprinting or false
+		if not player then return false end
+		local name = player:get_player_name()
+		if not players[name] then return false end
+		return players[name].is_sprinting or false
 	end,
+
 	change_speed_mcl = function(speed)
 		mcl_sprint.SPEED = speed
-	end,	
+	end,
 }
