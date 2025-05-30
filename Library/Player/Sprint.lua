@@ -120,7 +120,7 @@ end
 dg_sprint_core.v2 = {
 	sprint = function(modname, player, sprinting, override_table )
 		if not player then return end
-		if (dg_sprint_core.IsPlayerHangGliding(player) and no_special_physics()) or not dg_sprint_core.IsMoving(player) then
+		if (dg_sprint_core.IsPlayerHangGliding(player) and no_special_physics()) or not dg_sprint_core.IsMoving(player) and not player:get_attach() then
 			sprinting = false
 		end
 		local name = player:get_player_name()
