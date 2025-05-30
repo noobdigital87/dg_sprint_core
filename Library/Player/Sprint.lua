@@ -151,5 +151,13 @@ dg_sprint_core.v2 = {
 		end
 		return players[name].is_sprinting
 	end,
+	player_is_sprinting = function(player)
+		if not player then return false end
+		if not players[name] then
+			players[name] = { is_sprinting = false }
+		end
+		
+		return players[name].is_sprinting
+	end,
 	
 }
