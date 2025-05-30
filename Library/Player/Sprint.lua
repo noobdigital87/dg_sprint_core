@@ -188,5 +188,7 @@ dg_sprint_core.v2 = {
 		if not players[name] then return false end
 		return players[name].is_sprinting or false
 	end,
-	
+	change_speed_mcl = function(speed)
+		mcl_sprint.SPEED = speed
+	end,	
 }
