@@ -130,8 +130,10 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 		local PARTICLES = override_table.particles or false
 		local MCL_SPEED = override_table.mcl_speed or 0
 
-		if MCL_SPEED == 0 then
-			MCL_SPEED = mcl_sprint.SPEED
+		if installed_mods.mcl_sprint then
+			if MCL_SPEED == 0 then
+				MCL_SPEED = mcl_sprint.SPEED
+			end
 		end
 
 		local is_gliding = false
@@ -194,16 +196,16 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 		end
 
 		return players[name].is_sprinting
-	end,
+	end
 
 dg_sprint_core.v2.player_is_sprinting = function(player)
 		if not player then return false end
 		local name = player:get_player_name()
 		if not players[name] then return false end
 		return players[name].is_sprinting or false
-	end,
+	end
 
 dg_sprint_core.v2.change_speed_mcl = function(speed)
 		mcl_sprint.SPEED = speed
-	end,
-}
+	end
+
