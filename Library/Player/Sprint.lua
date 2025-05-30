@@ -113,10 +113,10 @@ dg_sprint_core.v2 = {
 			if pova_mod then
 				pova.add_override(name, "dg_sprint:sprint", { speed = SPEED_BOOST, jump = JUMP_BOOST })
 				pova.do_override(player)
-			elseif monoids then
+			elseif p_monoids then
 				iplayer[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED_BOOST)
 				iplayer[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP_BOOST)
-			elseif mod_playerphysics then
+			elseif playerph then
 				playerphysics.add_physics_factor(player, "speed", "dg_sprint:sprint", def.speed + SPEED_BOOST)
 				playerphysics.add_physics_factor(player, "jump", "dg_sprint:jump", def.jump + JUMP_BOOST)
 			else
@@ -129,10 +129,10 @@ dg_sprint_core.v2 = {
 			if pova_mod then
 				pova.del_override(name, "dg_sprint:sprint")
 				pova.do_override(player)
-			elseif monoids then
+			elseif p_monoids then
 				player_monoids.speed:del_change(player, iplayer[name].sprint)
 				player_monoids.jump:del_change(player, iplayer[name].jump)
-			elseif mod_playerphysics then
+			elseif playerph then
 				playerphysics.remove_physics_factor(player, "dg_sprint:sprint")
 				playerphysics.remove_physics_factor(player, "dg_sprint:jump")
 			else
