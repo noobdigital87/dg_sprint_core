@@ -12,3 +12,4 @@ dg_sprint_core.IsMoving = function(player)
 	end
 	return is_moving
 end
+dg_sprint_core.v2.player_is_moving = dg_sprint_core.IsMoving
