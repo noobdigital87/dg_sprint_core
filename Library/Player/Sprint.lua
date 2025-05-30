@@ -102,44 +102,50 @@ dg_sprint_core.McSpeed = function(speed)
 	mcl_sprint.SPEED = speed
 end
 
+
+------V2
+local players = {}
+
 dg_sprint_core.v2 = {
-	sprint = function()
+	players = {}
+	sprint = function(player, sprinting, override_table, modname)
 		if not player then return end
 
 		local name = player:get_player_name()
 		local def = player:get_physics_override()
 	
-		if sprinting == true and not iplayer[name].is_sprinting then
+		if sprinting == true and not players[name].is_sprinting then
 			if pova_mod then
-				pova.add_override(name, "dg_sprint:sprint", { speed = SPEED_BOOST, jump = JUMP_BOOST })
+				pova.add_override(name, modname .. ":sprint", { speed = override_table.speed, jump = override_table.jump })
 				pova.do_override(player)
 			elseif p_monoids then
-				iplayer[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED_BOOST)
-				iplayer[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP_BOOST)
+				players[name].sprint = player_monoids.speed:add_change(player, def.speed + override_table.speed)
+				players[name].jump = player_monoids.jump:add_change(player, def.jump + override_table.jump)
 			elseif playerph then
-				playerphysics.add_physics_factor(player, "speed", "dg_sprint:sprint", def.speed + SPEED_BOOST)
-				playerphysics.add_physics_factor(player, "jump", "dg_sprint:jump", def.jump + JUMP_BOOST)
+				playerphysics.add_physics_factor(player, "speed",  modname .. ":sprint", def.speed + override_table.speed)
+				playerphysics.add_physics_factor(player, "jump",  modname .. ":jump", def.jump + override_table.jump)
 			else
-				player:set_physics_override({ speed = def.speed + SPEED_BOOST, jump = def.jump + JUMP_BOOST })
+				player:set_physics_override({ speed = def.speed + SPEED_BOOST, jump = def.jump + override_table.jump })
 
 			end
-			iplayer[name].is_sprinting = true
-		elseif sprinting == false and iplayer[name].is_sprinting then
+			players[name].is_sprinting = true
+		elseif sprinting == false and players[name].is_sprinting then
 
 			if pova_mod then
-				pova.del_override(name, "dg_sprint:sprint")
+				pova.del_override(name, modname ..":sprint")
 				pova.do_override(player)
 			elseif p_monoids then
-				player_monoids.speed:del_change(player, iplayer[name].sprint)
-				player_monoids.jump:del_change(player, iplayer[name].jump)
+				player_monoids.speed:del_change(player, players[name].sprint)
+				player_monoids.jump:del_change(player, players[name].jump)
 			elseif playerph then
-				playerphysics.remove_physics_factor(player, "dg_sprint:sprint")
-				playerphysics.remove_physics_factor(player, "dg_sprint:jump")
+				playerphysics.remove_physics_factor(player, modname ..":sprint")
+				playerphysics.remove_physics_factor(player, modname ..":jump")
 			else
-				player:set_physics_override({ speed = def.speed - SPEED_BOOST, jump = def.jump - JUMP_BOOST })
+				player:set_physics_override({ speed = def.speed - override_table.speed, jump = def.jump - override_table.jump })
 			end
-			iplayer[name].is_sprinting = false
+			players[name].is_sprinting = false
 		end
+		return players[name].is_sprinting
 	end,
 	
 }
