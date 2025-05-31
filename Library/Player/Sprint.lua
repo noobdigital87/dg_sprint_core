@@ -94,8 +94,6 @@ local installed_mods = {
 	pova =  core.get_modpath("pova") and core.global_exists("pova"),
 	player_monoids =  core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
 	playerphysics = core.get_modpath("playerphysics"),
-	hangglider = core.get_modpath("hangglider"),
-	mcl_sprint = core.get_modpath("mcl_sprint"),
 }
 
 local no_special_physics = function()
@@ -131,8 +129,17 @@ else
 	end)
 end
 
+dg_sprint_core.v2.pool = {}
+dg_sprint_core.v2.pool.speed = 0
+dg_sprint_core.v2.pool.jump = 0
 dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
-		if not player then return end
+		override_table = override_table or {}
+		local def = player:get_physics_override()
+		local name = player:get_player_name()
+
+		if not players[name] then
+			players[name] = {}
+		end
 
 		local SPEED = override_table.speed or 0
 		local JUMP = override_table.jump or 0
@@ -140,31 +147,30 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 		local MCL_SPEED = override_table.mcl_speed or 0
 		local FOV = override_table.fov or 0
 		local TRANSITION = override_table.transition or 0
-		if installed_mods.mcl_sprint then
+
+		if core.get_game_info().title == "Mineclonia" or core.get_game_info().title == "VoxeLibre" then
 			if MCL_SPEED == 0 then
 				MCL_SPEED = mcl_sprint.SPEED
 			end
 		end
-
-		local is_gliding = false
-
-		if installed_mods.hangglider then
-		    is_gliding = dg_sprint_core.IsPlayerHangGliding(player)
+		if armor_mod then
+			local name = player:get_player_name()
+			override_table = {
+				speed = armor.def[name].speed,
+				jump = armor.def[name].jump,
+				gravity = armor.def[name].gravity
+			}
+		else
+			override_table = {
+				speed = 1,
+				jump = 1,
+				gravity = 1
+			}
 		end
-
-		if (is_gliding and no_special_physics()) or not dg_sprint_core.IsMoving(player) or player:get_attach() then
-			sprinting = false
-		end
-
-		local name = player:get_player_name()
-
-		if not players[name] then
-			players[name] = {}
-		end
-
-		local def = player:get_physics_override()
-
 		if sprinting == true and not players[name].is_sprinting then
+
+			dg_sprint_core.v2.pool.speed = dg_sprint_core.v2.pool.speed + SPEED
+			dg_sprint_core.v2.pool.jump = dg_sprint_core.v2.pool.jump + JUMP
 			if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
 				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
 				playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
@@ -172,20 +178,23 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
 				mcl_fovapi.apply_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
-				players[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED)
+				players[name].sprint = player_monoids.speed:add_change(player, def.speed + dg_sprint_core.v2.pool)
 				players[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP)
 			elseif installed_mods.pova then
 				pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
 				pova.do_override(player)
 			else
-				player:set_physics_override({ speed = def.speed + SPEED, jump = def.jump + JUMP })
-
+				player:set_physics_override({ speed = override_table.speed + dg_sprint_core.v2.pool.speed, jump = override_table.jump + dg_sprint_core.v2.pool.jump })
 			end
 			if FOV > 0 and TRANSITION ~= 0 then
 				player:set_fov(old_fov + FOV, false, TRANSITION)
 			end
+
 			players[name].is_sprinting = true
 		elseif sprinting == false and players[name].is_sprinting then
+
+			dg_sprint_core.v2.pool.speed = dg_sprint_core.v2.pool.speed - SPEED
+			dg_sprint_core.v2.pool.jump = dg_sprint_core.v2.pool.jump - JUMP
 			if installed_mods.playerphysics and core.get_game_info().title == "Mineclonia" then
 				playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
 				playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
@@ -199,11 +208,12 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 				pova.del_override(name, modname ..":sprint")
 				pova.do_override(player)
 			else
-				player:set_physics_override({ speed = def.speed - SPEED, jump = def.jump - JUMP })
+				player:set_physics_override({ speed = override_table.speed - dg_sprint_core.v2.pool.speed, jump = override_table.jump - dg_sprint_core.v2.pool.jump })
 			end
 			if FOV > 0 and TRANSITION ~= 0 then
 				player:set_fov(old_fov, false, TRANSITION)
 			end
+
 			players[name].is_sprinting = false
 		end
 
@@ -213,13 +223,6 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 
 		return players[name].is_sprinting
 	end
-
-dg_sprint_core.v2.player_is_sprinting = function(player)
-		if not player then return false end
-		local name = player:get_player_name()
-		if not players[name] then return false end
-		return players[name].is_sprinting or false
-end
 
 dg_sprint_core.v2.change_speed_mcl = function(speed)
 		mcl_sprint.SPEED = speed
