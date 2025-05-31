@@ -178,7 +178,7 @@ dg_sprint_core.v2.sprint = function(modname, player, sprinting, override_table )
 				playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
 				mcl_fovapi.apply_modifier(player, "sprint")
 			elseif installed_mods.player_monoids then
-				players[name].sprint = player_monoids.speed:add_change(player, def.speed + dg_sprint_core.v2.pool)
+				players[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED)
 				players[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP)
 			elseif installed_mods.pova then
 				pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
