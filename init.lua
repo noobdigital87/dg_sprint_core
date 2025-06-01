@@ -206,17 +206,19 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
             		break
         	end
 	end
-	local wielded_item = player:get_wielded_item()
+	
 
 	-- Sprint prevention when control.place is active
-	if k_data.detected and control.RMB and not physics_mod_is_installed() and is_3d_armor_item(wielded_item) then
-		cancel_active = true
-		data.cancel_reasons[name]["Place Node"] = true
+	if k_data.detected and control.RMB and not physics_mod_is_installed() then
+		local wielded_item = player:get_wielded_item()
+		if is_3d_armor_item(wielded_item) then
+			cancel_active = true
+			data.cancel_reasons[name]["Place Node"] = true
 
-		minetest.after(1, function()
-			data.cancel_reasons[name]["Place Node"] = nil
-		end)
-
+			minetest.after(1, function()
+				data.cancel_reasons[name]["Place Node"] = nil
+			end)
+		end
 	end
    	if cancel_active or prevent_detect(player) then
         	k_data.detected = false
