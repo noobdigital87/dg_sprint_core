@@ -1,6 +1,8 @@
 dg_sprint_core = {}
+dg_sprint_core.v2 = {}
+dg_sprint_core.v2 = dg_sprint_core
 
-local api = dg_sprint_core
+local api = dg_sprint_core.v2
 
 local old_fov = core.settings:get("fov") or 72
 
