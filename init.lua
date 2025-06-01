@@ -341,6 +341,8 @@ api.change_physics = function(player, def, reason)
     -- Apply updated physics settings
     set_physics(player)
 end
+
+
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 204]
@@ -394,7 +396,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
         	data.states[name].is_sprinting = true
 
     	elseif sprinting == false and data.states[name].is_sprinting then
-		
+
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
             		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
@@ -450,6 +452,8 @@ api.is_player_draining = function(player)
     	end
    	return false
 end
+
+
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	CREATE/CLEAR DATA/STATES WHEN PLAYER LEAVES/JOINS
