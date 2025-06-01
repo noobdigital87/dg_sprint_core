@@ -435,16 +435,6 @@ api.tools.is_player_moving = player_is_moving
 local function get_node_definition(player, altPos)
 	local playerName = player:get_player_name()
     	local position = player:get_pos()
-    	if altPos then
-      		assert(
-        		type(altPos) == "table" and
-        		type(altPos.x) == "number" and
-        		type(altPos.y) == "number" and
-        		type(altPos.z) == "number", "[dg_lib.getNodeDefinition] Invalid alternative position"
-      		)
-		position = altPos
-    	end
-  
     	local nodeBelow = core.get_node_or_nil(position)
   
     	if nodeBelow then
@@ -453,6 +443,16 @@ local function get_node_definition(player, altPos)
         		return nodeDefinition
       		end
     	end
+	
 	return nil
 end
 
+api.tools.node_is_liquid = function(player, altPos)
+	local def = dg_sprint_core.get_node_definition(player, altPos)
+	
+	if def and ( def.drawtype == "liquid" or def.drawtype == "flowingliquid" ) then
+		return true
+	end
+	
+	return false
+end
