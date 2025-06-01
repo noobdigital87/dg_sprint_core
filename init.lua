@@ -29,14 +29,14 @@ local function get_node_definition(player, altPos)
 	local playerName = player:get_player_name()
     	local position = player:get_pos()
     	local nodeBelow = core.get_node_or_nil(position)
-  
+
     	if nodeBelow then
 		local nodeDefinition = core.registered_nodes[nodeBelow.name]
       		if nodeDefinition then
         		return nodeDefinition
       		end
     	end
-	
+
 	return nil
 end
 
@@ -105,16 +105,16 @@ end
 
 local function get_darkened_texture_from_node(pos, darkness)
 	local node = core.get_node_or_nil({x = pos.x, y = pos.y - 1, z = pos.z})
-    	
+
 	if not node then return "[fill:2x16:0,0:#8B4513" end
 
     	local def = core.registered_nodes[node.name]
-    	
+
 	if not def or not def.tiles or not def.tiles[1] then return "[fill:2x16:0,0:#8B4513" end
 
     	local base_texture = def.tiles[1]
 
-    
+
     	if type(base_texture) == "table" then return "smoke_puff.png" end
 
     	return base_texture .. "^[colorize:#000000:" .. tostring(darkness or 80)
@@ -328,15 +328,15 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 
         	data.physics_pool[name].speed = data.physics_pool[name].speed - SPEED
         	data.physics_pool[name].jump = data.physics_pool[name].jump - JUMP
-		
+
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
             		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
-        	
+
 		elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
         	    	playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
 			mcl_fovapi.remove_modifier(player, "sprint")
-		
+
 		elseif mod.monoids then
 			player_monoids.speed:del_change(player, data.states[name].sprint)
 			player_monoids.jump:del_change(player, data.states[name].jump)
@@ -349,7 +349,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		if FOV > 0 and TRANSITION ~= 0 then
 			player:set_fov(old_fov, false, TRANSITION)
 		end
-		
+
 		data.states[name].is_sprinting = false
 	end
 
@@ -405,12 +405,13 @@ api.get_physics_def = function(player)
             		gravity = 1
         	}
     	end
-	
+
 	returned_def.speed = (def.speed + data.physics_pool[name].speed) - 1
 	returned_def.jump = (def.jump + data.physics_pool[name].jump) - 1
 	returned_def.gravity = def.gravity - 1
+	return returned_def
 end
-	
+
 
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
@@ -485,11 +486,11 @@ api.tools.is_player_moving = player_is_moving
 
 api.tools.node_is_liquid = function(player, altPos)
 	local def = get_node_definition(player, altPos)
-	
+
 	if def and ( def.drawtype == "liquid" or def.drawtype == "flowingliquid" ) then
 		return true
 	end
-	
+
 	return false
 end
 
