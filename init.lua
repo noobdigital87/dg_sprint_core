@@ -183,7 +183,10 @@ core.register_globalstep(function(dtime)
 	end
 end)
 
-
+local function is_3d_armor_item(itemstack)
+    local item_name = itemstack:get_name()
+    return item_name:match("^3d_armor:") ~= nil
+end
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
     	API [API_NR = 202]
@@ -192,7 +195,7 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
 	local name = player:get_player_name()
 
     	local k_data = data.keyboard[name]
-
+	local control = player:get_player_control()
     	local control_bit = player:get_player_control_bits()
     	local current_time_us = core.get_us_time() / 1e6
     	local cancel_active = false
@@ -203,7 +206,18 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
             		break
         	end
 	end
+	local wielded_item = player:get_wielded_item()
 
+	-- Sprint prevention when control.place is active
+	if k_data.detected and control.RMB and not physics_mod_is_installed() and is_3d_armor_item(wielded_item) then
+		cancel_active = true
+		data.cancel_reasons[name]["Place Node"] = true
+
+		minetest.after(1, function()
+			data.cancel_reasons[name]["Place Node"] = nil
+		end)
+
+	end
    	if cancel_active or prevent_detect(player) then
         	k_data.detected = false
         	k_data.is_holding = false
