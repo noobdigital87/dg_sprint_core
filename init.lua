@@ -384,6 +384,33 @@ api.is_player_draining = function(player)
     	end
    	return false
 end
+--[[-----------------------------------------------------------------------------------------------------------
+--[[-----------------------------------------------------------------------------------------------------------
+	API [API_NR = 207]
+]]
+api.get_physics_def = function(player)
+	local def = {}
+	local returned_def = {}
+	local name = player:get_player_name()
+	if mod.armor then
+        	def = {
+            		speed = armor.def[name].speed,
+            		jump = armor.def[name].jump,
+            		gravity = armor.def[name].gravity
+        	}
+    	else
+        	def = {
+            		speed = 1,
+            		jump = 1,
+            		gravity = 1
+        	}
+    	end
+	
+	returned_def.speed = (def.speed + data.physics_pool[name].speed) - 1
+	returned_def.jump = (def.jump + data.physics_pool[name].jump) - 1
+	returned_def.gravity = def.gravity - 1
+end
+	
 
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
