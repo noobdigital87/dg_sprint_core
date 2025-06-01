@@ -120,7 +120,6 @@ local function get_darkened_texture_from_node(pos, darkness)
     	return base_texture .. "^[colorize:#000000:" .. tostring(darkness or 80)
 end
 
--- Example usage in your particles function:
 local function ground_particles(player)
 	local pos = player:get_pos()
     	local texture = get_darkened_texture_from_node(pos, 80)
