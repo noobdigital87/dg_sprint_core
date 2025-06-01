@@ -426,7 +426,33 @@ api.is_player_draining = function(player)
     return false
 end
 
-api.is_player_hanggliding = player_is_gliding
+api.tools = {}
 
-api.is_player_moving = player_is_moving
+api.tools.is_player_hanggliding = player_is_gliding
+
+api.tools.is_player_moving = player_is_moving
+
+local function get_node_definition(player, altPos)
+	local playerName = player:get_player_name()
+    	local position = player:get_pos()
+    	if altPos then
+      		assert(
+        		type(altPos) == "table" and
+        		type(altPos.x) == "number" and
+        		type(altPos.y) == "number" and
+        		type(altPos.z) == "number", "[dg_lib.getNodeDefinition] Invalid alternative position"
+      		)
+		position = altPos
+    	end
+  
+    	local nodeBelow = core.get_node_or_nil(position)
+  
+    	if nodeBelow then
+		local nodeDefinition = core.registered_nodes[nodeBelow.name]
+      		if nodeDefinition then
+        		return nodeDefinition
+      		end
+    	end
+	return nil
+end
 
