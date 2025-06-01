@@ -426,3 +426,7 @@ api.is_player_draining = function(player)
     return false
 end
 
+api.is_player_hanggliding = player_is_gliding
+
+api.is_player_moving = player_is_moving
+
