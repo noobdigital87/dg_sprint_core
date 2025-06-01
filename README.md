@@ -25,7 +25,7 @@ local STEP_NAME2 = "STEP2"
 local STEP_INTERVAL1 = 1
 local STEP_INTERVAL2 = 0.5
 
-local function step1(player, player_data, dtime)
+local function STEP1(player, player_data, dtime)
     local name = player:get_player_name()
 
     -- player_data is an empty table that persists and can be used to store variables
@@ -37,7 +37,7 @@ local function step1(player, player_data, dtime)
     end
 end
 
-local function step2(player, player_data, dtime)
+local function STEP2(player, player_data, dtime)
     local name = player:get_player_name()
 
     -- We can retreive the count value we stored in the other step
@@ -45,7 +45,10 @@ local function step2(player, player_data, dtime)
 
     core.chat_send_player(name, get_number_as_string)
 end
-dg_sprint_core.register_server_step(mod_name, STEP_NAME, )
+
+-- Registering the steps
+dg_sprint_core.register_server_step(mod_name, STEP_NAME1, STEP_INTERVAL1, STEP1)
+dg_sprint_core.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)
 
 ```
 
