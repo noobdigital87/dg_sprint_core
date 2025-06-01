@@ -18,7 +18,8 @@ local data = {
     	server_steps = {},
     	players = {},
     	states = {},
-    	physics_pool = {}
+    	physics_pool = {},
+	physics_reasons = {},
 }
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
@@ -113,7 +114,6 @@ local function get_darkened_texture_from_node(pos, darkness)
 	if not def or not def.tiles or not def.tiles[1] then return "[fill:2x16:0,0:#8B4513" end
 
     	local base_texture = def.tiles[1]
-
 
     	if type(base_texture) == "table" then return "smoke_puff.png" end
 
@@ -258,7 +258,7 @@ end
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 207]
 ]]
-api.get_physics_def = function(player)
+local get_physics_def = function(player)
 	local def = {}
 	local returned_def = {}
 	local name = player:get_player_name()
@@ -282,7 +282,7 @@ api.get_physics_def = function(player)
 	return returned_def
 end
 
-api.add_physics = function(player, def)
+local add_physics = function(player, def)
 
 	local name = player:get_player_name()
 
@@ -295,7 +295,7 @@ api.add_physics = function(player, def)
 	data.physics_pool[name].gravity = data.physics_pool[name].gravity + GRAVITY
 end
 
-api.remove_physics = function(player, def)
+local remove_physics = function(player, def)
 
 	local name = player:get_player_name()
 
@@ -308,11 +308,39 @@ api.remove_physics = function(player, def)
 	data.physics_pool[name].gravity = data.physics_pool[name].gravity - GRAVITY
 end
 
-api.set_physics = function(player)
+local set_physics = function(player)
 	local name = player:get_player_name()
-	player:set_physics_override({ speed = 1 + api.get_physics_def(player).speed, jump = 1 + api.get_physics_def(player).jump, gravity = 1 + api.get_physics_def(player).gravity })
+	player:set_physics_override({ speed = 1 + get_physics_def(player).speed, jump = 1 + get_physics_def(player).jump, gravity = 1 + get_physics_def(player).gravity })
 end
 
+api.change_physics = function(player, def, reason)
+    local name = player:get_player_name()
+
+    -- Ensure physics pool and reasons exist
+    if not data.physics_pool[name] then
+        data.physics_pool[name] = { speed = 0, jump = 0, gravity = 0 }
+    end
+    if not data.physics_reasons[name] then
+        data.physics_reasons[name] = {}
+    end
+
+    if def.action == "add" then
+        -- Only add if reason isn't already tracked
+        if not data.physics_reasons[name][reason] then
+            data.physics_reasons[name][reason] = def
+            add_physics(player, def)
+        end
+    elseif def.action == "remove" then
+        -- Only remove if reason is being tracked
+        if data.physics_reasons[name][reason] then
+            remove_physics(player, data.physics_reasons[name][reason])
+            data.physics_reasons[name][reason] = nil
+        end
+    end
+
+    -- Apply updated physics settings
+    set_physics(player)
+end
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 204]
@@ -340,7 +368,6 @@ api.set_sprint = function(modname, player, sprinting, override_table )
     	end
 
     	if sprinting == true and not data.states[name].is_sprinting then
-		api.add_physics(player,{speed = 0.8, jump = 0.1})
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
             		playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
@@ -350,15 +377,14 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		mcl_fovapi.apply_modifier(player, "sprint")
 
         	elseif mod.monoids then
-            		data.states[name].sprint = player_monoids.speed:add_change(player, 1 + api.get_physics_def(player).speed)
-            		data.states[name].jump = player_monoids.jump:add_change(player, 1 + api.get_physics_def(player).jump )
+            		data.states[name].sprint = player_monoids.speed:add_change(player, 1 + SPEED)
+            		data.states[name].jump = player_monoids.jump:add_change(player, 1 + JUMP )
 
         	elseif mod.pova then
-            		pova.add_override(name, modname .. ":sprint", { speed = api.get_physics_def(player).speed, jump = api.get_physics_def(player).jump })
+            		pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
             		pova.do_override(player)
         	else
-
-            		api.set_physics(player)
+            		api.change_physics(player, { action = "add", speed = 0.8, jump = 0.1, gravity = 0 }, "Sprint Boost")
         	end
 
         	if FOV > 0 and TRANSITION ~= 0 then
@@ -368,7 +394,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
         	data.states[name].is_sprinting = true
 
     	elseif sprinting == false and data.states[name].is_sprinting then
-		api.remove_physics(player, {speed = 0.8, jump = 0.1})
+		
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
             		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
@@ -384,8 +410,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.del_override(name, modname ..":sprint")
 			pova.do_override(player)
 		else
-
-            		api.set_physics(player)
+            		api.change_physics(player, { action = "remove" }, "Sprint Boost")
 		end
 		if FOV > 0 and TRANSITION ~= 0 then
 			player:set_fov(old_fov, false, TRANSITION)
@@ -425,9 +450,6 @@ api.is_player_draining = function(player)
     	end
    	return false
 end
-
-
-
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	CREATE/CLEAR DATA/STATES WHEN PLAYER LEAVES/JOINS
