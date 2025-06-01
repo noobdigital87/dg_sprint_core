@@ -451,7 +451,7 @@ end
 api.is_player_sprinting = function(player)
     	local name = player:get_player_name()
     	if not data.states[name] then return false end
-    	return data.states[name].is_sprinting
+    	return data.states[name].is_sprinting or false
 end
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
