@@ -315,7 +315,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		pova.add_override(name, modname .. ":sprint", { speed = data.physics_pool[name].speed, jump = data.physics_pool[name].jump  })
             		pova.do_override(player)
         	else
-            		player:set_physics_override({ speed = override_table.speed + data.physics_pool[name].speed, jump = override_table.jump + data.physics_pool[name].jump })
+            		player:set_physics_override({ speed = override_table.speed + data.physics_pool[name].speed, jump = override_table.jump + data.physics_pool[name].jump, gravity = override_table.gravity })
         	end
 
         	if FOV > 0 and TRANSITION ~= 0 then
@@ -344,7 +344,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.del_override(name, modname ..":sprint")
 			pova.do_override(player)
 		else
-			player:set_physics_override({ speed = override_table.speed - data.physics_pool[name].speed, jump = override_table.jump - data.physics_pool[name].jump })
+			player:set_physics_override({ speed = override_table.speed - data.physics_pool[name].speed, jump = override_table.jump - data.physics_pool[name].jump, gravity = override_table.gravity })
 		end
 		if FOV > 0 and TRANSITION ~= 0 then
 			player:set_fov(old_fov, false, TRANSITION)
@@ -412,6 +412,18 @@ api.get_physics_def = function(player)
 	return returned_def
 end
 
+api.add_physics = function(player, def, value)
+	
+	local name = player:get_player_name()
+	
+	local SPEED = def.speed or 0
+	local JUMP = def.jump or 0
+	local GRAVITY = def.gravity or 0
+	
+	data.physics_pool[name].speed
+	data.physics_pool[name].jump
+	data.physics_pool[name].gravity
+end
 
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
