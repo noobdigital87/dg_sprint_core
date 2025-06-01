@@ -365,25 +365,25 @@ end
 	API [API_NR = 205]
 ]]
 api.is_player_sprinting = function(player)
-    local name = player:get_player_name()
-    if not data.states[name] then return false end
-    return data.states[name].is_sprinting
+    	local name = player:get_player_name()
+    	if not data.states[name] then return false end
+    	return data.states[name].is_sprinting
 end
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 206]
 ]]
 api.is_player_draining = function(player)
-    local name = player:get_player_name()
-    if api.is_player_sprinting(player) then
-        if mod.hangglider then
-            if player_is_gliding(player) then
-                return false
-            end
-        end
-        return true
-    end
-    return false
+    	local name = player:get_player_name()
+    	if api.is_player_sprinting(player) then
+        	if mod.hangglider then
+            		if player_is_gliding(player) then
+                		return false
+            		end
+        	end
+        	return true
+    	end
+   	return false
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
