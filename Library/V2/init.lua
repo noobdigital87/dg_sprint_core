@@ -426,6 +426,12 @@ api.is_player_draining = function(player)
     return false
 end
 
+
+
+--[[
+	API TOOLS: EXTRA TOOLS TO MAKE YOUR LIFE EASIER
+]]
+
 api.tools = {}
 
 api.tools.is_player_hanggliding = player_is_gliding
@@ -448,11 +454,19 @@ local function get_node_definition(player, altPos)
 end
 
 api.tools.node_is_liquid = function(player, altPos)
-	local def = dg_sprint_core.get_node_definition(player, altPos)
+	local def = get_node_definition(player, altPos)
 	
 	if def and ( def.drawtype == "liquid" or def.drawtype == "flowingliquid" ) then
 		return true
 	end
 	
+	return false
+end
+
+api.tools.node_is_snowy_group = function(player, altPos)
+	local def = get_node_definition(player, altPos)
+	if def and def.groups and def.groups and def.groups.snowy and def.groups.snowy > 0  then
+		return true
+	end
 	return false
 end
