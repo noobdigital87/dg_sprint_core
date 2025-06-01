@@ -29,4 +29,3 @@ dg_sprint_core.ShowParticles = function(pos)
             	texture = "default_dirt.png" or "smoke_puff.png",
         })
 end
-dg_sprint_core.v2.show_sprint_particles = dg_sprint_core.ShowParticles

@@ -83,7 +83,7 @@ dg_sprint_core.IsSprintKeyDetected = function(player, detect_aux, detect_double_
         	k_data.states.is_holding = false
         	k_data.states.aux_pressed = false
     	end
-
+		k_data.states.detected = k_data.states.detected and not dg_sprint_core.v2.player_is_attached(player)
     	return k_data.states.detected
 end
 

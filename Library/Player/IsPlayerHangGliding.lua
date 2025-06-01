@@ -9,4 +9,3 @@ dg_sprint_core.IsPlayerHangGliding = function(player)
 	return false
 end
 
-dg_sprint_core.v2.player_is_hanggliding = dg_sprint_core.IsPlayerHangGliding

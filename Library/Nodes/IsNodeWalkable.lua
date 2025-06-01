@@ -5,3 +5,4 @@ dg_sprint_core.IsNodeWalkable = function(player, altPos)
 	end
 	return false
 end
+
