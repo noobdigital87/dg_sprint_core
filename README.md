@@ -18,6 +18,8 @@ This helps prevent performance issues while ensuring your mod’s functions exec
 
 local mod_name = core.get_current_modname()
 
+local api = dg_sprint_core
+
 local STEP_NAME1 = "STEP1" -- MAKE SURE IT IS UNQIUE WHEN ADDING MORE STEPS
 local STEP_NAME2 = "STEP2"
 
@@ -25,8 +27,6 @@ local STEP_INTERVAL1 = 1
 local STEP_INTERVAL2 = 0.5
 
 local function STEP1(player, player_data, dtime)
-    local name = player:get_player_name()
-
     if not player_data.count then
         player_data.count = 0
     else
@@ -43,8 +43,8 @@ local function STEP2(player, player_data, dtime)
 end
 
 -- Registering the steps
-dg_sprint_core.register_server_step(mod_name, STEP_NAME1, STEP_INTERVAL1, STEP1)
-dg_sprint_core.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)
+api.register_server_step(mod_name, STEP_NAME1, STEP_INTERVAL1, STEP1)
+api.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)
 
 ```
 
@@ -55,7 +55,34 @@ The interval is the time in seconds between the 2 taps to detect a sprint.
 #### Example:
 
 ```lua
-    
+local mod_name = core.get_current_modname()
+
+local api = dg_sprint_core
+
+local STEP_NAME1 = "STEP1" -- MAKE SURE IT IS UNQIUE WHEN ADDING MORE STEPS
+local STEP_NAME2 = "STEP2"
+
+local STEP_INTERVAL1 = 0.1
+local STEP_INTERVAL2 = 0.5
+
+local function STEP1(player, player_data, dtime)
+    local control = player:get_player_control()
+
+    player_data.detected = api.sprint_key_detected(player, control.aux1, control.up, 0.5)
+end
+
+local function STEP2(player, player_data, dtime)
+    local name = player:get_player_name()
+    if player_data.detected then
+        core.chat_send_player(name, "Detected")
+    else
+        core.chat_send_player(name, "Not Detected")
+    end
+end
+
+-- Registering the steps
+api.register_server_step(mod_name, STEP_NAME1, STEP_INTERVAL1, STEP1)
+api.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)   
 ```
 
 ## TOOLS
