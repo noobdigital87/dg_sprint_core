@@ -470,3 +470,11 @@ api.tools.node_is_snowy_group = function(player, altPos)
 	end
 	return false
 end
+
+api.tools.node_is_walkable = function(player, altPos)
+	local def = get_node_definition(player, altPos)
+	if def and def.walkable then
+		return true
+	end
+	return false
+end
