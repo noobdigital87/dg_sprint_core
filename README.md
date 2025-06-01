@@ -16,7 +16,6 @@ This helps prevent performance issues while ensuring your mod’s functions exec
 #### Example:
 ```lua
 
--- retrieve your mod name
 local mod_name = core.get_current_modname()
 
 local STEP_NAME1 = "STEP1" -- MAKE SURE IT IS UNQIUE WHEN ADDING MORE STEPS
@@ -28,8 +27,6 @@ local STEP_INTERVAL2 = 0.5
 local function STEP1(player, player_data, dtime)
     local name = player:get_player_name()
 
-    -- player_data is an empty table that persists and can be used to store variables
-    -- In this example I will add 1 to the counter every 0.5 seconds and display it to the chat
     if not player_data.count then
         player_data.count = 0
     else
@@ -40,7 +37,6 @@ end
 local function STEP2(player, player_data, dtime)
     local name = player:get_player_name()
 
-    -- We can retreive the count value we stored in the other step
     local get_number_as_string = tostring(player_data.count)
 
     core.chat_send_player(name, get_number_as_string)
@@ -53,5 +49,13 @@ dg_sprint_core.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)
 ```
 
 ### 2. ***dg_sprint_core.sprint_key_detected(***`player`, `enable_aux1`, `enable_double_tap`, `interval`***)***
+This lets you check if a sprint key is pressed or double tapped
+The interval is the time in seconds between the 2 taps to detect a sprint.
+
+#### Example:
+
+```lua
+    
+```
 
 ## TOOLS
