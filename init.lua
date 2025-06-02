@@ -224,6 +224,7 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
 			end
 		end
 	end
+	
    	if cancel_active or prevent_detect(player) then
         	k_data.detected = false
         	k_data.is_holding = false
@@ -334,32 +335,33 @@ local set_physics = function(player)
 end
 
 local change_physics = function(player, def, reason)
-    local name = player:get_player_name()
+	local name = player:get_player_name()
 
-    -- Ensure physics pool and reasons exist
-    if not data.physics_pool[name] then
-        data.physics_pool[name] = { speed = 0, jump = 0, gravity = 0 }
-    end
-    if not data.physics_reasons[name] then
-        data.physics_reasons[name] = {}
-    end
+    	-- Ensure physics pool and reasons exist
+    	if not data.physics_pool[name] then
+        	data.physics_pool[name] = { speed = 0, jump = 0, gravity = 0 }
+    	end
+	
+    	if not data.physics_reasons[name] then
+        	data.physics_reasons[name] = {}
+    	end
 
-    if def.action == "add" then
-        -- Only add if reason isn't already tracked
-        if not data.physics_reasons[name][reason] then
-            data.physics_reasons[name][reason] = def
-            add_physics(player, def)
-        end
-    elseif def.action == "remove" then
-        -- Only remove if reason is being tracked
-        if data.physics_reasons[name][reason] then
-            remove_physics(player, data.physics_reasons[name][reason])
-            data.physics_reasons[name][reason] = nil
-        end
-    end
+    	if def.action == "add" then
+        	-- Only add if reason isn't already tracked
+        	if not data.physics_reasons[name][reason] then
+            		data.physics_reasons[name][reason] = def
+            		add_physics(player, def)
+        	end
+    	elseif def.action == "remove" then
+        	-- Only remove if reason is being tracked
+		if data.physics_reasons[name][reason] then
+            		remove_physics(player, data.physics_reasons[name][reason])
+            		data.physics_reasons[name][reason] = nil
+        	end
+    	end
 
-    -- Apply updated physics settings
-    set_physics(player)
+	-- Apply updated physics settings
+	set_physics(player)
 end
 
 
