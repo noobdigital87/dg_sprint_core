@@ -63,7 +63,7 @@ local mod_name = core.get_current_modname()
 
 local api = dg_sprint_core
 
-local STEP_NAME1 = "STEP1" -- MAKE SURE IT IS UNQIUE WHEN ADDING MORE STEPS
+local STEP_NAME1 = "STEP1" 
 local STEP_NAME2 = "STEP2"
 
 local STEP_INTERVAL1 = 0.1
