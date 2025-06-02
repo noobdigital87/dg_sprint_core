@@ -145,6 +145,12 @@ local function ground_particles(player)
         	texture = texture
     	})
 end
+
+local function is_3d_armor_item(itemstack)
+    local item_name = itemstack:get_name()
+    return item_name:match("^3d_armor:") ~= nil
+end
+
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
     	[API_NR = 201]
@@ -183,10 +189,7 @@ core.register_globalstep(function(dtime)
 	end
 end)
 
-local function is_3d_armor_item(itemstack)
-    local item_name = itemstack:get_name()
-    return item_name:match("^3d_armor:") ~= nil
-end
+
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
     	API [API_NR = 202]
@@ -330,7 +333,7 @@ local set_physics = function(player)
 	player:set_physics_override({ speed = 1 + get_physics_def(player).speed, jump = 1 + get_physics_def(player).jump, gravity = 1 + get_physics_def(player).gravity })
 end
 
-api.change_physics = function(player, def, reason)
+local change_physics = function(player, def, reason)
     local name = player:get_player_name()
 
     -- Ensure physics pool and reasons exist
@@ -403,7 +406,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
             		pova.do_override(player)
         	else
-            		api.change_physics(player, { action = "add", speed = 0.8, jump = 0.1, gravity = 0 }, "Sprint Boost")
+            		change_physics(player, { action = "add", speed = 0.8, jump = 0.1, gravity = 0 }, "Sprint Boost")
         	end
 
         	if FOV > 0 and TRANSITION ~= 0 then
@@ -429,7 +432,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.del_override(name, modname ..":sprint")
 			pova.do_override(player)
 		else
-            		api.change_physics(player, { action = "remove" }, "Sprint Boost")
+            		change_physics(player, { action = "remove" }, "Sprint Boost")
 		end
 		if FOV > 0 and TRANSITION ~= 0 then
 			player:set_fov(old_fov, false, TRANSITION)
