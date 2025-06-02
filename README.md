@@ -29,7 +29,7 @@ local STEP_INTERVAL2 = 0.5
 local function STEP1(player, player_data, dtime)
     --[[
         player_data:
-            This is an empty table for modders to use to store and retrieve values through multiple steps.
+            This is an empty table for modders to use to store and retrieve player values through multiple steps.
             What you store in player_data will persist during runtime (data gets deleted after server restart)
     ]]
     if not player_data.count then
