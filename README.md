@@ -42,9 +42,9 @@ end
 local function STEP2(player, player_data, dtime)
     local name = player:get_player_name()
 
-    local get_number_as_string = tostring(player_data.count)
+    local playerCount = tostring(player_data.count)
 
-    core.chat_send_player(name, get_number_as_string)
+    core.chat_send_player(name, playerCount)
 end
 
 -- Registering the steps
@@ -53,9 +53,8 @@ api.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)
 
 ```
 
-### 2. ***dg_sprint_core.sprint_key_detected(***`player`, `enable_aux1`, `enable_double_tap`, `interval`***)***
-This lets you check if a sprint key is pressed or double tapped
-The interval is the time in seconds between the 2 taps to detect a sprint.
+### 2. ***dg_sprint_core.sprint_key_detected(***`player`, `sprint_key`, `tap_key`, `tap_interval`***)***
+It detects if a sprint key is pressed or double tap have been detected and returns true when it does.
 
 #### Example:
 
@@ -71,9 +70,19 @@ local STEP_INTERVAL1 = 0.1
 local STEP_INTERVAL2 = 0.5
 
 local function STEP1(player, player_data, dtime)
+    
+    --[[
+        I use control.aux1 as sprint key and control.up as double tap key,
+        but you can set your own button(s) to detect sprint or double tap.
+        The tap interval is set to 0.5 and will detect a sprint if you tap the button twice in that time.
+    ]]--
     local control = player:get_player_control()
 
+    -- Option 1: sprint_key and tap_key gets detected 
     player_data.detected = api.sprint_key_detected(player, control.aux1, control.up, 0.5)
+
+    -- Option 2: sprint_key works but tap_key is disabled 
+    -- player_data.detected = api.sprint_key_detected(player, control.aux1, false, 0.5)
 end
 
 local function STEP2(player, player_data, dtime)
@@ -89,5 +98,7 @@ end
 api.register_server_step(mod_name, STEP_NAME1, STEP_INTERVAL1, STEP1)
 api.register_server_step(mod_name, STEP_NAME2, STEP_INTERVAL2, STEP2)   
 ```
+
+---
 
 ## TOOLS
