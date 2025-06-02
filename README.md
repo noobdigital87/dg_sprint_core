@@ -42,9 +42,9 @@ end
 local function STEP2(player, player_data, dtime)
     local name = player:get_player_name()
 
-    local playerCount = tostring(player_data.count)
+    local counter = tostring(player_data.count)
 
-    core.chat_send_player(name, playerCount)
+    core.chat_send_player(name, counter)
 end
 
 -- Registering the steps
