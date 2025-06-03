@@ -404,7 +404,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		change_physics(player, { action = "add", speed = 0.8, jump = 0.1, gravity = 0 }, "Sprint Boost")
         	end
 
-        	if FOV > 0 and TRANSITION ~= 0 then
+        	if FOV > 0 and TRANSITION > 0 then
 			player:set_fov(old_fov + FOV, false, TRANSITION)
         	end
 
@@ -429,7 +429,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		else
             		change_physics(player, { action = "remove" }, "Sprint Boost")
 		end
-		if FOV > 0 and TRANSITION ~= 0 then
+		if FOV > 0 and TRANSITION > 0 then
 			player:set_fov(old_fov, false, TRANSITION)
 		end
 
