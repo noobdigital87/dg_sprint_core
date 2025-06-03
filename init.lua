@@ -21,7 +21,7 @@ local data = {
     	physics_pool = {},
 	physics_reasons = {},
 }
---[[-----------------------------------------------------------------------------------------------------------
+
 --[[-----------------------------------------------------------------------------------------------------------
 	HELPER FUNCTIONS
 ]]
@@ -311,12 +311,11 @@ end
 
 
 local update_physics = function(player, def, reason)
-    local name = player:get_player_name()
-    local old_def = data.physics_reasons[name][reason]
-        remove_physics(player, old_def)
-    end
-    data.physics_reasons[name][reason] = new_def
-    add_physics(player, new_def)
+	local name = player:get_player_name()
+	local old_def = data.physics_reasons[name][reason]
+	remove_physics(player, old_def)
+	data.physics_reasons[name][reason] = new_def
+	add_physics(player, new_def)
 end
 
 local remove_physics = function(player, def)
@@ -369,8 +368,6 @@ local change_physics = function(player, def, reason)
 	set_physics(player)
 end
 
-
---[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 204]
 ]]
@@ -454,7 +451,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 
 	return data.states[name].is_sprinting
 end
---[[-----------------------------------------------------------------------------------------------------------
+
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 205]
 ]]
@@ -463,7 +460,7 @@ api.is_player_sprinting = function(player)
     	if not data.states[name] then return false end
     	return data.states[name].is_sprinting or false
 end
---[[-----------------------------------------------------------------------------------------------------------
+
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 206]
 ]]
@@ -480,8 +477,6 @@ api.is_player_draining = function(player)
    	return false
 end
 
-
---[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
 	CREATE/CLEAR DATA/STATES WHEN PLAYER LEAVES/JOINS
 ]]
@@ -513,7 +508,6 @@ core.register_on_leaveplayer(function(player)
         data.physics_pool[name] = nil
 end)
 
-
 if mod.physics and core.get_game_info().title == "Mineclonia" then
 	core.register_on_respawnplayer(function(player)
 		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
@@ -539,8 +533,6 @@ else
 		player:set_fov(0, false)
 	end)
 end
-
-
 
 --[[
 	API TOOLS: EXTRA TOOLS TO MAKE YOUR LIFE EASIER
