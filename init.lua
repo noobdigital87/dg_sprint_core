@@ -309,6 +309,16 @@ local add_physics = function(player, def)
 	data.physics_pool[name].gravity = data.physics_pool[name].gravity + GRAVITY
 end
 
+
+local update_physics = function(player, def, reason)
+    local name = player:get_player_name()
+    local old_def = data.physics_reasons[name][reason]
+        remove_physics(player, old_def)
+    end
+    data.physics_reasons[name][reason] = new_def
+    add_physics(player, new_def)
+end
+
 local remove_physics = function(player, def)
 
 	local name = player:get_player_name()
@@ -344,6 +354,8 @@ local change_physics = function(player, def, reason)
         	if not data.physics_reasons[name][reason] then
             		data.physics_reasons[name][reason] = def
             		add_physics(player, def)
+		else
+			update_physics(player, def, reason)
         	end
     	elseif def.action == "remove" then
         	-- Only remove if reason is being tracked
@@ -401,7 +413,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
             		pova.do_override(player)
         	else
-            		change_physics(player, { action = "add", speed = 0.8, jump = 0.1, gravity = 0 }, "Sprint Boost")
+            		change_physics(player, { action = "add", speed = SPEED, jump = JUMP, gravity = 0 }, "Sprint Boost")
         	end
 
         	if FOV > 0 and TRANSITION > 0 then
