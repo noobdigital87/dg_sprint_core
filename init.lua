@@ -272,7 +272,7 @@ end
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 207]
 ]]
-local get_physics_def = function(player)
+api.get_physics = function(player)
 	local def = {}
 	local returned_def = {}
 	local name = player:get_player_name()
@@ -333,7 +333,7 @@ end
 
 local set_physics = function(player)
 	local name = player:get_player_name()
-	player:set_physics_override({ speed = 1 + get_physics_def(player).speed, jump = 1 + get_physics_def(player).jump, gravity = 1 + get_physics_def(player).gravity })
+	player:set_physics_override({ speed = 1 + api.get_physics(player).speed, jump = 1 + api.get_physics(player).jump, gravity = 1 + api.get_physics(player).gravity })
 end
 
 local change_physics = function(player, def, reason)
