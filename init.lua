@@ -36,8 +36,8 @@ local function summed_mod_defs()
 	}
 	
 	if mod.armor then
-        	sum.speed = sum.speed + (armor.def[name].speed - 1),
-            	sum.jump = sum.jump + (armor.def[name].jump - 1),
+        	sum.speed = sum.speed + (armor.def[name].speed - 1)
+            	sum.jump = sum.jump + (armor.def[name].jump - 1)
             	sum.gravity = sum.gravity + (armor.def[name].gravity - 1)
 	end
 
