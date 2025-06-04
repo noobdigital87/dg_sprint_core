@@ -301,7 +301,7 @@ local get_physics_def = function(player)
 end
 
 local add_physics = function(player, def)
-
+	if not def then return end
 	local name = player:get_player_name()
 
 	local SPEED = def.speed or 0
@@ -315,6 +315,7 @@ end
 
 
 local update_physics = function(player, def, reason)
+	if not def then return end
 	local name = player:get_player_name()
 	local old_def = data.physics_reasons[name][reason]
 	remove_physics(player, old_def)
@@ -323,7 +324,7 @@ local update_physics = function(player, def, reason)
 end
 
 local remove_physics = function(player, def)
-
+	if not def then return end
 	local name = player:get_player_name()
 
 	local SPEED = def.speed or 0
@@ -341,6 +342,7 @@ local set_physics = function(player)
 end
 
 local change_physics = function(player, def, reason)
+	if not def then return end
 	local name = player:get_player_name()
 
     	-- Ensure physics pool and reasons exist
