@@ -290,7 +290,7 @@ end
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 207]
 ]]
-api.get_physics_def = function(player)
+local get_physics_def = function(player)
 	local def = summed_mod_defs
 	local returned_def = {}
 	local name = player:get_player_name()
@@ -337,7 +337,7 @@ end
 
 local set_physics = function(player)
 	local name = player:get_player_name()
-	player:set_physics_override({ speed = 1 + api.get_physics_def(player).speed, jump = 1 + api.get_physics_def(player).jump, gravity = 1 + api.get_physics_def(player).gravity })
+	player:set_physics_override({ speed = 1 + get_physics_def(player).speed, jump = 1 + get_physics_def(player).jump, gravity = 1 + get_physics_def(player).gravity })
 end
 
 local change_physics = function(player, def, reason)
@@ -407,8 +407,8 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		mcl_fovapi.apply_modifier(player, "sprint")
 
         	elseif mod.monoids then
-            		data.states[name].sprint = player_monoids.speed:add_change(player, 1 + SPEED)
-            		data.states[name].jump = player_monoids.jump:add_change(player, 1 + JUMP )
+            		data.states[name].sprint = player_monoids.speed:add_change(player, get_physics_def(player).speed + SPEED)
+            		data.states[name].jump = player_monoids.jump:add_change(player, get_physics_def(player).jump + JUMP )
 
         	elseif mod.pova then
             		pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
