@@ -272,100 +272,86 @@ end
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 207]
 ]]
-api.get_physics = function(player)
-	local def = {}
-	local returned_def = {}
-	local name = player:get_player_name()
-	if mod.armor then
-        	def = {
-            		speed = armor.def[name].speed,
-            		jump = armor.def[name].jump,
-            		gravity = armor.def[name].gravity
-        	}
-    	else
-        	def = {
-            		speed = 1,
-            		jump = 1,
-            		gravity = 1
-        	}
-    	end
+data = data or {}
+data.base_physics = data.base_physics or {}
+data.physics_pool   = data.physics_pool   or {}
+data.physics_reasons = data.physics_reasons or {}
 
-	returned_def.speed = (def.speed + data.physics_pool[name].speed) - 1
-	returned_def.jump = (def.jump + data.physics_pool[name].jump) - 1
-	returned_def.gravity = def.gravity - 1
-	return returned_def
+-- When a player is first seen, capture their base physics override.
+local init_player_physics = function(player)
+    local name = player:get_player_name()
+    if not data.base_physics[name] then
+        data.base_physics[name] = player:get_physics_override()
+        data.physics_pool[name]   = { speed = 0, jump = 0, gravity = 0 }
+        data.physics_reasons[name] = {}
+    end
 end
 
+-- Adjusts the cumulative physics values stored for the player.
 local add_physics = function(player, def)
+    local name = player:get_player_name()
+    local speed   = def.speed or 0
+    local jump    = def.jump or 0
+    local gravity = def.gravity or 0
 
-	local name = player:get_player_name()
-
-	local SPEED = def.speed or 0
-	local JUMP = def.jump or 0
-	local GRAVITY = def.gravity or 0
-
-	data.physics_pool[name].speed = data.physics_pool[name].speed + SPEED
-	data.physics_pool[name].jump = data.physics_pool[name].jump + JUMP
-	data.physics_pool[name].gravity = data.physics_pool[name].gravity + GRAVITY
-end
-
-
-local update_physics = function(player, def, reason)
-	local name = player:get_player_name()
-	local old_def = data.physics_reasons[name][reason]
-	remove_physics(player, old_def)
-	data.physics_reasons[name][reason] = new_def
-	add_physics(player, new_def)
+    data.physics_pool[name].speed   = data.physics_pool[name].speed   + speed
+    data.physics_pool[name].jump    = data.physics_pool[name].jump    + jump
+    data.physics_pool[name].gravity = data.physics_pool[name].gravity + gravity
 end
 
 local remove_physics = function(player, def)
+    local name = player:get_player_name()
+    local speed   = def.speed or 0
+    local jump    = def.jump or 0
+    local gravity = def.gravity or 0
 
-	local name = player:get_player_name()
-
-	local SPEED = def.speed or 0
-	local JUMP = def.jump or 0
-	local GRAVITY = def.gravity or 0
-
-	data.physics_pool[name].speed = data.physics_pool[name].speed - SPEED
-	data.physics_pool[name].jump = data.physics_pool[name].jump - JUMP
-	data.physics_pool[name].gravity = data.physics_pool[name].gravity - GRAVITY
+    data.physics_pool[name].speed   = data.physics_pool[name].speed   - speed
+    data.physics_pool[name].jump    = data.physics_pool[name].jump    - jump
+    data.physics_pool[name].gravity = data.physics_pool[name].gravity - gravity
 end
 
+-- When updating a physics reason, remove its old values and add the new ones.
+local update_physics = function(player, new_def, reason)
+    local name = player:get_player_name()
+    local old_def = data.physics_reasons[name][reason] or {}
+    remove_physics(player, old_def)
+    data.physics_reasons[name][reason] = new_def
+    add_physics(player, new_def)
+end
+
+-- Resets the player's physics override using the stored base values plus any modifications.
 local set_physics = function(player)
-	local name = player:get_player_name()
-	player:set_physics_override({ speed = 1 + api.get_physics(player).speed, jump = 1 + api.get_physics(player).jump, gravity = 1 + api.get_physics(player).gravity })
+    local name = player:get_player_name()
+    local base = data.base_physics[name] or player:get_physics_override()  -- fallback if something’s amiss
+    player:set_physics_override({
+        speed   = base.speed   + data.physics_pool[name].speed,
+        jump    = base.jump    + data.physics_pool[name].jump,
+        gravity = base.gravity + data.physics_pool[name].gravity,
+    })
 end
 
+-- The main function to change a physics value.
+-- def.action should be "add" (to add or update a reason) or "remove" (to remove a reason).
 local change_physics = function(player, def, reason)
-	local name = player:get_player_name()
+    init_player_physics(player)  -- Ensure we have stored the base override & pool
 
-    	-- Ensure physics pool and reasons exist
-    	if not data.physics_pool[name] then
-        	data.physics_pool[name] = { speed = 0, jump = 0, gravity = 0 }
-    	end
+    local name = player:get_player_name()
+    if def.action == "add" then
+        if not data.physics_reasons[name][reason] then
+            data.physics_reasons[name][reason] = def
+            add_physics(player, def)
+        else
+            update_physics(player, def, reason)
+        end
+    elseif def.action == "remove" then
+        if data.physics_reasons[name][reason] then
+            remove_physics(player, data.physics_reasons[name][reason])
+            data.physics_reasons[name][reason] = nil
+        end
+    end
 
-    	if not data.physics_reasons[name] then
-        	data.physics_reasons[name] = {}
-    	end
-
-    	if def.action == "add" then
-        	-- Only add if reason isn't already tracked
-        	if not data.physics_reasons[name][reason] then
-            		data.physics_reasons[name][reason] = def
-            		add_physics(player, def)
-		else
-			update_physics(player, def, reason)
-        	end
-    	elseif def.action == "remove" then
-        	-- Only remove if reason is being tracked
-		if data.physics_reasons[name][reason] then
-            		remove_physics(player, data.physics_reasons[name][reason])
-            		data.physics_reasons[name][reason] = nil
-        	end
-    	end
-
-	-- Apply updated physics settings
-	set_physics(player)
+    -- Finally, update the player's physics override.
+    set_physics(player)
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
