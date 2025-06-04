@@ -5,6 +5,7 @@ local api = dg_sprint_core
 local old_fov = core.settings:get("fov") or 72
 
 local mod = {
+	
 	pova = core.get_modpath("pova") and core.global_exists("pova"),
     	monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
     	physics = core.get_modpath("playerphysics") and core.global_exists("playerphysics"),
@@ -13,6 +14,7 @@ local mod = {
 }
 
 local data = {
+	
 	keyboard = {},
     	cancel_reasons = {},
     	server_steps = {},
@@ -25,6 +27,23 @@ local data = {
 --[[-----------------------------------------------------------------------------------------------------------
 	HELPER FUNCTIONS
 ]]
+local summed_mod_defs = {
+	
+	local sum = {
+		speed = 0,
+		jump = 0,
+		gravity = 0,
+	}
+	
+	if mod.armor then
+        	sum.speed = sum.speed + (armor.def[name].speed - 1),
+            	sum.jump = sum.jump + (armor.def[name].jump - 1),
+            	sum.gravity = sum.gravity + (armor.def[name].gravity - 1)
+	end
+
+	return sum
+
+}
 
 local function get_node_definition(player, altPos)
 	local playerName = player:get_player_name()
@@ -273,23 +292,9 @@ end
 	API [API_NR = 207]
 ]]
 local get_physics_def = function(player)
-	local def = {}
+	local def = summed_mod_defs
 	local returned_def = {}
 	local name = player:get_player_name()
-	if mod.armor then
-        	def = {
-            		speed = armor.def[name].speed,
-            		jump = armor.def[name].jump,
-            		gravity = armor.def[name].gravity
-        	}
-    	else
-        	def = {
-            		speed = 1,
-            		jump = 1,
-            		gravity = 1
-        	}
-    	end
-
 	returned_def.speed = (def.speed + data.physics_pool[name].speed) - 1
 	returned_def.jump = (def.jump + data.physics_pool[name].jump) - 1
 	returned_def.gravity = def.gravity - 1
