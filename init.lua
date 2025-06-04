@@ -398,7 +398,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		MCL_SPEED = mcl_sprint.SPEED
         	end
     	end
-	if data.states[name].is_sprinting = true and player:get_physics_override() == 1 then
+	if data.states[name].is_sprinting == true and player:get_physics_override() == 1 then
 		change_physics(player, { action = "add", speed = SPEED, jump = JUMP, gravity = 0 }, "Sprint Boost")
 	end
     	if sprinting == true and not data.states[name].is_sprinting then
