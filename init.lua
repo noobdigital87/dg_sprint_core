@@ -379,7 +379,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 	override_table = override_table or {}
 
     	local name = player:get_player_name()
-
+	
     	if not data.states[name] then
         	data.states[name] = {}
     	end
@@ -396,7 +396,9 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		MCL_SPEED = mcl_sprint.SPEED
         	end
     	end
-
+	if data.states[name].is_sprinting = true and player:get_physics_override() == 1 then
+		change_physics(player, { action = "add", speed = SPEED, jump = JUMP, gravity = 0 }, "Sprint Boost")
+	end
     	if sprinting == true and not data.states[name].is_sprinting then
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
