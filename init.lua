@@ -27,7 +27,7 @@ local data = {
 --[[-----------------------------------------------------------------------------------------------------------
 	HELPER FUNCTIONS
 ]]
-local summed_mod_defs = {
+local function summed_mod_defs()
 	
 	local sum = {
 		speed = 0,
@@ -42,8 +42,7 @@ local summed_mod_defs = {
 	end
 
 	return sum
-
-}
+end
 
 local function get_node_definition(player, altPos)
 	local playerName = player:get_player_name()
