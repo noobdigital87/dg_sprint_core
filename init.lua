@@ -291,7 +291,7 @@ end
 	API [API_NR = 207]
 ]]
 local get_physics_def = function(player)
-	local def = summed_mod_defs
+	local def = summed_mod_defs()
 	local returned_def = {}
 	local name = player:get_player_name()
 	returned_def.speed = def.speed + data.physics_pool[name].speed
