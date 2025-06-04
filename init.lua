@@ -294,8 +294,8 @@ local get_physics_def = function(player)
 	local def = summed_mod_defs
 	local returned_def = {}
 	local name = player:get_player_name()
-	returned_def.speed = def.speed + data.physics_pool[name].speed)
-	returned_def.jump = def.jump + data.physics_pool[name].jump)
+	returned_def.speed = def.speed + data.physics_pool[name].speed
+	returned_def.jump = def.jump + data.physics_pool[name].jump
 	returned_def.gravity = def.gravity + data.physics_pool[name].gravity
 	return returned_def
 end
