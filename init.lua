@@ -5,7 +5,7 @@ local api = dg_sprint_core
 local old_fov = core.settings:get("fov") or 72
 
 local mod = {
-	
+
 	pova = core.get_modpath("pova") and core.global_exists("pova"),
     	monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
     	physics = core.get_modpath("playerphysics") and core.global_exists("playerphysics"),
@@ -14,7 +14,7 @@ local mod = {
 }
 
 local data = {
-	
+
 	keyboard = {},
     	cancel_reasons = {},
     	server_steps = {},
@@ -27,21 +27,8 @@ local data = {
 --[[-----------------------------------------------------------------------------------------------------------
 	HELPER FUNCTIONS
 ]]
-local function summed_mod_defs()
-	
-	local sum = {
-		speed = 0,
-		jump = 0,
-		gravity = 0,
-	}
-	
-	if mod.armor then
-        	sum.speed = sum.speed + (armor.def[name].speed - 1)
-            	sum.jump = sum.jump + (armor.def[name].jump - 1)
-            	sum.gravity = sum.gravity + (armor.def[name].gravity - 1)
-	end
-
-	return sum
+local function get_physics(player)
+	return player:get_physics_override()
 end
 
 local function get_node_definition(player, altPos)
@@ -109,14 +96,31 @@ local function player_is_moving(player)
 	return is_moving
 end
 
+local function is_3d_armor_item(itemstack)
+    local item_name = itemstack:get_name()
+    return item_name:match("^3d_armor:") ~= nil
+end
+
 local function prevent_detect(player)
     	if player:get_attach() then return true end
 
     	if not player_is_moving(player) then return true end
 
     	if mod.hangglider then
-        	if player_is_gliding(player) and not physics_mod_is_installed() then return true end
+        	if player_is_gliding(player) and not physics_mod_is_installed() then return true  end
+        	local wielded_item = player:get_wielded_item()
+        	if wielded_item:get_name() == "hangglider:hangglider" then
+			return true
+		end
     	end
+
+	if mod.armor and not physics_mod_is_installed() then
+		local wielded_item = player:get_wielded_item()
+		if is_3d_armor_item(wielded_item) then
+			return true
+		end
+
+	end
 
     	return false
 end
@@ -164,10 +168,7 @@ local function ground_particles(player)
     	})
 end
 
-local function is_3d_armor_item(itemstack)
-    local item_name = itemstack:get_name()
-    return item_name:match("^3d_armor:") ~= nil
-end
+
 
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
@@ -228,14 +229,6 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
         	end
 	end
 
-	if mod.armor and not physics_mod_is_installed() then
-		local wielded_item = player:get_wielded_item()
-		if is_3d_armor_item(wielded_item) then
-			cancel_active = true
-		end
-
-	end
-
    	if cancel_active or prevent_detect(player) then
         	k_data.detected = false
         	k_data.is_holding = false
@@ -290,88 +283,42 @@ end
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 207]
 ]]
-local get_physics_def = function(player)
-	local def = summed_mod_defs()
-	local returned_def = {}
-	local name = player:get_player_name()
-	returned_def.speed = def.speed + data.physics_pool[name].speed
-	returned_def.jump = def.jump + data.physics_pool[name].jump
-	returned_def.gravity = def.gravity + data.physics_pool[name].gravity
-	return returned_def
-end
 
-local add_physics = function(player, def)
+local add_physics = function(player, overrides)
+
+	if not overrides then return end
+
+	local SPEED = overrides.speed or 0
+	local JUMP = overrides.jump or 0
+	local GRAVITY = overrides.gravity or 0
+
+	local def = player:get_physics_override()
+
 	if not def then return end
-	local name = player:get_player_name()
 
-	local SPEED = def.speed or 0
-	local JUMP = def.jump or 0
-	local GRAVITY = def.gravity or 0
-
-	data.physics_pool[name].speed = data.physics_pool[name].speed + SPEED
-	data.physics_pool[name].jump = data.physics_pool[name].jump + JUMP
-	data.physics_pool[name].gravity = data.physics_pool[name].gravity + GRAVITY
+	player:set_physics_override({
+		speed = def.speed + SPEED,
+		jump = def.jump + JUMP,
+		gravity = def.gravity + GRAVITY,
+	})
 end
 
+local remove_physics = function(player, overrides)
+	if not overrides then return end
 
-local update_physics = function(player, def, reason)
+	local SPEED = overrides.speed or 0
+	local JUMP = overrides.jump or 0
+	local GRAVITY = overrides.gravity or 0
+
+	local def = player:get_physics_override()
+
 	if not def then return end
-	local name = player:get_player_name()
-	local old_def = data.physics_reasons[name][reason]
-	remove_physics(player, old_def)
-	data.physics_reasons[name][reason] = new_def
-	add_physics(player, new_def)
-end
 
-local remove_physics = function(player, def)
-	if not def then return end
-	local name = player:get_player_name()
-
-	local SPEED = def.speed or 0
-	local JUMP = def.jump or 0
-	local GRAVITY = def.gravity or 0
-
-	data.physics_pool[name].speed = data.physics_pool[name].speed - SPEED
-	data.physics_pool[name].jump = data.physics_pool[name].jump - JUMP
-	data.physics_pool[name].gravity = data.physics_pool[name].gravity - GRAVITY
-end
-
-local set_physics = function(player)
-	local name = player:get_player_name()
-	player:set_physics_override({ speed = 1 + get_physics_def(player).speed, jump = 1 + get_physics_def(player).jump, gravity = 1 + get_physics_def(player).gravity })
-end
-
-local change_physics = function(player, def, reason)
-	if not def then return end
-	local name = player:get_player_name()
-
-    	-- Ensure physics pool and reasons exist
-    	if not data.physics_pool[name] then
-        	data.physics_pool[name] = { speed = 0, jump = 0, gravity = 0 }
-    	end
-
-    	if not data.physics_reasons[name] then
-        	data.physics_reasons[name] = {}
-    	end
-
-    	if def.action == "add" then
-        	-- Only add if reason isn't already tracked
-        	if not data.physics_reasons[name][reason] then
-            		data.physics_reasons[name][reason] = def
-            		add_physics(player, def)
-		else
-			update_physics(player, def, reason)
-        	end
-    	elseif def.action == "remove" then
-        	-- Only remove if reason is being tracked
-		if data.physics_reasons[name][reason] then
-            		remove_physics(player, data.physics_reasons[name][reason])
-            		data.physics_reasons[name][reason] = nil
-        	end
-    	end
-
-	-- Apply updated physics settings
-	set_physics(player)
+	player:set_physics_override({
+		speed = def.speed - SPEED,
+		jump = def.jump - JUMP,
+		gravity = def.gravity - GRAVITY,
+	})
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
@@ -381,7 +328,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 	override_table = override_table or {}
 
     	local name = player:get_player_name()
-	
+		core.chat_send_player(name, dump(player:get_physics_override()))
     	if not data.states[name] then
         	data.states[name] = {}
     	end
@@ -398,9 +345,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		MCL_SPEED = mcl_sprint.SPEED
         	end
     	end
-	if data.states[name].is_sprinting == true and player:get_physics_override() == 1 then
-		change_physics(player, { action = "add", speed = SPEED, jump = JUMP, gravity = 0 }, "Sprint Boost")
-	end
+
     	if sprinting == true and not data.states[name].is_sprinting then
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
@@ -411,14 +356,19 @@ api.set_sprint = function(modname, player, sprinting, override_table )
             		mcl_fovapi.apply_modifier(player, "sprint")
 
         	elseif mod.monoids then
-            		data.states[name].sprint = player_monoids.speed:add_change(player, get_physics_def(player).speed + SPEED)
-            		data.states[name].jump = player_monoids.jump:add_change(player, get_physics_def(player).jump + JUMP )
+			local def = player:get_physics_override()
+            		data.states[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED)
+            		data.states[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP )
 
         	elseif mod.pova then
             		pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
             		pova.do_override(player)
         	else
-            		change_physics(player, { action = "add", speed = SPEED, jump = JUMP, gravity = 0 }, "Sprint Boost")
+            		add_physics(player, {
+				speed = SPEED,
+				jump = JUMP,
+				gravity = 0,
+			})
         	end
 
         	if FOV > 0 and TRANSITION > 0 then
@@ -428,7 +378,6 @@ api.set_sprint = function(modname, player, sprinting, override_table )
         	data.states[name].is_sprinting = true
 
     	elseif sprinting == false and data.states[name].is_sprinting then
-
         	if mod.physics and core.get_game_info().title == "Mineclonia" then
             		playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
             		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
@@ -444,7 +393,11 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.del_override(name, modname ..":sprint")
 			pova.do_override(player)
 		else
-            		change_physics(player, { action = "remove" }, "Sprint Boost")
+			remove_physics(player, {
+				speed = SPEED,
+				jump = JUMP,
+				gravity = 0,
+			})
 		end
 		if FOV > 0 and TRANSITION > 0 then
 			player:set_fov(old_fov, false, TRANSITION)
