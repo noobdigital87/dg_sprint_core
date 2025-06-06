@@ -7,29 +7,24 @@ local old_fov = core.settings:get("fov") or 72
 local mod = {
 
 	pova = core.get_modpath("pova") and core.global_exists("pova"),
-    	monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
-    	physics = core.get_modpath("playerphysics") and core.global_exists("playerphysics"),
-    	armor = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def,
-    	hangglider = core.get_modpath("hangglider"),
+	monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
+	physics = core.get_modpath("playerphysics") and core.global_exists("playerphysics"),
+	armor = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def,
+	hangglider = core.get_modpath("hangglider"),
 }
 
 local data = {
 
 	keyboard = {},
-    	cancel_reasons = {},
-    	server_steps = {},
-    	players = {},
-    	states = {},
-    	physics_pool = {},
-	physics_reasons = {},
+	cancel_reasons = {},
+	server_steps = {},
+	players = {},
+	states = {},
 }
 
 --[[-----------------------------------------------------------------------------------------------------------
 	HELPER FUNCTIONS
 ]]
-local function get_physics(player)
-	return player:get_physics_override()
-end
 
 local function get_node_definition(player, altPos)
 	local playerName = player:get_player_name()
@@ -102,27 +97,25 @@ local function is_3d_armor_item(itemstack)
 end
 
 local function prevent_detect(player)
-    	if player:get_attach() then return true end
+	if player:get_attach() then return true end
 
-    	if not player_is_moving(player) then return true end
+	if not player_is_moving(player) then return true end
 
-    	if mod.hangglider then
-        	if player_is_gliding(player) and not physics_mod_is_installed() then return true  end
-        	local wielded_item = player:get_wielded_item()
-        	if wielded_item:get_name() == "hangglider:hangglider" then
+	if mod.hangglider and not physics_mod_is_installed() then
+		local wielded_item = player:get_wielded_item()
+
+		if player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider" then
 			return true
 		end
-    	end
+	end
 
 	if mod.armor and not physics_mod_is_installed() then
 		local wielded_item = player:get_wielded_item()
 		if is_3d_armor_item(wielded_item) then
 			return true
 		end
-
 	end
-
-    	return false
+	return false
 end
 
 
@@ -131,41 +124,41 @@ local function get_darkened_texture_from_node(pos, darkness)
 
 	if not node then return "[fill:2x16:0,0:#8B4513" end
 
-    	local def = core.registered_nodes[node.name]
+	local def = core.registered_nodes[node.name]
 
 	if not def or not def.tiles or not def.tiles[1] then return "[fill:2x16:0,0:#8B4513" end
 
-    	local base_texture = def.tiles[1]
+	local base_texture = def.tiles[1]
 
-    	if type(base_texture) == "table" then return "smoke_puff.png" end
+	if type(base_texture) == "table" then return "smoke_puff.png" end
 
-    	return base_texture .. "^[colorize:#000000:" .. tostring(darkness or 80)
+	return base_texture .. "^[colorize:#000000:" .. tostring(darkness or 80)
 end
 
 local function ground_particles(player)
 	local pos = player:get_pos()
-    	local texture = get_darkened_texture_from_node(pos, 80)
-    	local node = minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
+	local texture = get_darkened_texture_from_node(pos, 80)
+	local node = minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
 	local def = minetest.registered_nodes[node.name] or {}
-    	local drawtype = def.drawtype
-    	if drawtype == "airlike" or drawtype == "liquid" or drawtype == "flowingliquid" then return end
-    	core.add_particlespawner({
-        	amount = 5,
-        	time = 0.01,
-        	minpos = {x = pos.x - 0.25, y = pos.y + 0.1, z = pos.z - 0.25},
-        	maxpos = {x = pos.x + 0.25, y = pos.y + 0.1, z = pos.z + 0.25},
-        	minvel = {x = -0.5, y = 1, z = -0.5},
-        	maxvel = {x = 0.5, y = 2, z = 0.5},
-        	minacc = {x = 0, y = -5, z = 0},
-        	maxacc = {x = 0, y = -12, z = 0},
-        	minexptime = 0.25,
-        	maxexptime = 0.5,
-        	minsize = 0.5,
-        	maxsize = 1.0,
-        	vertical = false,
-        	collisiondetection = false,
-        	texture = texture
-    	})
+	local drawtype = def.drawtype
+	if drawtype == "airlike" or drawtype == "liquid" or drawtype == "flowingliquid" then return end
+	core.add_particlespawner({
+		amount = 5,
+		time = 0.01,
+		minpos = {x = pos.x - 0.25, y = pos.y + 0.1, z = pos.z - 0.25},
+		maxpos = {x = pos.x + 0.25, y = pos.y + 0.1, z = pos.z + 0.25},
+		minvel = {x = -0.5, y = 1, z = -0.5},
+		maxvel = {x = 0.5, y = 2, z = 0.5},
+		minacc = {x = 0, y = -5, z = 0},
+		maxacc = {x = 0, y = -12, z = 0},
+		minexptime = 0.25,
+		maxexptime = 0.5,
+		minsize = 0.5,
+		maxsize = 1.0,
+		vertical = false,
+		collisiondetection = false,
+		texture = texture
+	})
 end
 
 
@@ -177,34 +170,34 @@ end
 api.register_server_step = function(mod_name, step_name, step_interval, step_callback)
 	if not data.server_steps[mod_name] then
 		data.server_steps[mod_name] = {}
-    	end
+	end
 
-    	if data.server_steps[mod_name][step_name] then
+	if data.server_steps[mod_name][step_name] then
         	error("Step with name '" .. step_name .. "' already exists for mod '" .. mod_name .. "'.")
-    	end
+	end
 
-        data.server_steps[mod_name][step_name] = {
-        	interval = step_interval,
-        	elapsed = 0,
-        	callback = step_callback
-    	}
+	data.server_steps[mod_name][step_name] = {
+		interval = step_interval,
+		elapsed = 0,
+		callback = step_callback
+	}
 end
 
 core.register_globalstep(function(dtime)
 	for mod, steps in pairs(data.server_steps) do
-    		for step_name, tick in pairs(steps) do
-        		tick.elapsed = tick.elapsed + dtime
-        		if tick.elapsed >= tick.interval then
-            			for _, player in ipairs(core.get_connected_players()) do
-                			local name = player:get_player_name()
-                			if data.players[name] then
-                    				local player_data = data.players[name]
-                    				tick.callback(player, player_data, dtime)
-                    				tick.elapsed = tick.elapsed - tick.interval -- Reset elapsed time.
-                			end
-            			end
-        		end
-    		end
+		for step_name, tick in pairs(steps) do
+			tick.elapsed = tick.elapsed + dtime
+			if tick.elapsed >= tick.interval then
+				for _, player in ipairs(core.get_connected_players()) do
+				local name = player:get_player_name()
+					if data.players[name] then
+						local player_data = data.players[name]
+						tick.callback(player, player_data, dtime)
+						tick.elapsed = tick.elapsed - tick.interval -- Reset elapsed time.
+					end
+				end
+			end
+		end
 	end
 end)
 
@@ -216,50 +209,50 @@ end)
 api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, interval)
 	local name = player:get_player_name()
 
-    	local k_data = data.keyboard[name]
+	local k_data = data.keyboard[name]
 	local control = player:get_player_control()
-    	local control_bit = player:get_player_control_bits()
-    	local current_time_us = core.get_us_time() / 1e6
-    	local cancel_active = false
+	local control_bit = player:get_player_control_bits()
+	local current_time_us = core.get_us_time() / 1e6
+	local cancel_active = false
 
-    	if data.cancel_reasons[name] then
-        	for reason, _ in pairs(data.cancel_reasons[name]) do
-            		cancel_active = true
-            		break
-        	end
+	if data.cancel_reasons[name] then
+		for reason, _ in pairs(data.cancel_reasons[name]) do
+			cancel_active = true
+			break
+		end
 	end
 
-   	if cancel_active or prevent_detect(player) then
-        	k_data.detected = false
-        	k_data.is_holding = false
-        	k_data.aux_pressed = false
-        	return false
-    	end
+	if cancel_active or prevent_detect(player) then
+		k_data.detected = false
+		k_data.is_holding = false
+		k_data.aux_pressed = false
+		return false
+	end
 
-    	if enable_aux1 then
-        	k_data.detected = true
-        	k_data.is_holding = false
-        	k_data.aux_pressed = true
-    	elseif not enable_double_tap then
-        	k_data.detected = false
-        	k_data.is_holding = false
-        	k_data.aux_pressed = false
-    	elseif enable_double_tap then
-        	if not k_data.is_holding then
-        		if current_time_us - k_data.last_tap_time < interval then
-                		k_data.detected = true
-            		end
-            		k_data.last_tap_time = current_time_us
-            		k_data.is_holding = true
+	if enable_aux1 then
+		k_data.detected = true
+		k_data.is_holding = false
+		k_data.aux_pressed = true
+	elseif not enable_double_tap then
+		k_data.detected = false
+		k_data.is_holding = false
+		k_data.aux_pressed = false
+	elseif enable_double_tap then
+		if not k_data.is_holding then
+			if current_time_us - k_data.last_tap_time < interval then
+				k_data.detected = true
+			end
+			k_data.last_tap_time = current_time_us
+			k_data.is_holding = true
         	end
-        	k_data.aux_pressed = false
-    	elseif control_bit == 0 or control_bit == 32 then
-        	k_data.detected = false
-        	k_data.is_holding = false
-        	k_data.aux_pressed = false
-    	end
+		k_data.aux_pressed = false
+	elseif control_bit == 0 or control_bit == 32 then
+		k_data.detected = false
+		k_data.is_holding = false
+		k_data.aux_pressed = false
+	end
 
-    	return k_data.detected
+	return k_data.detected
 end
 --[[-----------------------------------------------------------------------------------------------------------
 --[[-----------------------------------------------------------------------------------------------------------
@@ -268,15 +261,15 @@ end
 api.set_sprint_cancel = function(player, enabled, reason)
 	local name = player:get_player_name()
 
-    	if not data.cancel_reasons[name] then
-        	data.cancel_reasons[name] = {}
-    	end
+	if not data.cancel_reasons[name] then
+		data.cancel_reasons[name] = {}
+	end
 
-    	if enabled then
-        	data.cancel_reasons[name][reason] = true
-    	else
-        	data.cancel_reasons[name][reason] = nil
-    	end
+	if enabled then
+		data.cancel_reasons[name][reason] = true
+	else
+		data.cancel_reasons[name][reason] = nil
+	end
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
@@ -447,10 +440,6 @@ core.register_on_joinplayer(function(player)
         	data.keyboard[name] = init_data(player)
     	end
 
-        if not data.physics_pool[name] then
-        	data.physics_pool[name] = {speed = 0, jump = 0, gravity = 0}
-    	end
-
         if not data.players[name] then
         	data.players[name] = {}
     	end
@@ -463,8 +452,6 @@ core.register_on_leaveplayer(function(player)
     	data.keyboard[name] = nil
 
     	data.players[name] = nil
-
-        data.physics_pool[name] = nil
 end)
 
 if mod.physics and core.get_game_info().title == "Mineclonia" then
