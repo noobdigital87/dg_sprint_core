@@ -361,9 +361,11 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			})
         	end
 
-        	if FOV > 0 and TRANSITION > 0 then
-			player:set_fov(old_fov + FOV, false, TRANSITION)
-        	end
+			if FOV > 0 and TRANSITION > 0 then
+				-- When starting sprint
+				player:set_fov(old_fov + FOV, false, TRANSITION)
+				data.states[name].fov_set_by_sprint = true
+			end
 
         	data.states[name].is_sprinting = true
 
@@ -389,8 +391,10 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 				gravity = 0,
 			})
 		end
-		if FOV > 0 and TRANSITION > 0 then
-			player:set_fov(old_fov, false, TRANSITION)
+		-- When stopping sprint
+		if data.states[name].fov_set_by_sprint then
+			player:set_fov(0, false, TRANSITION) -- This resets to default and allows other mods to set zoom
+			data.states[name].fov_set_by_sprint = nil
 		end
 
 		data.states[name].is_sprinting = false
@@ -471,7 +475,7 @@ elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
 	end)
 else
 	core.register_on_respawnplayer(function(player)
-		player:set_fov(old_fov, false, 0.6)
+		player:set_fov(old_fov, true, 0.6)
 	end)
 
 	core.register_on_leaveplayer(function(player)
