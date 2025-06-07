@@ -483,17 +483,27 @@ elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
 	end)
 else
 	core.register_on_respawnplayer(function(player)
+		local name = player:get_player_name()
 		player:set_fov(old_fov, true, 0.6)
-		if data.states[name].is_sprinting then
+		if data.states[name] and data.states[name].is_sprinting then
+			api.set_sprint("core", player, false)
 		end
 	end)
 
 	core.register_on_dieplayer(function(player)
+		local name = player:get_player_name()
 		player:set_fov(old_fov, true, 0.6)
+		if data.states[name] and data.states[name].is_sprinting then
+			api.set_sprint("core", player, false)
+		end
 	end)
 
 	core.register_on_leaveplayer(function(player)
+		local name = player:get_player_name()
 		player:set_fov(0, false)
+		if data.states[name] and data.states[name].is_sprinting then
+			api.set_sprint("core", player, false)
+		end
 	end)
 end
 
