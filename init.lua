@@ -99,13 +99,13 @@ local function prevent_detect(player)
 
 	if not player_is_moving(player) then return true end
 
-	if mod.hangglider and not physics_mod_is_installed() then
-		local wielded_item = player:get_wielded_item()
-
-		if player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider" then
-			return true
-		end
-	end
+	--if mod.hangglider and not physics_mod_is_installed() then
+	--	local wielded_item = player:get_wielded_item()
+	--
+	--	if player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider" then
+	--		return true
+	--	end
+	--end
 
 	if mod.armor and not physics_mod_is_installed() then
 		local wielded_item = player:get_wielded_item()
@@ -462,6 +462,10 @@ if mod.physics and core.get_game_info().title == "Mineclonia" then
 		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
 	end)
 
+	core.register_on_dieplayer(function(player)
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+	end)
+
 	core.register_on_leaveplayer(function(player)
 		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
 	end)
@@ -470,11 +474,21 @@ elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
 		mcl_fovapi.remove_modifier(player, "sprint")
 	end)
 
+	core.register_on_dieplayer(function(player)
+		mcl_fovapi.remove_modifier(player, "sprint")
+	end)
+
 	core.register_on_leaveplayer(function(player)
 		mcl_fovapi.remove_modifier(player, "sprint")
 	end)
 else
 	core.register_on_respawnplayer(function(player)
+		player:set_fov(old_fov, true, 0.6)
+		if data.states[name].is_sprinting then
+		end
+	end)
+
+	core.register_on_dieplayer(function(player)
 		player:set_fov(old_fov, true, 0.6)
 	end)
 
