@@ -183,3 +183,30 @@ minetest.register_chatcommand("dg_sprint_core.show_physics", {
         minetest.chat_send_player(name, "Current physics: speed="..override.speed..", jump="..override.jump..", gravity="..override.gravity)
     end,
 })
+
+minetest.register_chatcommand("dg_sprint_core.modify_physics", {
+    params = "delta_speed delta_jump delta_gravity",
+    description = "Modify your physics values by providing delta values (e.g., 0.5 0 0 to increase speed by 0.5).",
+    func = function(name, param)
+        local player = minetest.get_player_by_name(name)
+        if not player then
+            minetest.chat_send_player(name, "Player not found.")
+            return
+        end
+        local values = {}
+        for value in param:gmatch("%S+") do
+            table.insert(values, tonumber(value))
+        end
+        if #values == 3 then
+            local delta = {speed = values[1], jump = values[2], gravity = values[3]}
+            local result = physics_api.modify_physics(player, delta)
+            minetest.chat_send_player(
+                name,
+                "Physics modified! Δspeed="..delta.speed..", Δjump="..delta.jump..", Δgravity="..delta.gravity..
+                " | New: speed="..result.new_override.speed..", jump="..result.new_override.jump..", gravity="..result.new_override.gravity
+            )
+        else
+            minetest.chat_send_player(name, "Provide exactly 3 numeric delta values (delta_speed delta_jump delta_gravity).")
+        end
+    end,
+})
