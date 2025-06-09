@@ -130,7 +130,7 @@ end
 
 -- Example chat commands for testing custom suppression features:
 
-minetest.register_chatcommand("suppress", {
+minetest.register_chatcommand("dg_sprint_core.suppress", {
     params = "[speed jump gravity]",
     description = "Suppress physics. Optionally provide custom values.",
     func = function(name, param)
@@ -153,7 +153,7 @@ minetest.register_chatcommand("suppress", {
     end,
 })
 
-minetest.register_chatcommand("set_suppression", {
+minetest.register_chatcommand("dg_sprint_core.set_suppression", {
     params = "speed jump gravity",
     description = "Update custom suppression values for a suppressed player.",
     func = function(name, param)
@@ -172,7 +172,7 @@ minetest.register_chatcommand("set_suppression", {
     end,
 })
 
-minetest.register_chatcommand("restore", {
+minetest.register_chatcommand("dg_sprint_core.restore", {
     params = "",
     description = "Restore physics for a player.",
     func = function(name)
@@ -182,7 +182,7 @@ minetest.register_chatcommand("restore", {
     end,
 })
 
-minetest.register_chatcommand("physics_delta", {
+minetest.register_chatcommand("dg_sprint_core.physics_delta", {
     params = "speed jump gravity",
     description = "Apply a delta to your current physics settings.",
     func = function(name, param)
@@ -201,7 +201,7 @@ minetest.register_chatcommand("physics_delta", {
     end,
 })
 
-minetest.register_chatcommand("remove_delta", {
+minetest.register_chatcommand("dg_sprint_core.remove_delta", {
     params = "speed jump gravity",
     description = "Remove a delta from your current physics settings.",
     func = function(name, param)
@@ -220,7 +220,7 @@ minetest.register_chatcommand("remove_delta", {
     end,
 })
 
-minetest.register_chatcommand("reset_physics", {
+minetest.register_chatcommand("dg_sprint_core.reset_physics", {
     params = "",
     description = "Reset your physics settings to original values.",
     func = function(name)
@@ -230,7 +230,7 @@ minetest.register_chatcommand("reset_physics", {
     end,
 })
 
-minetest.register_chatcommand("show_physics", {
+minetest.register_chatcommand("dg_sprint_core.show_physics", {
     params = "",
     description = "Display your current physics override values.",
     func = function(name)
