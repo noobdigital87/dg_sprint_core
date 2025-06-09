@@ -1,4 +1,8 @@
+
+
+
 if core and type(core.modify_physics) == "function" then return end
+core.log("action", "Physics Loaded")
     -- core.modify_physics already exists
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
