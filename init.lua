@@ -100,12 +100,12 @@ local function prevent_detect(player)
 		return true
 	end
 
-	--if mod.armor and not physics_mod_is_installed() then
-	--	local wielded_item = player:get_wielded_item()
-	--	if is_3d_armor_item(wielded_item) then
-	--		return true
-	--	end
-	--end
+	if mod.armor and not physics_mod_is_installed() then
+		local wielded_item = player:get_wielded_item()
+		if is_3d_armor_item(wielded_item) then
+			return true
+		end
+	end
 	return false
 end
 
