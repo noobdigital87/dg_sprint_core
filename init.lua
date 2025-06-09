@@ -372,7 +372,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
-		elseif not mod.hangglider and type(core.modify_physics) == "function" then
+		elseif (mod.hangglider == false and mod.armor == false) and type(core.modify_physics) == "function" then 
             		local delta = {speed = -SPEED, jump = -JUMP}
             		local result = core.modify_physics(player, delta)
 		else
