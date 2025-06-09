@@ -18,7 +18,45 @@ local physics_api = dg_sprint_core.physics -- Alias for easier reference
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
 local suppressed_players = {} -- If a player is suppressed, this table holds their custom override values.
+local absolute_overrides = {}  -- Per-player backup for absolute override
 
+function physics_api.set_absolute_physics(player, override)
+    local name = player:get_player_name()
+    -- Backup current state if not already overridden
+    if not absolute_overrides[name] then
+        absolute_overrides[name] = {
+            stored = stored_physics[name],
+            deltas = applied_deltas[name],
+            suppressed = suppressed_players[name],
+            prev_override = player:get_physics_override()
+        }
+    end
+    player:set_physics_override(override)
+end
+
+function physics_api.remove_absolute_physics(player)
+    local name = player:get_player_name()
+    local backup = absolute_overrides[name]
+    if backup then
+        -- Restore suppression if it was active
+        if backup.suppressed then
+            suppressed_players[name] = backup.suppressed
+            player:set_physics_override(backup.suppressed)
+        elseif backup.stored then
+            -- Restore previous physics (including deltas)
+            stored_physics[name] = backup.stored
+            applied_deltas[name] = backup.deltas
+            local new_override = compute_new_override(name)
+            player:set_physics_override(new_override)
+        else
+            -- Fall back to previous override if nothing else
+            player:set_physics_override(backup.prev_override or {speed=1, jump=1, gravity=1})
+        end
+        absolute_overrides[name] = nil
+    else
+        minetest.log("info", "[PhysicsAPI] No absolute override to remove for player " .. name)
+    end
+end
 -- Initialize physics tracking for a player.
 function physics_api.init_physics_tracking(player)
     local name = player:get_player_name()
@@ -29,8 +67,10 @@ function physics_api.init_physics_tracking(player)
     end
 end
 
--- Computes the new physics override for a player.
 local function compute_new_override(name)
+    if absolute_overrides and absolute_overrides[name] then
+        return absolute_overrides[name].override
+    end
     if suppressed_players[name] then
         return suppressed_players[name]
     end
