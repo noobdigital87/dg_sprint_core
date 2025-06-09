@@ -59,24 +59,6 @@ function physics_api.modify_physics(player, delta)
     return { delta = delta, new_override = new_override }
 end
 
--- Removes a specific physics delta for a player.
-function physics_api.remove_physics_delta(player, delta)
-    local name = player:get_player_name()
-    if not applied_deltas[name] then return end
-
-    delta.speed   = delta.speed   or 0
-    delta.jump    = delta.jump    or 0
-    delta.gravity = delta.gravity or 0
-
-    applied_deltas[name].speed   = applied_deltas[name].speed   - delta.speed
-    applied_deltas[name].jump    = applied_deltas[name].jump    - delta.jump
-    applied_deltas[name].gravity = applied_deltas[name].gravity - delta.gravity
-
-    local new_override = compute_new_override(name)
-    player:set_physics_override(new_override)
-    return { delta = delta, new_override = new_override }
-end
-
 -- Resets a player's physics to the original stored values.
 function physics_api.reset_physics(player)
     local name = player:get_player_name()
@@ -179,44 +161,6 @@ minetest.register_chatcommand("dg_sprint_core.restore", {
         local player = minetest.get_player_by_name(name)
         physics_api.restore_physics(player)
         minetest.chat_send_player(name, "Physics restored!")
-    end,
-})
-
-minetest.register_chatcommand("dg_sprint_core.physics_delta", {
-    params = "speed jump gravity",
-    description = "Apply a delta to your current physics settings.",
-    func = function(name, param)
-        local player = minetest.get_player_by_name(name)
-        local values = {}
-        for value in param:gmatch("%S+") do
-            table.insert(values, tonumber(value))
-        end
-        if #values == 3 then
-            local delta = {speed = values[1], jump = values[2], gravity = values[3]}
-            local result = physics_api.modify_physics(player, delta)
-            minetest.chat_send_player(name, "Physics delta applied! New override: speed="..result.new_override.speed..", jump="..result.new_override.jump..", gravity="..result.new_override.gravity)
-        else
-            minetest.chat_send_player(name, "Provide exactly 3 numeric values.")
-        end
-    end,
-})
-
-minetest.register_chatcommand("dg_sprint_core.remove_delta", {
-    params = "speed jump gravity",
-    description = "Remove a delta from your current physics settings.",
-    func = function(name, param)
-        local player = minetest.get_player_by_name(name)
-        local values = {}
-        for value in param:gmatch("%S+") do
-            table.insert(values, tonumber(value))
-        end
-        if #values == 3 then
-            local delta = {speed = values[1], jump = values[2], gravity = values[3]}
-            local result = physics_api.remove_physics_delta(player, delta)
-            minetest.chat_send_player(name, "Physics delta removed! New override: speed="..result.new_override.speed..", jump="..result.new_override.jump..", gravity="..result.new_override.gravity)
-        else
-            minetest.chat_send_player(name, "Provide exactly 3 numeric values.")
-        end
     end,
 })
 
