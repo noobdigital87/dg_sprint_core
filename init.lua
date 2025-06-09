@@ -6,7 +6,7 @@ local mod_name = core.get_current_modname()
 
 dofile(core.get_modpath(mod_name) .. "/physics_api.lua")
 
-local physics_api = dg_sprint_core.physics
+local my_physics_api = dg_sprint_core.physics
 
 local old_fov = core.settings:get("fov") or 72
 
@@ -342,7 +342,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.do_override(player) -- luacheck: ignore
 		else
             local delta = {speed = SPEED, jump = JUMP}
-            local result = physics_api.modify_physics(player, delta)
+            local result = my_physics_api.modify_physics(player, delta)
 		end
 
 		if FOV > 0 and TRANSITION > 0 then
@@ -370,7 +370,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.do_override(player)-- luacheck: ignore
 		else
             local delta = {speed = -SPEED, jump = -JUMP}
-            local result = physics_api.modify_physics(player, delta)
+            local result = my_physics_api.modify_physics(player, delta)
 		end
 		-- When stopping sprint
 		if data.states[name].fov_set_by_sprint then
