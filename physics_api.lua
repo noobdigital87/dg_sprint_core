@@ -1,4 +1,4 @@
-physics_api = {
+dg_sprint_core.physics = {
     _identifier = "shared_physics_api", -- Unique identifier for detection
     -- Global default suppression values (used if no custom override is provided)
     default_suppressed = {speed = 1, jump = 1, gravity = 1},
@@ -7,13 +7,13 @@ physics_api = {
 -- Check if another mod has already registered the shared API
 for key, value in pairs(_G) do
     if type(value) == "table" and value._identifier == "shared_physics_api" then
-        physics_api = value
+        dg_sprint_core.physics = value
         minetest.log("warning", "[PhysicsAPI] Another mod has already registered a shared physics API under '" .. key .. "'. Using that instance.")
         break
     end
 end
 
-_G.physics_api = physics_api
+local physics_api = dg_sprint_core.physics -- Alias for easier reference
 
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
@@ -30,8 +30,6 @@ function physics_api.init_physics_tracking(player)
 end
 
 -- Computes the new physics override for a player.
--- If the player is suppressed, returns that player's custom suppression override.
--- Otherwise, it returns the computed values based on the stored physics and applied deltas.
 local function compute_new_override(name)
     if suppressed_players[name] then
         return suppressed_players[name]
@@ -44,7 +42,6 @@ local function compute_new_override(name)
 end
 
 -- Modifies physics values with delta tracking.
--- This function adds the given deltas to the player's stored physics values.
 function physics_api.modify_physics(player, delta)
     local name = player:get_player_name()
     physics_api.init_physics_tracking(player)
@@ -98,8 +95,6 @@ function physics_api.reset_physics(player)
 end
 
 -- Suppresses a player's physics.
--- Accepts an optional override table (with fields speed, jump, gravity) specific for that player.
--- If no override is provided, it uses the global default (physics_api.default_suppressed).
 function physics_api.suppress_physics(player, override)
     local name = player:get_player_name()
     local suppress_override = override
@@ -110,9 +105,7 @@ function physics_api.suppress_physics(player, override)
     player:set_physics_override(suppress_override)
 end
 
--- **Encapsulated function to set custom suppression values per player.**
--- This function lets a modder update the suppressed physics values for a specific, already suppressed,
--- player. The override must be a table containing speed, jump, and gravity.
+-- Sets custom suppression values per player.
 function physics_api.set_player_suppression_values(player, override)
     local name = player:get_player_name()
     if suppressed_players[name] then
@@ -135,11 +128,8 @@ function physics_api.restore_physics(player)
     player:set_physics_override(new_override)
 end
 
--- Register the API globally
-_G.physics_api = physics_api
-
 -- Example chat commands for testing custom suppression features:
---[[
+
 minetest.register_chatcommand("suppress", {
     params = "[speed jump gravity]",
     description = "Suppress physics. Optionally provide custom values.",
@@ -191,4 +181,3 @@ minetest.register_chatcommand("restore", {
         minetest.chat_send_player(name, "Physics restored!")
     end,
 })
-]]
