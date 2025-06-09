@@ -527,3 +527,7 @@ api.tools.node_is_walkable = function(player, altPos)
 end
 
 dg_sprint_core = api -- luacheck: ignore
+
+local mod_name = core.get_current_modname()
+
+dofile(core.get_modpath(mod_name) .. /physics.api.lua)
