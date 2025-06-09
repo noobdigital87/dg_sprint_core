@@ -181,3 +181,61 @@ minetest.register_chatcommand("restore", {
         minetest.chat_send_player(name, "Physics restored!")
     end,
 })
+
+minetest.register_chatcommand("physics_delta", {
+    params = "speed jump gravity",
+    description = "Apply a delta to your current physics settings.",
+    func = function(name, param)
+        local player = minetest.get_player_by_name(name)
+        local values = {}
+        for value in param:gmatch("%S+") do
+            table.insert(values, tonumber(value))
+        end
+        if #values == 3 then
+            local delta = {speed = values[1], jump = values[2], gravity = values[3]}
+            local result = physics_api.modify_physics(player, delta)
+            minetest.chat_send_player(name, "Physics delta applied! New override: speed="..result.new_override.speed..", jump="..result.new_override.jump..", gravity="..result.new_override.gravity)
+        else
+            minetest.chat_send_player(name, "Provide exactly 3 numeric values.")
+        end
+    end,
+})
+
+minetest.register_chatcommand("remove_delta", {
+    params = "speed jump gravity",
+    description = "Remove a delta from your current physics settings.",
+    func = function(name, param)
+        local player = minetest.get_player_by_name(name)
+        local values = {}
+        for value in param:gmatch("%S+") do
+            table.insert(values, tonumber(value))
+        end
+        if #values == 3 then
+            local delta = {speed = values[1], jump = values[2], gravity = values[3]}
+            local result = physics_api.remove_physics_delta(player, delta)
+            minetest.chat_send_player(name, "Physics delta removed! New override: speed="..result.new_override.speed..", jump="..result.new_override.jump..", gravity="..result.new_override.gravity)
+        else
+            minetest.chat_send_player(name, "Provide exactly 3 numeric values.")
+        end
+    end,
+})
+
+minetest.register_chatcommand("reset_physics", {
+    params = "",
+    description = "Reset your physics settings to original values.",
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        local reset = physics_api.reset_physics(player)
+        minetest.chat_send_player(name, "Physics reset! speed="..reset.speed..", jump="..reset.jump..", gravity="..reset.gravity)
+    end,
+})
+
+minetest.register_chatcommand("show_physics", {
+    params = "",
+    description = "Display your current physics override values.",
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        local override = player:get_physics_override()
+        minetest.chat_send_player(name, "Current physics: speed="..override.speed..", jump="..override.jump..", gravity="..override.gravity)
+    end,
+})
