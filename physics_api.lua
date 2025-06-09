@@ -110,6 +110,7 @@ function physics_api.restore_physics(player)
     player:set_physics_override(new_override)
 end
 
+
 -- Example chat commands for testing custom suppression features:
 
 minetest.register_chatcommand("dg_sprint_core.suppress", {
@@ -210,3 +211,4 @@ minetest.register_chatcommand("dg_sprint_core.modify_physics", {
         end
     end,
 })
+
