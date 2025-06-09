@@ -1,17 +1,7 @@
-dg_sprint_core.physics = {
-    _identifier = "shared_physics_api", -- Unique identifier for detection
-    -- Global default suppression values (used if no custom override is provided)
+_G.general_physics_api = _G.general_physics_api or {
+    _identifier = "shared_physics_api",
     default_suppressed = {speed = 1, jump = 1, gravity = 1},
 }
-
--- Check if another mod has already registered the shared API
-for key, value in pairs(_G) do
-    if type(value) == "table" and value._identifier == "shared_physics_api" then
-        dg_sprint_core.physics = value
-        minetest.log("warning", "[PhysicsAPI] Another mod has already registered a shared physics API under '" .. key .. "'. Using that instance.")
-        break
-    end
-end
 
 local physics_api = dg_sprint_core.physics -- Alias for easier reference
 
