@@ -1,14 +1,12 @@
+if core and type(core.modify_physics) == "function" then return end
 
-if core and type(core.shared_physics.modify_physics) == "function" then return end
-
-core.shared_physics = {}
-    -- core.modify_physics already exists
+-- core.modify_physics already exists
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
 local suppressed_players = {} -- If a player is suppressed, this table holds their custom override values.
 
 -- Initialize physics tracking for a player.
-function core.shared_physics.init_physics_tracking(player)
+function init_physics_tracking(player)
     local name = player:get_player_name()
     if not stored_physics[name] then
         local def = player:get_physics_override()
@@ -29,9 +27,9 @@ local function compute_new_override(name)
 end
 
 -- Modifies physics values with delta tracking.
-function core.shared_physics.modify_physics(player, delta)
+function core.modify_physics(player, delta)
     local name = player:get_player_name()
-    core.init_physics_tracking(player)
+    init_physics_tracking(player)
 
     delta.speed   = delta.speed   or 0
     delta.jump    = delta.jump    or 0
@@ -47,7 +45,7 @@ function core.shared_physics.modify_physics(player, delta)
 end
 
 -- Suppresses a player's physics.
-function core.shared_physics.suppress_physics(player, override)
+function core.suppress_physics(player, override)
     local name = player:get_player_name()
     local suppress_override = override
     if not suppress_override or type(suppress_override) ~= "table" then
@@ -58,7 +56,7 @@ function core.shared_physics.suppress_physics(player, override)
 end
 
 -- Restores a player's physics by removing any suppression.
-function core.shared_physics.restore_physics(player)
+function core.restore_physics(player)
     local name = player:get_player_name()
     suppressed_players[name] = nil
     local new_override = compute_new_override(name)
