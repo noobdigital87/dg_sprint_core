@@ -338,9 +338,15 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
 			pova.do_override(player) -- luacheck: ignore
+		elseif not mod.hangglider and type(core.modify_physics) == "function" then 
+            		local delta = {speed = SPEED, jump = JUMP}
+            		local result = core.modify_physics(player, delta)
 		else
-            local delta = {speed = SPEED, jump = JUMP}
-            local result = core.modify_physics(player, delta)
+			add_physics(player, {
+				speed = SPEED,
+				jump = JUMP,
+				gravity = 0,
+			})
 		end
 
 		if FOV > 0 and TRANSITION > 0 then
@@ -366,9 +372,15 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
+		elseif not mod.hangglider and type(core.modify_physics) == "function" then
+            		local delta = {speed = -SPEED, jump = -JUMP}
+            		local result = core.modify_physics(player, delta)
 		else
-            local delta = {speed = -SPEED, jump = -JUMP}
-            local result = core.modify_physics(player, delta)
+			add_physics(player, {
+				speed = SPEED,
+				jump = JUMP,
+				gravity = 0,
+			})
 		end
 		-- When stopping sprint
 		if data.states[name].fov_set_by_sprint then
