@@ -1,5 +1,13 @@
 local api = {}
 
+dg_sprint_core = api -- luacheck: ignore
+
+local mod_name = core.get_current_modname()
+
+dofile(core.get_modpath(mod_name) .. "/physics_api.lua")
+
+local physics_api = dg_sprint_core.physics
+
 local old_fov = core.settings:get("fov") or 72
 
 local mod = {
@@ -19,6 +27,7 @@ local data = {
 	players = {},
 	states = {},
 }
+
 
 --[[-----------------------------------------------------------------------------------------------------------
 	HELPER FUNCTIONS
@@ -332,11 +341,8 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
 			pova.do_override(player) -- luacheck: ignore
 		else
-			add_physics(player, {
-				speed = SPEED,
-				jump = JUMP,
-				gravity = 0,
-			})
+            local delta = {speed = SPEED, jump = JUMP}
+            local result = physics_api.modify_physics(player, delta)
 		end
 
 		if FOV > 0 and TRANSITION > 0 then
@@ -363,11 +369,8 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
 		else
-			remove_physics(player, {
-				speed = SPEED,
-				jump = JUMP,
-				gravity = 0,
-			})
+            local delta = {speed = -SPEED, jump = -JUMP}
+            local result = physics_api.modify_physics(player, delta)
 		end
 		-- When stopping sprint
 		if data.states[name].fov_set_by_sprint then
@@ -525,9 +528,3 @@ api.tools.node_is_walkable = function(player, altPos)
 	end
 	return false
 end
-
-dg_sprint_core = api -- luacheck: ignore
-
-local mod_name = core.get_current_modname()
-
-dofile(core.get_modpath(mod_name) .. "/physics_api.lua")
