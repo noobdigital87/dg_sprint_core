@@ -3,7 +3,7 @@ _G.general_physics_api = _G.general_physics_api or {
     default_suppressed = {speed = 1, jump = 1, gravity = 1},
 }
 
-local physics_api = dg_sprint_core.physics -- Alias for easier reference
+local physics_api = _G.general_physics_api
 
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
