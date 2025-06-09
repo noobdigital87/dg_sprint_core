@@ -152,7 +152,7 @@ end
 
 
 -- Example chat commands for testing custom suppression features:
-
+--[[
 minetest.register_chatcommand("dg_sprint_core.suppress", {
     params = "[speed jump gravity]",
     description = "Suppress physics. Optionally provide custom values.",
@@ -252,3 +252,4 @@ minetest.register_chatcommand("dg_sprint_core.modify_physics", {
     end,
 })
 
+]]
