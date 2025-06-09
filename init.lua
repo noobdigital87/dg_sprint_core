@@ -71,6 +71,8 @@ local function physics_mod_is_installed()
 	return false
 end
 
+local use_special_physics = not mod.armor and not mod.hangglider and core.modify_physic and type(core.modify_physics) == "function"
+
 local function player_is_moving(player)
 
 	local controls = player:get_player_control()
@@ -338,7 +340,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
 			pova.do_override(player) -- luacheck: ignore
-		elseif (mod.hangglider == false and mod.armor == false) and type(core.modify_physics) == "function" then 
+		elseif use_special_physics then
             		local delta = {speed = SPEED, jump = JUMP}
             		local result = core.modify_physics(player, delta)
 		else
@@ -372,11 +374,11 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
-		elseif (mod.hangglider == false and mod.armor == false) and type(core.modify_physics) == "function" then 
-            		local delta = {speed = -SPEED, jump = -JUMP}
-            		local result = core.modify_physics(player, delta)
+		elseif use_special_physics then
+			local delta = {speed = -SPEED, jump = -JUMP}
+			local result = core.modify_physics(player, delta)
 		else
-			add_physics(player, {
+			remove_physics(player, {
 				speed = SPEED,
 				jump = JUMP,
 				gravity = 0,
