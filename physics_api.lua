@@ -1,3 +1,7 @@
+if core and not type(core.modify_physics) == "function" then
+    -- core.modify_physics already exists
+
+
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
 local suppressed_players = {} -- If a player is suppressed, this table holds their custom override values.
@@ -132,7 +136,7 @@ function core.restore_physics(player)
     local new_override = compute_new_override(name)
     player:set_physics_override(new_override)
 end
-
+end
 -- Example chat commands for testing custom suppression features:
 --[[
 minetest.register_chatcommand("dg_sprint_core.suppress", {
