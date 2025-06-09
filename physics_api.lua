@@ -139,7 +139,7 @@ end
 _G.physics_api = physics_api
 
 -- Example chat commands for testing custom suppression features:
-
+--[[
 minetest.register_chatcommand("suppress", {
     params = "[speed jump gravity]",
     description = "Suppress physics. Optionally provide custom values.",
@@ -191,3 +191,4 @@ minetest.register_chatcommand("restore", {
         minetest.chat_send_player(name, "Physics restored!")
     end,
 })
+]]
