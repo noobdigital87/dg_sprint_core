@@ -7,7 +7,7 @@ local mod = {
 	pova = core.get_modpath("pova") and core.global_exists("pova"),
 	monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
 	physics = core.get_modpath("playerphysics") and core.global_exists("playerphysics"),
-	armor = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def,
+	armor = core.get_modpath("3d_armor") and core.global_exists("armor"),
 	hangglider = core.get_modpath("hangglider"),
 }
 
@@ -25,27 +25,25 @@ local data = {
 ]]
 
 local function get_node_definition(player, altPos)
-	local playerName = player:get_player_name()
-    	local position = player:get_pos()
-    	local nodeBelow = core.get_node_or_nil(position)
-
-    	if nodeBelow then
+	local position = altPos or player:get_pos()
+	local nodeBelow = core.get_node_or_nil(position)
+	if nodeBelow then
 		local nodeDefinition = core.registered_nodes[nodeBelow.name]
-      		if nodeDefinition then
-        		return nodeDefinition
-      		end
-    	end
-
+		if nodeDefinition then
+			return nodeDefinition
+		end
+	end
 	return nil
 end
 
+
 local function init_data()
-    	return {
-        	detected = false,
-        	last_tap_time = 0,
-        	is_holding = false,
-        	aux_pressed = false,
-    	}
+	return {
+		detected = false,
+		last_tap_time = 0,
+		is_holding = false,
+		aux_pressed = false,
+	}
 end
 
 local function player_is_gliding(player)
@@ -67,26 +65,25 @@ local function physics_mod_is_installed()
 end
 
 local function player_is_moving(player)
-	local p_pos = player:get_pos()
 
 	local controls = player:get_player_control()
 
-    	local is_moving = controls.up or controls.down or controls.left or controls.right
+	local is_moving = controls.up or controls.down or controls.left or controls.right
 
-    	local velocity = player:get_velocity()
+	local velocity = player:get_velocity()
 
-    	velocity.y = 0
+	velocity.y = 0
 
-    	local horizontal_speed = vector.length(velocity)
+	local horizontal_speed = vector.length(velocity)
 	local has_velocity = horizontal_speed > 0.05
 
-	local is_moving = true
+	local is_the_player_moving = true
 
-    	if not (is_moving and has_velocity) then
-		is_moving = false
+	if not (is_moving and has_velocity) then
+		is_the_player_moving = false
 	end
 
-	return is_moving
+	return is_the_player_moving
 end
 
 local function is_3d_armor_item(itemstack)
@@ -95,24 +92,20 @@ local function is_3d_armor_item(itemstack)
 end
 
 local function prevent_detect(player)
-	if player:get_attach() then return true end
+	if player:get_attach() then
+		return true
+	end
 
-	if not player_is_moving(player) then return true end
+	if not player_is_moving(player) then
+		return true
+	end
 
-	--if mod.hangglider and not physics_mod_is_installed() then
+	--if mod.armor and not physics_mod_is_installed() then
 	--	local wielded_item = player:get_wielded_item()
-	--
-	--	if player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider" then
+	--	if is_3d_armor_item(wielded_item) then
 	--		return true
 	--	end
 	--end
-
-	if mod.armor and not physics_mod_is_installed() then
-		local wielded_item = player:get_wielded_item()
-		if is_3d_armor_item(wielded_item) then
-			return true
-		end
-	end
 	return false
 end
 
@@ -159,19 +152,15 @@ local function ground_particles(player)
 	})
 end
 
+--[[----------------------------------------------------------------------------------------------------------]]
 
-
---[[-----------------------------------------------------------------------------------------------------------
---[[-----------------------------------------------------------------------------------------------------------
-    	[API_NR = 201]
-]]
 api.register_server_step = function(mod_name, step_name, step_interval, step_callback)
 	if not data.server_steps[mod_name] then
 		data.server_steps[mod_name] = {}
 	end
 
 	if data.server_steps[mod_name][step_name] then
-        	error("Step with name '" .. step_name .. "' already exists for mod '" .. mod_name .. "'.")
+		error("Step with name '" .. step_name .. "' already exists for mod '" .. mod_name .. "'.")
 	end
 
 	data.server_steps[mod_name][step_name] = {
@@ -182,8 +171,8 @@ api.register_server_step = function(mod_name, step_name, step_interval, step_cal
 end
 
 core.register_globalstep(function(dtime)
-	for mod, steps in pairs(data.server_steps) do
-		for step_name, tick in pairs(steps) do
+	for mods, steps in pairs(data.server_steps) do -- luacheck: ignore mods
+		for step_name, tick in pairs(steps) do  -- luacheck: ignore step_name
 			tick.elapsed = tick.elapsed + dtime
 			if tick.elapsed >= tick.interval then
 				for _, player in ipairs(core.get_connected_players()) do
@@ -191,7 +180,7 @@ core.register_globalstep(function(dtime)
 					if data.players[name] then
 						local player_data = data.players[name]
 						tick.callback(player, player_data, dtime)
-						tick.elapsed = tick.elapsed - tick.interval -- Reset elapsed time.
+						tick.elapsed = tick.elapsed - tick.interval
 					end
 				end
 			end
@@ -200,24 +189,18 @@ core.register_globalstep(function(dtime)
 end)
 
 
---[[-----------------------------------------------------------------------------------------------------------
---[[-----------------------------------------------------------------------------------------------------------
-    	API [API_NR = 202]
-]]
+--[[----------------------------------------------------------------------------------------------------------]]
+
 api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, interval)
 	local name = player:get_player_name()
 
 	local k_data = data.keyboard[name]
-	local control = player:get_player_control()
 	local control_bit = player:get_player_control_bits()
 	local current_time_us = core.get_us_time() / 1e6
 	local cancel_active = false
 
-	if data.cancel_reasons[name] then
-		for reason, _ in pairs(data.cancel_reasons[name]) do
-			cancel_active = true
-			break
-		end
+	if data.cancel_reasons[name] and next(data.cancel_reasons[name]) then
+		cancel_active = true
 	end
 
 	if cancel_active or prevent_detect(player) then
@@ -242,7 +225,7 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
 			end
 			k_data.last_tap_time = current_time_us
 			k_data.is_holding = true
-        	end
+		end
 		k_data.aux_pressed = false
 	elseif control_bit == 0 or control_bit == 32 then
 		k_data.detected = false
@@ -252,10 +235,9 @@ api.sprint_key_detected = function(player, enable_aux1, enable_double_tap, inter
 
 	return k_data.detected
 end
---[[-----------------------------------------------------------------------------------------------------------
---[[-----------------------------------------------------------------------------------------------------------
-    	API [API_NR = 203]
-]]
+
+--[[----------------------------------------------------------------------------------------------------------]]
+
 api.set_sprint_cancel = function(player, enabled, reason)
 	local name = player:get_player_name()
 
@@ -270,10 +252,7 @@ api.set_sprint_cancel = function(player, enabled, reason)
 	end
 end
 
---[[-----------------------------------------------------------------------------------------------------------
---[[-----------------------------------------------------------------------------------------------------------
-	API [API_NR = 207]
-]]
+--[[-----------------------------------------------------------------------------------------------------------]]
 
 local add_physics = function(player, overrides)
 
@@ -312,78 +291,77 @@ local remove_physics = function(player, overrides)
 	})
 end
 
---[[-----------------------------------------------------------------------------------------------------------
-	API [API_NR = 204]
-]]
+--[[----------------------------------------------------------------------------------------------------------]]
+
 api.set_sprint = function(modname, player, sprinting, override_table )
 	override_table = override_table or {}
 
-    	local name = player:get_player_name()
-    	if not data.states[name] then
-        	data.states[name] = {}
-    	end
+	local name = player:get_player_name()
+	if not data.states[name] then
+		data.states[name] = {}
+	end
 
-    	local SPEED = override_table.speed or 0
-    	local JUMP = override_table.jump or 0
-    	local PARTICLES = override_table.particles or false
-    	local MCL_SPEED = override_table.mcl_speed or 0
-    	local FOV = override_table.fov or 0
-    	local TRANSITION = override_table.transition or 0
+	local SPEED = override_table.speed or 0
+	local JUMP = override_table.jump or 0
+	local PARTICLES = override_table.particles or false
+	local MCL_SPEED = override_table.mcl_speed or 0
+	local FOV = override_table.fov or 0
+	local TRANSITION = override_table.transition or 0
 
-    	if core.get_game_info().title == "Mineclonia" or core.get_game_info().title == "VoxeLibre" then
-        	if MCL_SPEED <= 0 then
-            		MCL_SPEED = mcl_sprint.SPEED
-        	end
-    	end
+	if core.get_game_info().title == "Mineclonia" or core.get_game_info().title == "VoxeLibre" then
+		if MCL_SPEED <= 0 then
+			MCL_SPEED = mcl_sprint.SPEED -- luacheck: ignore
+		end
+	end
 
-    	if sprinting == true and not data.states[name].is_sprinting then
-        	if mod.physics and core.get_game_info().title == "Mineclonia" then
-            		playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
-            		playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1)
+	if sprinting == true and not data.states[name].is_sprinting then
+		if mod.physics and core.get_game_info().title == "Mineclonia" then
+			playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED) -- luacheck: ignore
+			playerphysics.add_physics_factor(player, "fov", "mcl_sprint:sprint", 1.1) -- luacheck: ignore
 
-        	elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
-            		playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED)
-            		mcl_fovapi.apply_modifier(player, "sprint")
+		elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
+			playerphysics.add_physics_factor(player, "speed", "mcl_sprint:sprint", MCL_SPEED) -- luacheck: ignore
+			mcl_fovapi.apply_modifier(player, "sprint") -- luacheck: ignore mcl_fovapi
 
-        	elseif mod.monoids then
+		elseif mod.monoids then
 			local def = player:get_physics_override()
-            		data.states[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED)
-            		data.states[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP )
+			data.states[name].sprint = player_monoids.speed:add_change(player, def.speed + SPEED) -- luacheck: ignore
+			data.states[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP ) -- luacheck: ignore
 
-        	elseif mod.pova then
-            		pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP })
-            		pova.do_override(player)
-        	else
-            		add_physics(player, {
+		elseif mod.pova then
+			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
+			pova.do_override(player) -- luacheck: ignore
+		else
+			add_physics(player, {
 				speed = SPEED,
 				jump = JUMP,
 				gravity = 0,
 			})
-        	end
+		end
 
-			if FOV > 0 and TRANSITION > 0 then
-				-- When starting sprint
-				player:set_fov(old_fov + FOV, false, TRANSITION)
-				data.states[name].fov_set_by_sprint = true
-			end
+		if FOV > 0 and TRANSITION > 0 then
+			-- When starting sprint
+			player:set_fov(old_fov + FOV, false, TRANSITION)
+			data.states[name].fov_set_by_sprint = true
+		end
 
-        	data.states[name].is_sprinting = true
+		data.states[name].is_sprinting = true
 
-    	elseif sprinting == false and data.states[name].is_sprinting then
-        	if mod.physics and core.get_game_info().title == "Mineclonia" then
-            		playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
-            		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+	elseif sprinting == false and data.states[name].is_sprinting then
+		if mod.physics and core.get_game_info().title == "Mineclonia" then
+			playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")-- luacheck: ignore
+			playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")-- luacheck: ignore
 
 		elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
-        	    	playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")
-			mcl_fovapi.remove_modifier(player, "sprint")
+			playerphysics.remove_physics_factor(player, "speed", "mcl_sprint:sprint")-- luacheck: ignore
+			mcl_fovapi.remove_modifier(player, "sprint")-- luacheck: ignore
 
 		elseif mod.monoids then
-			player_monoids.speed:del_change(player, data.states[name].sprint)
-			player_monoids.jump:del_change(player, data.states[name].jump)
+			player_monoids.speed:del_change(player, data.states[name].sprint)-- luacheck: ignore
+			player_monoids.jump:del_change(player, data.states[name].jump)-- luacheck: ignore
 		elseif mod.pova then
-			pova.del_override(name, modname ..":sprint")
-			pova.do_override(player)
+			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
+			pova.do_override(player)-- luacheck: ignore
 		else
 			remove_physics(player, {
 				speed = SPEED,
@@ -393,7 +371,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		end
 		-- When stopping sprint
 		if data.states[name].fov_set_by_sprint then
-			player:set_fov(0, false, TRANSITION) -- This resets to default and allows other mods to set zoom
+			player:set_fov(0, false, TRANSITION)
 			data.states[name].fov_set_by_sprint = nil
 		end
 
@@ -411,80 +389,85 @@ end
 	API [API_NR = 205]
 ]]
 api.is_player_sprinting = function(player)
-    	local name = player:get_player_name()
-    	if not data.states[name] then return false end
-    	return data.states[name].is_sprinting or false
+	local name = player:get_player_name()
+	if not data.states[name] then
+		return false
+	end
+	return data.states[name].is_sprinting or false
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
 	API [API_NR = 206]
 ]]
 api.is_player_draining = function(player)
-    	local name = player:get_player_name()
-    	if api.is_player_sprinting(player) then
-        	if mod.hangglider then
-            		if player_is_gliding(player) then
-                		return false
-            		end
-        	end
-        	return true
-    	end
-   	return false
+	if api.is_player_sprinting(player) then
+		if mod.hangglider then
+			if player_is_gliding(player) then
+				return false
+			end
+		end
+		return true
+	end
+	return false
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
 	CREATE/CLEAR DATA/STATES WHEN PLAYER LEAVES/JOINS
 ]]
 core.register_on_joinplayer(function(player)
-	if not player then return end
-    	local name = player:get_player_name()
+	if not player then
+		return
+	end
+	local name = player:get_player_name()
 
         if not data.keyboard[name] then
-        	data.keyboard[name] = init_data(player)
-    	end
+		data.keyboard[name] = init_data(player)
+	end
 
-        if not data.players[name] then
-        	data.players[name] = {}
-    	end
+	if not data.players[name] then
+		data.players[name] = {}
+	end
 end)
 
 core.register_on_leaveplayer(function(player)
-	if not player then return end
-    	local name = player:get_player_name()
+	if not player then
+		return
+	end
+	local name = player:get_player_name()
 
-    	data.keyboard[name] = nil
+	data.keyboard[name] = nil
 
-    	data.players[name] = nil
+	data.players[name] = nil
 end)
 
 if mod.physics and core.get_game_info().title == "Mineclonia" then
 	core.register_on_respawnplayer(function(player)
-		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")-- luacheck: ignore
 	end)
 
 	core.register_on_dieplayer(function(player)
-		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")-- luacheck: ignore
 	end)
 
 	core.register_on_leaveplayer(function(player)
-		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")
+		playerphysics.remove_physics_factor(player, "fov", "mcl_sprint:sprint")-- luacheck: ignore
 	end)
 elseif mod.physics and core.get_game_info().title == "VoxeLibre" then
 	core.register_on_respawnplayer(function(player)
-		mcl_fovapi.remove_modifier(player, "sprint")
+		mcl_fovapi.remove_modifier(player, "sprint")-- luacheck: ignore
 	end)
 
 	core.register_on_dieplayer(function(player)
-		mcl_fovapi.remove_modifier(player, "sprint")
+		mcl_fovapi.remove_modifier(player, "sprint")-- luacheck: ignore
 	end)
 
 	core.register_on_leaveplayer(function(player)
-		mcl_fovapi.remove_modifier(player, "sprint")
+		mcl_fovapi.remove_modifier(player, "sprint")-- luacheck: ignore
 	end)
 else
 	core.register_on_respawnplayer(function(player)
 		local name = player:get_player_name()
-		player:set_fov(old_fov, true, 0.6)
+		player:set_fov(0, false)
 		if data.states[name] and data.states[name].is_sprinting then
 			api.set_sprint("core", player, false)
 		end
@@ -492,7 +475,7 @@ else
 
 	core.register_on_dieplayer(function(player)
 		local name = player:get_player_name()
-		player:set_fov(old_fov, true, 0.6)
+		player:set_fov(0, false)
 		if data.states[name] and data.states[name].is_sprinting then
 			api.set_sprint("core", player, false)
 		end
@@ -543,4 +526,4 @@ api.tools.node_is_walkable = function(player, altPos)
 	return false
 end
 
-dg_sprint_core = api
+dg_sprint_core = api -- luacheck: ignore
