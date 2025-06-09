@@ -1,16 +1,9 @@
-_G.general_physics_api = _G.general_physics_api or {
-    _identifier = "shared_physics_api",
-    default_suppressed = {speed = 1, jump = 1, gravity = 1},
-}
-
-local physics_api = _G.general_physics_api
-
 local stored_physics = {}     -- Will store each player's original physics values.
 local applied_deltas = {}     -- Tracks applied delta changes per player.
 local suppressed_players = {} -- If a player is suppressed, this table holds their custom override values.
 local absolute_overrides = {}  -- Per-player backup for absolute override
 
-function physics_api.set_absolute_physics(player, override)
+function core.set_absolute_physics(player, override)
     local name = player:get_player_name()
     -- Backup current state if not already overridden
     if not absolute_overrides[name] then
@@ -24,7 +17,7 @@ function physics_api.set_absolute_physics(player, override)
     player:set_physics_override(override)
 end
 
-function physics_api.remove_absolute_physics(player)
+function core.remove_absolute_physics(player)
     local name = player:get_player_name()
     local backup = absolute_overrides[name]
     if backup then
@@ -48,7 +41,7 @@ function physics_api.remove_absolute_physics(player)
     end
 end
 -- Initialize physics tracking for a player.
-function physics_api.init_physics_tracking(player)
+function core.init_physics_tracking(player)
     local name = player:get_player_name()
     if not stored_physics[name] then
         local def = player:get_physics_override()
@@ -72,10 +65,10 @@ local function compute_new_override(name)
 end
 
 -- Modifies physics values with delta tracking.
-function physics_api.modify_physics(player, delta)
+function core.modify_physics(player, delta)
     local name = player:get_player_name()
-    physics_api.init_physics_tracking(player)
-    
+    core.init_physics_tracking(player)
+
     delta.speed   = delta.speed   or 0
     delta.jump    = delta.jump    or 0
     delta.gravity = delta.gravity or 0
@@ -90,7 +83,7 @@ function physics_api.modify_physics(player, delta)
 end
 
 -- Resets a player's physics to the original stored values.
-function physics_api.reset_physics(player)
+function core.reset_physics(player)
     local name = player:get_player_name()
     local reset_values = {}
     if stored_physics[name] then
@@ -107,18 +100,18 @@ function physics_api.reset_physics(player)
 end
 
 -- Suppresses a player's physics.
-function physics_api.suppress_physics(player, override)
+function core.suppress_physics(player, override)
     local name = player:get_player_name()
     local suppress_override = override
     if not suppress_override or type(suppress_override) ~= "table" then
-        suppress_override = physics_api.default_suppressed
+        suppress_override = core.default_suppressed
     end
     suppressed_players[name] = suppress_override
     player:set_physics_override(suppress_override)
 end
 
 -- Sets custom suppression values per player.
-function physics_api.set_player_suppression_values(player, override)
+function core.set_player_suppression_values(player, override)
     local name = player:get_player_name()
     if suppressed_players[name] then
         if override and type(override) == "table" then
@@ -128,18 +121,17 @@ function physics_api.set_player_suppression_values(player, override)
             minetest.log("warning", "[PhysicsAPI] Invalid override provided to set_player_suppression_values for player " .. name)
         end
     else
-        minetest.log("info", "[PhysicsAPI] Player " .. name .. " is not suppressed. Use physics_api.suppress_physics() first.")
+        minetest.log("info", "[PhysicsAPI] Player " .. name .. " is not suppressed. Use core.suppress_physics() first.")
     end
 end
 
 -- Restores a player's physics by removing any suppression.
-function physics_api.restore_physics(player)
+function core.restore_physics(player)
     local name = player:get_player_name()
     suppressed_players[name] = nil
     local new_override = compute_new_override(name)
     player:set_physics_override(new_override)
 end
-
 
 -- Example chat commands for testing custom suppression features:
 --[[
@@ -161,7 +153,7 @@ minetest.register_chatcommand("dg_sprint_core.suppress", {
                 return
             end
         end
-        physics_api.suppress_physics(player, override)
+        core.suppress_physics(player, override)
         minetest.chat_send_player(name, "Physics suppressed!")
     end,
 })
@@ -177,7 +169,7 @@ minetest.register_chatcommand("dg_sprint_core.set_suppression", {
         end
         if #values == 3 then
             local override = {speed = values[1], jump = values[2], gravity = values[3]}
-            physics_api.set_player_suppression_values(player, override)
+            core.set_player_suppression_values(player, override)
             minetest.chat_send_player(name, "Suppression override updated!")
         else
             minetest.chat_send_player(name, "Provide exactly 3 numeric values.")
@@ -190,7 +182,7 @@ minetest.register_chatcommand("dg_sprint_core.restore", {
     description = "Restore physics for a player.",
     func = function(name)
         local player = minetest.get_player_by_name(name)
-        physics_api.restore_physics(player)
+        core.restore_physics(player)
         minetest.chat_send_player(name, "Physics restored!")
     end,
 })
@@ -200,7 +192,7 @@ minetest.register_chatcommand("dg_sprint_core.reset_physics", {
     description = "Reset your physics settings to original values.",
     func = function(name)
         local player = minetest.get_player_by_name(name)
-        local reset = physics_api.reset_physics(player)
+        local reset = core.reset_physics(player)
         minetest.chat_send_player(name, "Physics reset! speed="..reset.speed..", jump="..reset.jump..", gravity="..reset.gravity)
     end,
 })
@@ -230,7 +222,7 @@ minetest.register_chatcommand("dg_sprint_core.modify_physics", {
         end
         if #values == 3 then
             local delta = {speed = values[1], jump = values[2], gravity = values[3]}
-            local result = physics_api.modify_physics(player, delta)
+            local result = core.modify_physics(player, delta)
             minetest.chat_send_player(
                 name,
                 "Physics modified! Δspeed="..delta.speed..", Δjump="..delta.jump..", Δgravity="..delta.gravity..
