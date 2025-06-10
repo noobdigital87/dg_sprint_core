@@ -1,36 +1,33 @@
 local api = {}
 
+-- Init global
 dg_sprint_core = api -- luacheck: ignore
-
+-- Get modname
 local mod_name = core.get_current_modname()
-
-dofile(core.get_modpath(mod_name) .. "/physics_api.lua")
-
+-- Load shared physics.
+-- When no shared physics is found then this mod will be the host
+--dofile(core.get_modpath(mod_name) .. "/physics_api.lua")
+--local use_special_physics = not mod.hangglider and core.modify_physics and type(core.modify_physics) == "function" and not physics_mod_is_installed()
 local old_fov = core.settings:get("fov") or 72
-
+-- Check for installed mods
 local mod = {
-
 	pova = core.get_modpath("pova") and core.global_exists("pova"),
 	monoids = core.get_modpath("player_monoids") and core.global_exists("player_monoids"),
 	physics = core.get_modpath("playerphysics") and core.global_exists("playerphysics"),
 	armor = core.get_modpath("3d_armor") and core.global_exists("armor"),
 	hangglider = core.get_modpath("hangglider"),
+	forked_glider = rawget(_G, "hangglider") ~= nil and type(rawget(hangglider, "is_gliding")) == "function",
 }
-
+-- Check if no physics mod is used
+local no_physics_mods = not mod.pova and not mod.monoid and not mod.physics
 local data = {
-
 	keyboard = {},
 	cancel_reasons = {},
 	server_steps = {},
 	players = {},
 	states = {},
 }
-
-
---[[-----------------------------------------------------------------------------------------------------------
-	HELPER FUNCTIONS
-]]
-
+--[[-----------------------------------------------------------------------------------------------------------]]--
 local function get_node_definition(player, altPos)
 	local position = altPos or player:get_pos()
 	local nodeBelow = core.get_node_or_nil(position)
@@ -43,7 +40,6 @@ local function get_node_definition(player, altPos)
 	return nil
 end
 
-
 local function init_data()
 	return {
 		detected = false,
@@ -54,44 +50,35 @@ local function init_data()
 end
 
 local function player_is_gliding(player)
-	local children = player:get_children()
-	for _, child in ipairs(children) do
-		local properties = child:get_properties()
-		if properties.mesh == "hangglider.obj" then
-			return true
+	if mod.hangglider and not mod.forked_glider then
+		local children = player:get_children()
+		for _, child in ipairs(children) do
+			local properties = child:get_properties()
+			if properties.mesh == "hangglider.obj" then
+				return true
+			end
 		end
+	elseif mod.hangglider and mod.forked_glider then
+		return hangglider.is_gliding(player)
 	end
 	return false
 end
 
-local function physics_mod_is_installed()
-	if mod.pova or mod.monoids or mod.physics then
-		return true
-	end
-	return false
-end
-
-local use_special_physics = not mod.hangglider and core.modify_physics and type(core.modify_physics) == "function" and not physics_mod_is_installed()
 
 local function player_is_moving(player)
 
 	local controls = player:get_player_control()
-
 	local is_moving = controls.up or controls.down or controls.left or controls.right
-
 	local velocity = player:get_velocity()
 
 	velocity.y = 0
 
 	local horizontal_speed = vector.length(velocity)
 	local has_velocity = horizontal_speed > 0.05
-
 	local is_the_player_moving = true
-
 	if not (is_moving and has_velocity) then
 		is_the_player_moving = false
 	end
-
 	return is_the_player_moving
 end
 
@@ -100,26 +87,20 @@ local function is_3d_armor_item(itemstack)
     return item_name:match("^3d_armor:") ~= nil
 end
 
-local forked_glider = rawget(_G, "hangglider") ~= nil
-    and type(rawget(hangglider, "is_gliding")) == "function"
-
 local function prevent_detect(player)
 	if player:get_attach() then
 		return true
 	end
-
 	if not player_is_moving(player) then
 		return true
 	end
-
-	if not forked_glider and not physics_mod_is_installed() then
+	if mod.hangglider and not mod.forked_glider and no_physics_mods then
 		local wielded_item = player:get_wielded_item()
-		if (player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider") and not physics_mod_is_installed() then
+		if (player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider") and no_physics_mods then
 			return true
 		end
 	end
-
-	if mod.armor and not physics_mod_is_installed() then
+	if mod.armor and no_physics_mods then
 		local wielded_item = player:get_wielded_item()
 		if is_3d_armor_item(wielded_item) then
 			return true
@@ -128,20 +109,13 @@ local function prevent_detect(player)
 	return false
 end
 
-
 local function get_darkened_texture_from_node(pos, darkness)
 	local node = core.get_node_or_nil({x = pos.x, y = pos.y - 1, z = pos.z})
-
 	if not node then return "[fill:2x16:0,0:#8B4513" end
-
 	local def = core.registered_nodes[node.name]
-
 	if not def or not def.tiles or not def.tiles[1] then return "[fill:2x16:0,0:#8B4513" end
-
 	local base_texture = def.tiles[1]
-
 	if type(base_texture) == "table" then return "smoke_puff.png" end
-
 	return base_texture .. "^[colorize:#000000:" .. tostring(darkness or 80)
 end
 
@@ -177,11 +151,9 @@ api.register_server_step = function(mod_name, step_name, step_interval, step_cal
 	if not data.server_steps[mod_name] then
 		data.server_steps[mod_name] = {}
 	end
-
 	if data.server_steps[mod_name][step_name] then
 		error("Step with name '" .. step_name .. "' already exists for mod '" .. mod_name .. "'.")
 	end
-
 	data.server_steps[mod_name][step_name] = {
 		interval = step_interval,
 		elapsed = 0,
@@ -283,8 +255,6 @@ local add_physics = function(player, overrides)
 
 	local def = player:get_physics_override()
 
-	if not def then return end
-
 	player:set_physics_override({
 		speed = def.speed + SPEED,
 		jump = def.jump + JUMP,
@@ -300,8 +270,6 @@ local remove_physics = function(player, overrides)
 	local GRAVITY = overrides.gravity or 0
 
 	local def = player:get_physics_override()
-
-	if not def then return end
 
 	player:set_physics_override({
 		speed = def.speed - SPEED,
@@ -350,9 +318,9 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
 			pova.do_override(player) -- luacheck: ignore
-		elseif use_special_physics then
-            		local delta = {speed = SPEED, jump = JUMP}
-            		local result = core.modify_physics(player, delta)
+		--elseif use_special_physics then
+            		--local delta = {speed = SPEED, jump = JUMP}
+            		--local result = core.modify_physics(player, delta)
 		else
 			add_physics(player, {
 				speed = SPEED,
@@ -384,9 +352,9 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
-		elseif use_special_physics then
-			local delta = {speed = -SPEED, jump = -JUMP}
-			local result = core.modify_physics(player, delta)
+		--elseif use_special_physics then
+			--local delta = {speed = -SPEED, jump = -JUMP}
+			--local result = core.modify_physics(player, delta)
 		else
 			remove_physics(player, {
 				speed = SPEED,
