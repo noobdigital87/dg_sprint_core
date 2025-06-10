@@ -71,7 +71,7 @@ local function physics_mod_is_installed()
 	return false
 end
 
-local use_special_physics = mod.hangglider and core.modify_physics and type(core.modify_physics) == "function" and not physics_mod_is_installed()
+local use_special_physics = not mod.hangglider and core.modify_physics and type(core.modify_physics) == "function" and not physics_mod_is_installed()
 
 local function player_is_moving(player)
 
@@ -100,6 +100,9 @@ local function is_3d_armor_item(itemstack)
     return item_name:match("^3d_armor:") ~= nil
 end
 
+local forked_glider = rawget(_G, "hangglider") ~= nil
+    and type(rawget(hangglider, "is_gliding")) == "function"
+
 local function prevent_detect(player)
 	if player:get_attach() then
 		return true
@@ -108,13 +111,16 @@ local function prevent_detect(player)
 	if not player_is_moving(player) then
 		return true
 	end
-	local wielded_item = player:get_wielded_item()
-	if not use_special_physics then
+
+	if not forked_glider and not physics_mod_is_installed() then
+		local wielded_item = player:get_wielded_item()
 		if (player_is_gliding(player) or wielded_item:get_name() == "hangglider:hangglider") and not physics_mod_is_installed() then
 			return true
 		end
 	end
+
 	if mod.armor and not physics_mod_is_installed() then
+		local wielded_item = player:get_wielded_item()
 		if is_3d_armor_item(wielded_item) then
 			return true
 		end
