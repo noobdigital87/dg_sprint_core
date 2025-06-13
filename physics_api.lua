@@ -1,36 +1,37 @@
--- stored_physics and applied_deltas hold original physics and cumulative delta modifications.
-local stored_physics = {}
-local applied_deltas = {}
+if core and type(core.modify_physics) == "function" then return end
 
--- suppressed_players now holds a list (stack) of overrides per player:
-local suppressed_players = {}
+-- Store each player's base/original physics values.
+local base_physics = {}
+
+-- Tracks cumulative delta adjustments for each player.
+local cumulative_deltas = {}
+
+-- Each player's active override contributions (as a stack of effect entries).
+local active_overrides = {}
 
 -- Initialize physics tracking for a player.
-local function init_physics_tracking(player)
+function init_physics_tracking(player)
     local name = player:get_player_name()
-    if not stored_physics[name] then
+    if not base_physics[name] then
         local def = player:get_physics_override()
-        stored_physics[name] = { speed = def.speed, jump = def.jump, gravity = def.gravity }
-        applied_deltas[name] = { speed = 0, jump = 0, gravity = 0 }
+        base_physics[name] = { speed = def.speed, jump = def.jump, gravity = def.gravity }
+        cumulative_deltas[name] = { speed = 0, jump = 0, gravity = 0 }
     end
 end
 
--- Computes the composite override using a weighted average strategy.
+-- Composite calculation: blending base physics, delta adjustments, and active overrides.
 local function compute_composite_override(name)
-    -- Start with the base physics (original + any applied deltas)
-    local base = stored_physics[name]
-    local deltas = applied_deltas[name]
+    local base = base_physics[name]
+    local deltas = cumulative_deltas[name]
     local composite = {
         speed   = base.speed   + deltas.speed,
         jump    = base.jump    + deltas.jump,
         gravity = base.gravity + deltas.gravity,
     }
-
-    -- If there are active overrides, accumulate them.
-    if suppressed_players[name] and #suppressed_players[name] > 0 then
+    if active_overrides[name] and #active_overrides[name] > 0 then
         local sum = { speed = 0, jump = 0, gravity = 0 }
         local totalWeight = { speed = 0, jump = 0, gravity = 0 }
-        for _, entry in ipairs(suppressed_players[name]) do
+        for _, entry in ipairs(active_overrides[name]) do
             local over = entry.override
             local weight = entry.weight or 1
             if over.speed then
@@ -46,8 +47,6 @@ local function compute_composite_override(name)
                 totalWeight.gravity = totalWeight.gravity + weight
             end
         end
-
-        -- Add contributions from each active override.
         if totalWeight.speed > 0 then
             composite.speed = composite.speed + (sum.speed / totalWeight.speed)
         end
@@ -58,60 +57,49 @@ local function compute_composite_override(name)
             composite.gravity = composite.gravity + (sum.gravity / totalWeight.gravity)
         end
     end
-
     return composite
 end
 
--- Applies delta changes; note that this function doesn’t deal with suppression directly.
+-- Modifies physics using delta adjustments.
 function core.modify_physics(player, delta)
     local name = player:get_player_name()
     init_physics_tracking(player)
-
     delta.speed   = delta.speed   or 0
     delta.jump    = delta.jump    or 0
     delta.gravity = delta.gravity or 0
-
-    applied_deltas[name].speed   = applied_deltas[name].speed   + delta.speed
-    applied_deltas[name].jump    = applied_deltas[name].jump    + delta.jump
-    applied_deltas[name].gravity = applied_deltas[name].gravity + delta.gravity
-
+    cumulative_deltas[name].speed   = cumulative_deltas[name].speed   + delta.speed
+    cumulative_deltas[name].jump    = cumulative_deltas[name].jump    + delta.jump
+    cumulative_deltas[name].gravity = cumulative_deltas[name].gravity + delta.gravity
     local new_override = compute_composite_override(name)
     player:set_physics_override(new_override)
     return { delta = delta, new_override = new_override }
 end
 
--- Adds a new composite override from a mod. Each override should include its modID and optionally, a weight.
-function core.suppress_physics(player, override, modID, weight)
+-- Applies a new override contribution from a mod.
+function core.apply_override(player, override, modID, weight)
     local name = player:get_player_name()
     init_physics_tracking(player)
-
     if type(override) ~= "table" then
         override = core.default_suppressed
     end
-
-    if not suppressed_players[name] then
-        suppressed_players[name] = {}
+    if not active_overrides[name] then
+        active_overrides[name] = {}
     end
-
-    table.insert(suppressed_players[name], { id = modID, override = override, weight = weight or 1 })
-
-    -- Recompute and apply the composite override.
+    table.insert(active_overrides[name], { id = modID, override = override, weight = weight or 1 })
     local new_override = compute_composite_override(name)
     player:set_physics_override(new_override)
 end
 
--- Removes a specific mod's override.
-function core.restore_physics(player, modID)
+-- Removes a specific override contribution.
+function core.remove_override(player, modID)
     local name = player:get_player_name()
-    if not suppressed_players[name] then return end
-
-    for i = #suppressed_players[name], 1, -1 do
-        if suppressed_players[name][i].id == modID then
-            table.remove(suppressed_players[name], i)
+    if not active_overrides[name] then return end
+    for i = #active_overrides[name], 1, -1 do
+        if active_overrides[name][i].id == modID then
+            table.remove(active_overrides[name], i)
             break
         end
     end
-
     local new_override = compute_composite_override(name)
     player:set_physics_override(new_override)
 end
