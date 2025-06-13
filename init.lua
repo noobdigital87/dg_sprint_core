@@ -14,6 +14,7 @@ local mod = {
 	armor = core.get_modpath("3d_armor") and core.global_exists("armor"),
 	hangglider = core.get_modpath("hangglider"),
 	forked_glider = rawget(_G, "hangglider") ~= nil and type(rawget(hangglider, "is_gliding")) == "function",
+	player_physics = type(core.modify_physics) == "function",
 }
 -- Check if no physics mod is used
 local no_physics_mods = not mod.pova and not mod.monoid and not mod.physics
@@ -25,8 +26,10 @@ local data = {
 	players = {},
 	states = {},
 }
---[[-----------------------------------------------------------------------------------------------------------]]--
 
+
+--[[-----------------------------------------------------------------------------------------------------------]]--
+if not mod.player_physics then
 -- Store each player's base/original physics values.
 local base_physics = {}
 
@@ -130,7 +133,7 @@ function core.remove_override(player, modID)
     local new_override = compute_composite_override(name)
     player:set_physics_override(new_override)
 end
-
+end
 local function get_node_definition(player, altPos)
 	local position = altPos or player:get_pos()
 	local nodeBelow = core.get_node_or_nil(position)
