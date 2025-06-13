@@ -1,5 +1,10 @@
-if core and type(core.modify_physics) == "function" then return end
+dg_sprint_core.player_physics = false
 
+if core and type(core.modify_physics) == "function" then
+    return dg_sprint_core.player_physics = true
+end
+
+--[[
 -- Store each player's base/original physics values.
 local base_physics = {}
 
@@ -103,3 +108,4 @@ function core.remove_override(player, modID)
     local new_override = compute_composite_override(name)
     player:set_physics_override(new_override)
 end
+]]
