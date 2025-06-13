@@ -1,13 +1,17 @@
 local api = {}
 
 -- Init global
+api.player_physics = false
+
 dg_sprint_core = api -- luacheck: ignore
+
+if core and type(core.modify_physics) == "function" then
+    return api.player_physics = true
+end
+
 -- Get modname
 local mod_name = core.get_current_modname()
--- Load shared physics.
--- When no shared physics is found then this mod will be the host
---dofile(core.get_modpath(mod_name) .. "/physics_api.lua")
---local use_special_physics = not mod.hangglider and core.modify_physics and type(core.modify_physics) == "function" and not physics_mod_is_installed()
+
 local old_fov = core.settings:get("fov") or 72
 -- Check for installed mods
 local mod = {
@@ -318,9 +322,8 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
 			pova.do_override(player) -- luacheck: ignore
-		--elseif use_special_physics then
-            		--local delta = {speed = SPEED, jump = JUMP}
-            		--local result = core.modify_physics(player, delta)
+		elseif api.player_physics then
+			core.apply_override(player, { speed = SPEED, jump = JUMP }, "dg_sprint_core:sprint", 1)
 		else
 			add_physics(player, {
 				speed = SPEED,
@@ -352,9 +355,8 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 		elseif mod.pova then
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
-		--elseif use_special_physics then
-			--local delta = {speed = -SPEED, jump = -JUMP}
-			--local result = core.modify_physics(player, delta)
+		elseif api.player_physics then
+			core.remove_override(player, "dg_sprint_core:sprint")
 		else
 			remove_physics(player, {
 				speed = SPEED,
