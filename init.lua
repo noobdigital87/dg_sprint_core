@@ -18,12 +18,11 @@ local mod = {
 	
 }
 
-local function player_is_flying_aerial()
-	if mod.aerial then
-		if aerial.flight then
-    			local flight = aerial.flight[player:get_player_name()]
+local function is_flying_aerial(player)
+	if aerial.flight then
+    		local flight = aerial.flight[player:get_player_name()]
     			if flight and flight.state == 2 then -- 2 == Flight.FLYING
-        			-- The player is flying!
+        			return true
     			end
 		end
 	end
@@ -331,13 +330,11 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.add_override(name, modname .. ":sprint", { speed = SPEED, jump = JUMP }) -- luacheck: ignore
 			pova.do_override(player) -- luacheck: ignore
 		else
-			core.apply_override(player, { speed = SPEED, jump = JUMP }, "dg_sprint_core:sprint", 1)
-		--else
-			--add_physics(player, {
-				--speed = SPEED,
-				--jump = JUMP,
-				--gravity = 0,
-			--})
+			add_physics(player, {
+				speed = SPEED,
+				jump = JUMP,
+				gravity = 0,
+			})
 		end
 
 		if FOV > 0 and TRANSITION > 0 then
@@ -364,13 +361,11 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 			pova.del_override(name, modname ..":sprint")-- luacheck: ignore
 			pova.do_override(player)-- luacheck: ignore
 		else
-			core.remove_override(player, "dg_sprint_core:sprint")
-		--else
-		--	remove_physics(player, {
-		--		speed = SPEED,
-		--		jump = JUMP,
-		--		gravity = 0,
-		--	})
+			remove_physics(player, {
+				speed = SPEED,
+				jump = JUMP,
+				gravity = 0,
+			})
 		end
 		-- When stopping sprint
 		if data.states[name].fov_set_by_sprint then
@@ -403,15 +398,21 @@ end
 	API [API_NR = 206]
 ]]
 api.is_player_draining = function(player)
-	if api.is_player_sprinting(player) then
+	if not api.is_player_sprinting(player) then
+		return false
+	else
 		if mod.hangglider then
 			if player_is_gliding(player) then
 				return false
 			end
 		end
-		return true
+		if mod.aerial then
+			if is_flying_aerial(player) then
+				return false
+			end
+		end
 	end
-	return false
+	return true
 end
 
 --[[-----------------------------------------------------------------------------------------------------------
