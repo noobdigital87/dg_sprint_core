@@ -21,10 +21,9 @@ local mod = {
 local function is_flying_aerial(player)
 	if aerial.flight then
     		local flight = aerial.flight[player:get_player_name()]
-    			if flight and flight.state == 2 then -- 2 == Flight.FLYING
-        			return true
-    			end
-		end
+    		if flight and flight.state == 2 then -- 2 == Flight.FLYING
+        		return true
+    		end
 	end
 	return false
 end
