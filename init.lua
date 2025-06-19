@@ -28,7 +28,7 @@ local function is_flying_aerial(player)
 	return false
 end
 -- Check if no physics mod is used
-local no_physics_mods = not mod.pova and not mod.monoid and not mod.physics
+local no_physics_mods = not mod.pova and not mod.monoids and not mod.physics
 
 local data = {
 	keyboard = {},
