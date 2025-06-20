@@ -322,7 +322,7 @@ api.set_sprint = function(modname, player, sprinting, override_table )
 
 		elseif mod.monoids then
 			local def = player:get_physics_override()
-			data.states[name].sprint = player_monoids.speed:add_change(player, SPEED) -- luacheck: ignore
+			data.states[name].sprint = player_monoids.speed:add_change(player, 1 + SPEED) -- luacheck: ignore
 			data.states[name].jump = player_monoids.jump:add_change(player, def.jump + JUMP ) -- luacheck: ignore
 
 		elseif mod.pova then
